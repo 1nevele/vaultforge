@@ -4,7 +4,7 @@
 - [x] T0002: Inspect upstream Superpowers README, native Hermes manifest/hook and supported install command at an immutable revision.
 - [ ] T0003: Review pinned tooling through the supported integration path. Respect scanner results and do not force blocked installation. Personal installation outcomes are not retained as current evidence.
 - [x] T0004: Write project constitution, workflow specification and technical plan before application logic.
-- [ ] T0005: Publish private documentation baseline and read back exact GitHub visibility/revision (AS-004).
+- [ ] T0005: Verify the exact authorized publication target, visibility and new revision (AS-004). Publication history was privacy-sanitized; earlier revision and file-hash readbacks are superseded and are not proof of current repository state. Fresh verification is required before publication.
 - [ ] T0006: Review scanner findings and obtain separately scoped explicit authority for any exceptional tooling action (AS-002).
 - [ ] T0007: Validate native plugin registration, namespaced skill loading and benign workflow smoke check. Record whether a new session is needed; do not restart gateway automatically.
 - [ ] T0008: Decide whether a full local Spec Kit CLI integration is useful beyond repository conventions; pin/verify it if installed.
