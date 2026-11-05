@@ -12,6 +12,8 @@ Requirements → spec review → implementation plan → dependency-ordered task
 - First slice: [specs/000-development-workflow/spec.md](specs/000-development-workflow/spec.md).
 - Plan and task status: [plan](specs/000-development-workflow/plan.md), [tasks](specs/000-development-workflow/tasks.md).
 - Development tools and limitations: [docs/development-workflow.md](docs/development-workflow.md).
+- Tooling decision: [one spec-driven workflow](docs/decisions/0001-development-workflow.md).
+- Engine evaluation: [RAPTOR first, Strix comparator](docs/decisions/0002-raptor-first-evaluation.md).
 - Implementation guidance: [AGENTS.md](AGENTS.md).
 
 Jev remains the bounded selector; CDMs are advisory evidence transformations. RAPTOR is the first tool-engine candidate to evaluate, not a selected or validated backend. Strix remains an alternative. Neither engine owns mission state or authorization.
