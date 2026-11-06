@@ -1,6 +1,9 @@
 # Vaultforge
 
-Host's private monorepo for projects, shared agent workflows and specifications.
+A monorepo for projects, shared agent workflows and specifications.
+
+Original Vaultforge material is licensed under Apache-2.0; see [LICENSE](LICENSE).
+Bundled upstream assets retain their [own licenses](tools/README.md).
 
 ## Development ownership
 
@@ -8,6 +11,7 @@ Host's private monorepo for projects, shared agent workflows and specifications.
 
 - [Claude entry point](CLAUDE.md) and [monorepo rules](AGENTS.md).
 - [Development workflow](docs/development-workflow.md).
+- [PR review, CI and licensing policy](docs/code-review.md).
 - [Monorepo setup specification](specs/000-vaultforge-workflow/spec.md).
 - [Claude-web handoff](docs/claude-web-handoff.md).
 - [Required real-session skill smoke check](docs/claude-web-skill-smoke.md).
