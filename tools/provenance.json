@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "surface": "Claude Code web ordinary repository session",
+  "cloud_session_tested": false,
+  "plugins_enabled": false,
+  "superpowers": {
+    "repository": "obra/superpowers",
+    "commit": "22f0b463e7a5e579904dd6211a520321035526f7",
+    "version": "7.0.2",
+    "distribution": "native-project-skill-subset",
+    "skills": [
+      "receiving-code-review",
+      "requesting-code-review",
+      "systematic-debugging",
+      "test-driven-development",
+      "verification-before-completion"
+    ],
+    "namespace_mapping": {
+      "superpowers:receiving-code-review": "receiving-code-review",
+      "superpowers:requesting-code-review": "requesting-code-review",
+      "superpowers:systematic-debugging": "systematic-debugging",
+      "superpowers:test-driven-development": "test-driven-development",
+      "superpowers:verification-before-completion": "verification-before-completion"
+    },
+    "files": [
+      {
+        "path": ".claude/skills/receiving-code-review/SKILL.md",
+        "upstream_path": "skills/receiving-code-review/SKILL.md",
+        "upstream_sha256": "091df1629510af1b92fc4abd6f96732ebedb4cb2c0f3457e8f2740b0504a2438",
+        "sha256": "091df1629510af1b92fc4abd6f96732ebedb4cb2c0f3457e8f2740b0504a2438",
+        "adaptations": []
+      },
+      {
+        "path": ".claude/skills/requesting-code-review/SKILL.md",
+        "upstream_path": "skills/requesting-code-review/SKILL.md",
+        "upstream_sha256": "2180e14a448e9410bec88e6646a2d1f0ce7fdd58de27388c1e052e929679d2bc",
+        "sha256": "2ac239f00e3dea029e17e54bc53bf31f271121a8d5070b9f4280f9cb1393e31c",
+        "adaptations": [
+          {
+            "replace": "docs/superpowers/plans/deployment-plan.md",
+            "with": "specs/<NNN>-<project>-<feature>/plan.md",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "path": ".claude/skills/requesting-code-review/code-reviewer.md",
+        "upstream_path": "skills/requesting-code-review/code-reviewer.md",
+        "upstream_sha256": "82e370be6b3447523816286195571e4216ba56ba1ad6ad0e87862294c4c78dcb",
+        "sha256": "82e370be6b3447523816286195571e4216ba56ba1ad6ad0e87862294c4c78dcb",
+        "adaptations": []
+      },
+      {
+        "path": ".claude/skills/systematic-debugging/SKILL.md",
+        "upstream_path": "skills/systematic-debugging/SKILL.md",
+        "upstream_sha256": "51c6435d98c83c42c96ba7c35725a0b2c376cd487fb1a4e6bd0ddbe7e33ef202",
+        "sha256": "4ca000d04d7c5ded8e20f9389a1ec637e3808223b8b48f9958299c3ac014444f",
+        "adaptations": [
+          {
+            "replace": "superpowers:test-driven-development",
+            "with": "test-driven-development",
+            "count": 1
+          },
+          {
+            "replace": "superpowers:verification-before-completion",
+            "with": "verification-before-completion",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "path": ".claude/skills/systematic-debugging/condition-based-waiting-example.ts",
+        "upstream_path": "skills/systematic-debugging/condition-based-waiting-example.ts",
+        "upstream_sha256": "40ae5ebe497fdf310200e43fe986552546d0a22837c0d39e855db1cfd33eb88e",
+        "sha256": "40ae5ebe497fdf310200e43fe986552546d0a22837c0d39e855db1cfd33eb88e",
+        "adaptations": []
+      },
+      {
+        "path": ".claude/skills/systematic-debugging/condition-based-waiting.md",
+        "upstream_path": "skills/systematic-debugging/condition-based-waiting.md",
+        "upstream_sha256": "e89fec8400d6cd50f43407cec9fab50976ba4d55d0ec2eb51c0bd68036b54c26",
+        "sha256": "e89fec8400d6cd50f43407cec9fab50976ba4d55d0ec2eb51c0bd68036b54c26",
+        "adaptations": []
+      },
+      {
+        "path": ".claude/skills/systematic-debugging/defense-in-depth.md",
+        "upstream_path": "skills/systematic-debugging/defense-in-depth.md",
+        "upstream_sha256": "1e175fb86fc357e58c6aebf5441e481e1b7868b4380c0456b63a17eefbd18ba7",
+        "sha256": "1e175fb86fc357e58c6aebf5441e481e1b7868b4380c0456b63a17eefbd18ba7",
+        "adaptations": []
+      },
+      {
+        "path": ".claude/skills/systematic-debugging/find-polluter.sh",
+        "upstream_path": "skills/systematic-debugging/find-polluter.sh",
+        "upstream_sha256": "dd7b8f13c4cc2a24b33ff87b18da9248f3e1c80a085c3316224f69ff0fa5c43c",
+        "sha256": "dd7b8f13c4cc2a24b33ff87b18da9248f3e1c80a085c3316224f69ff0fa5c43c",
+        "adaptations": []
+      },
+      {
+        "path": ".claude/skills/systematic-debugging/root-cause-tracing.md",
+        "upstream_path": "skills/systematic-debugging/root-cause-tracing.md",
+        "upstream_sha256": "75b933b6a8c40bdb2031b10f21654395b56ec6ab6bc7b018c18d3fe57aeb7fb8",
+        "sha256": "75b933b6a8c40bdb2031b10f21654395b56ec6ab6bc7b018c18d3fe57aeb7fb8",
+        "adaptations": []
+      },
+      {
+        "path": ".claude/skills/test-driven-development/SKILL.md",
+        "upstream_path": "skills/test-driven-development/SKILL.md",
+        "upstream_sha256": "64b03fce4aee5a97a93160cea8111f3ba13a17b7c001db4bd5836d67fd10705d",
+        "sha256": "64b03fce4aee5a97a93160cea8111f3ba13a17b7c001db4bd5836d67fd10705d",
+        "adaptations": []
+      },
+      {
+        "path": ".claude/skills/test-driven-development/writing-good-tests.md",
+        "upstream_path": "skills/test-driven-development/writing-good-tests.md",
+        "upstream_sha256": "51471c853306ff92ca8bb41dcaea05f31c0e46b03651f8f3c99754b7172f4ae1",
+        "sha256": "2653174367290a06a4eb2372d5a885fa179eee2661ea4481ef7940313fe1dd29",
+        "adaptations": [
+          {
+            "replace": "agent's behavior (superpowers:writing-skills); prose for humans earns no\ntest at all.",
+            "with": "agent's behavior; use the repository's cloud skill smoke check here.\nThe upstream skill-authoring workflow is not included in this subset.\nProse for humans earns no test at all.",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "path": ".claude/skills/verification-before-completion/SKILL.md",
+        "upstream_path": "skills/verification-before-completion/SKILL.md",
+        "upstream_sha256": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3",
+        "sha256": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3",
+        "adaptations": []
+      }
+    ]
+  },
+  "spec_kit": {
+    "repository": "github/spec-kit",
+    "commit": "99d10403a2681981be98bd372fa412045180d105",
+    "generator_version": "1.3.2.dev0",
+    "integration": "claude",
+    "integration_options": "--events false",
+    "files": [
+      {
+        "path": ".claude/skills/speckit-analyze/SKILL.md",
+        "sha256": "3237cd827194efaf6bb06ba05ef9bc1a703a223d362f5e34d0558c5a38ae34d0"
+      },
+      {
+        "path": ".claude/skills/speckit-checklist/SKILL.md",
+        "sha256": "5dc436df0c727e9078bf182dd385e5cb1b60ee67ebe644d3f659ec12e3b78abb"
+      },
+      {
+        "path": ".claude/skills/speckit-clarify/SKILL.md",
+        "sha256": "164f49ef87cb2e922585316f5281b455a8e1940b1efd25317d517a567acae472"
+      },
+      {
+        "path": ".claude/skills/speckit-constitution/SKILL.md",
+        "sha256": "60c27f3962e78edf204b2b2e7cba91a616980860b61d6bf2051dc6965d483dda"
+      },
+      {
+        "path": ".claude/skills/speckit-converge/SKILL.md",
+        "sha256": "9f93c1d573592f146670202210128ed24a9d75c92133951b19a2bb0e34eac13b"
+      },
+      {
+        "path": ".claude/skills/speckit-implement/SKILL.md",
+        "sha256": "7186d59488f89dcf23abd17baed118b05c242d4f62f1de3f9f44625a2b1728f0"
+      },
+      {
+        "path": ".claude/skills/speckit-plan/SKILL.md",
+        "sha256": "9e97fc0b4ce895c70a1ea720dc0377618c23e27c83ecf4d87b6e0f6c323790a4"
+      },
+      {
+        "path": ".claude/skills/speckit-specify/SKILL.md",
+        "sha256": "044bfaa8d053f1bb4006f318fdf691fabf7da71e1f0ec4908527d5c8eddc61d5"
+      },
+      {
+        "path": ".claude/skills/speckit-tasks/SKILL.md",
+        "sha256": "d148aeda1011260c4465c5f105fa1e045a0b0224ccb3e6e0c1ec32c732cae1ae"
+      },
+      {
+        "path": ".specify/.gitignore",
+        "sha256": "0a61c5378b0bb2e0f85babff99c8b166f2170a2c12378cd17d929aa19296ec88"
+      },
+      {
+        "path": ".specify/init-options.json",
+        "sha256": "199b3674eb752be2aaac81c7173f06f7c31cef4701baec6f3354f43191441ac6"
+      },
+      {
+        "path": ".specify/integration.json",
+        "sha256": "bab845df4387bc84ef2819214a113e56286a2649bf683b43d6c04af420b4bc14"
+      },
+      {
+        "path": ".specify/integrations/claude.manifest.json",
+        "sha256": "3812898c528d82adb3cf03cbad16a311a4486f4d285af423a703db354e11ee7a"
+      },
+      {
+        "path": ".specify/integrations/speckit.manifest.json",
+        "sha256": "090df604c07b1c9d04514b95fa8955402b72eb15f40bd3b1abd9927d2085ace7"
+      },
+      {
+        "path": ".specify/memory/.constitution-template.json",
+        "sha256": "8fc4b39294bae0c10d59547ad7d415b6f0e890d656cbf7171dd567f4e9054711"
+      },
+      {
+        "path": ".specify/scripts/bash/check-prerequisites.sh",
+        "sha256": "e127735bbc5ac42181e2a3c773a2d639979f865f18e74a1a977cdf53392a0a7d"
+      },
+      {
+        "path": ".specify/scripts/bash/common.sh",
+        "sha256": "53cb1c23e349db4586c272436ce35c6e2f36a9c0b5351a85e0b216d9887a26b7"
+      },
+      {
+        "path": ".specify/scripts/bash/create-new-feature.sh",
+        "sha256": "972f03ed8ca5ee17b7baad6d56d821d46269d77abc337496beafb0fe85a725f2"
+      },
+      {
+        "path": ".specify/scripts/bash/resolve-template.sh",
+        "sha256": "829e227096abc8bf0889889ec9f792f503ca5d395b7836a8a7eb739ee75214e7"
+      },
+      {
+        "path": ".specify/scripts/bash/setup-plan.sh",
+        "sha256": "d378ec66ba20d2da01c71dad8935062c1c27f0bba890be9a6d3dda52ea056a4e"
+      },
+      {
+        "path": ".specify/scripts/bash/setup-tasks.sh",
+        "sha256": "4a33dd1e6c32ddc7d570f4b538572c54069192573eed0ec654d9fb826e31a4fe"
+      },
+      {
+        "path": ".specify/templates/checklist-template.md",
+        "sha256": "856532b3cb66171c662cc16f16b31a5856e4655a8666aad1e545bbfc7f603ca1"
+      },
+      {
+        "path": ".specify/templates/constitution-template.md",
+        "sha256": "ce7549540fa45543cca797a150201d868e64495fdff39dc38246fb17bd4024b3"
+      },
+      {
+        "path": ".specify/templates/plan-template.md",
+        "sha256": "7e637502d41eccf0ca672496636365691fdca62ef37b27ec07fcb412dbfa90d4"
+      },
+      {
+        "path": ".specify/templates/spec-template.md",
+        "sha256": "3945437fc35cd30a5b2bf7beea680337c3516826d3efa5a6b92c4a7eca1ba28e"
+      },
+      {
+        "path": ".specify/templates/tasks-template.md",
+        "sha256": "fc29a233f6f5a27ca31f1aa46b596af6500c627441c6e62b2bc4a1d721525842"
+      },
+      {
+        "path": ".specify/workflows/speckit/workflow.yml",
+        "sha256": "177761c5e7df28126beea043b5cb45aeaf7958090c022dc11ac71399422fcfbc"
+      },
+      {
+        "path": ".specify/workflows/workflow-registry.json",
+        "sha256": "808d5a4c53a3fc7b9cd23502a2f2ac6d6ba3a3228f9dd2e68a2c61871ba1ce39"
+      }
+    ]
+  },
+  "licenses": [
+    {
+      "path": "tools/licenses/superpowers.LICENSE",
+      "sha256": "a37e0e9697144819e1d965176ac4ae5bc3fa02d11e7812036bbcadf6dafe2400"
+    },
+    {
+      "path": "tools/licenses/spec-kit.LICENSE",
+      "sha256": "2510b446bc1f0cf9702453075d20cd88631e20e5642658edb7325d9c1eb534f7"
+    }
+  ]
+}

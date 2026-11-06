@@ -1,12 +1,13 @@
-# Sentinel constitution
+# Vaultforge constitution
 
-Version: 0.1.0 · Established 2026-11-05
+Version 0.2.0 · Updated 2026-11-05 · Scope: every project.
 
-1. **Specifications govern implementation.** Each feature has a spec, acceptance scenarios, technical plan and dependency-ordered tasks before application code. Changes update the spec before implementation. Do not call agent-reviewed drafts human-approved.
-2. **Traceable proof.** Link requirements to tests and actual acceptance evidence. Use RED/GREEN/REFACTOR and independent review. Skips, unknowns and blocked live integrations are not passes.
-3. **Security authority is outside models.** Codex, Jev, CDMs, RAPTOR and Strix cannot mint grants or verified findings. Distinguish task-level target containment from complete exact-operation mediation; choose an enforceable model before live work.
-4. **No fabricated telemetry.** Demonstrations are explicit; replay cannot execute. Preserve original evidence and distinguish model/worker claims from supervisor observations and protected verification.
-5. **Minimal privileges and data export.** No copied host credentials, host Docker socket, hidden broad provider fallback or unapproved data destination. Host-principal, sandbox and networking changes need explicit authorization.
-6. **Bounded collaboration.** At most Lead plus three active subagents. Exclusive paths, accepted prerequisite contracts and serialized shared configuration. Reviewers do not approve their own security-sensitive implementation.
-7. **Tooling is development-only.** Spec Kit/Superpowers guide the development process, not Sentinel's worker trust boundary. Pin reviewed revisions; do not disable security scans, force blocked installations or restart services merely to make tooling work.
-8. **Minimal operator interruption.** Decide reversible implementation details within approved scope. Escalate material scope/security changes, actual spending and scanner overrides; do not repeatedly re-ask already answered product questions.
+1. **Specs govern code.** One root `specs/<NNN>-<project>-<feature>/` packet per feature: requirements, acceptance, plan, tasks. Update material changes before code; never invent human sign-off.
+2. **Clear executor.** Claude Code on the web implements application code. Eleven prepares repo/issues/specs and reviews. Local tool activation or a GitHub issue is not cloud dispatch.
+3. **Evidence before claims.** RED/GREEN/REFACTOR and independent spec/code review. Record commands, results, skips and blockers. Demo/CI is not live-integration or containment proof.
+4. **Bounded collaboration.** Lead plus at most three active agents, exclusive paths, accepted prerequisites, serialized shared config/contracts. Stop at assigned PR; no automatic merge.
+5. **Least authority.** Tooling is not product runtime. No copied credentials, host-service changes, permission bypass, target operations, provider spend or exports without applicable authority.
+6. **Project isolation.** Product code/docs under projects/<name>. Share abstractions only when real consumers justify them; do not build a generic platform because this is a monorepo.
+7. **Data integrity.** Preserve originals and transformation lineage. Model confidence/prose cannot create trusted outcomes. No committed secrets or runtime databases.
+8. **Scoped tooling trust.** Pin sources and preserve licenses. Verify chosen harness. Do not transfer scan overrides across packages/harnesses or silently enable helpers/telemetry.
+9. **Low operator overhead.** Resolve reversible choices within scope; escalate only material security, scope, cost or access issues. Reuse supplied plans instead of repeating product discovery.

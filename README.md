@@ -1,21 +1,30 @@
-# Sentinel
+# Vaultforge
 
-Local-first cyber command center for authorized lab security work.
+Host's private monorepo for projects, shared agent workflows and specifications.
 
-**Status: specification and development-tooling setup. No application or worker execution is implemented.**
+## Development ownership
 
-## Working method
+**Claude Code on the web implements application code. Eleven prepares specifications, GitHub issues and review.** Nothing in this repository starts a cloud session automatically.
 
-Requirements → spec review → implementation plan → dependency-ordered tasks → failing tests → implementation → independent spec/code review → verified pull request.
+- [Claude entry point](CLAUDE.md) and [monorepo rules](AGENTS.md).
+- [Development workflow](docs/development-workflow.md).
+- [Monorepo setup specification](specs/000-vaultforge-workflow/spec.md).
+- [Claude-web handoff](docs/claude-web-handoff.md).
+- [Required real-session skill smoke check](docs/claude-web-skill-smoke.md).
+- [Sentinel project](projects/sentinel/README.md).
 
-- Project principles: [.specify/memory/constitution.md](.specify/memory/constitution.md).
-- First slice: [specs/000-development-workflow/spec.md](specs/000-development-workflow/spec.md).
-- Plan and task status: [plan](specs/000-development-workflow/plan.md), [tasks](specs/000-development-workflow/tasks.md).
-- Development tools and limitations: [docs/development-workflow.md](docs/development-workflow.md).
-- Tooling decision: [one spec-driven workflow](docs/decisions/0001-development-workflow.md).
-- Engine evaluation: [RAPTOR first, Strix comparator](docs/decisions/0002-raptor-first-evaluation.md).
-- Implementation guidance: [AGENTS.md](AGENTS.md).
+## Layout
 
-Jev remains the bounded selector; CDMs are advisory evidence transformations. RAPTOR is the first tool-engine candidate to evaluate, not a selected or validated backend. Strix remains an alternative. Neither engine owns mission state or authorization.
+```text
+.claude/                   repository-local Claude skills/configuration
+.specify/                  shared specification toolkit and constitution
+specs/                     feature packets: <NNN>-<project>-<feature>
+projects/
+  sentinel/                Sentinel's plans, research, project rules and future code
+docs/                      shared workflow, handoff and setup evidence
+tools/                     pinned development assets, provenance and offline checks
+```
 
-No targets, provider credentials, VM engines or host-network changes are configured. A passing development check will not establish containment. Private repository; no open-source license has been chosen for Sentinel.
+Keep one canonical spec/plan/task set per feature. Shared tooling is not a production runtime dependency. Repository-private is not secret-safe: do not commit credentials, runtime databases or private infrastructure configuration.
+
+**Status:** monorepo/tooling setup only; no Sentinel application logic, worker deployment, assessment or product security gate is implemented or passed. Activation in another harness is not proof of Claude-web activation.

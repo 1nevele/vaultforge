@@ -1,31 +1,50 @@
-# Development workflow and tooling review
+# Vaultforge development workflow
 
-As of 2026-11-05. Scope: Sentinel development, not worker execution.
+Updated 2026-11-06. Scope: repository preparation and Claude Code **on the web**, not Sentinel execution.
 
-## Proposed division
+## One workflow
 
-Spec Kit provides the specification structure; Superpowers provides implementation, test-first debugging and independent review. Existing product/execution plans and research are inputs. There is one canonical feature spec/plan/task set, not parallel planning trees.
+Spec Kit owns one canonical root `specs/<NNN>-<project>-<feature>/{spec,plan,tasks}.md` packet. Existing product plans and research are inputs, not a reason to restart discovery. Superpowers supplies bounded implementation/TDD/debugging/review guidance; it does not create another plan hierarchy. Root instructions and project safety rules take precedence over examples in upstream skills.
 
-## Historical Superpowers review scope
+Eleven prepares specifications, issues and review. Claude Code on the web implements application code. Start S01 (#1), produce a PR with independent review and real tests, then stop. S02–S05 remain blocked on accepted/integrated S01.
 
-Upstream inspected: obra/superpowers, commit `22f0b463e7a5e579904dd6211a520321035526f7`, MIT, Hermes manifest 7.0.2.
+## Adopted repository assets
 
-Review native registration/bootstrap and skill-triggered script surfaces at the pin. Review examples, migration scripts, test harnesses and optional helpers as executable content, not merely documentation. A scoped source review is not whole-package security assurance or proof of activation.
+- **Superpowers:** `obra/superpowers@22f0b463e7a5e579904dd6211a520321035526f7` (7.0.2, MIT). Five native, unnamespaced project skills: `test-driven-development`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `verification-before-completion`. Supporting resources are included. This is a subset, **not** the complete plugin or its hooks.
+- **Spec Kit:** `github/spec-kit@99d10403a2681981be98bd372fa412045180d105` (generator 1.3.2.dev0, MIT). Official Claude integration generated with `specify init <scratch-project> --integration claude --ignore-agent-tools --non-interactive --integration-options="--events false"`. Its nine native `speckit-*` skills, scripts and templates are committed, preserving the custom constitution. Generation used an isolated preparation environment; no cloud or global CLI installation is implied.
+- `tools/provenance.json` records source pins, source/output hashes, exact text adaptations, generated-file hashes and licenses. `development-tools.lock.json` describes this executor, not the earlier Hermes installation.
+- Superpowers text changes remove included `superpowers:` skill namespaces, point an illustrative review-plan path at the canonical spec hierarchy, and replace one reference to an excluded skill-authoring workflow with the explicit cloud smoke-check boundary. No plugin code, automatic hooks, browser companion or diagnostics framework is adopted.
 
-Do not disable scans, force a blocked installation, copy plugins manually or restart services as setup side effects. Any exceptional tooling action requires separately scoped authority. Optional visual companions, telemetry and provider-backed harnesses are not authorized by adopting this workflow.
+## Cloud loading and readiness
 
-## Spec Kit status
+The documented target is an **ordinary repository cloud session**, not a cloud thread inside a Claude project. Claude's cloud documentation supports committed `.claude/skills/`; it does not install repository `enabledPlugins` automatically. Account-enabled skills are a separate option, not a dependency of this setup.
 
-Inspected github/spec-kit commit `99d10403a2681981be98bd372fa412045180d105` (MIT). Repository conventions are adopted in `.specify/memory/` and `specs/`. This historical document does not establish CLI or native integration activation; verify actual commands before claiming availability. Tool installation should remain local/pinned rather than silently changing global Python or Node packages.
+Static hashes and filesystem checks prove repository assets, not model compliance, native discovery or full-plugin behavior. Run the bounded [cloud skill smoke check](claude-web-skill-smoke.md) in a fresh target session before application implementation. Preserve an explicit unavailable/unknown result rather than silently installing plugins or treating a manual file read as native discovery.
 
-## Review gates
+There are no repository startup installers or automatic plugin settings. Bundled debugging resources may contain example shell commands or helper scripts: inspect their effects and obtain applicable task authority before explicit use. Do not run optional upstream provider tests, visuals, exports or global setup. This repository does not change the operator's Claude account or Hermes profile.
 
-Spec completeness → scoped implementation plan → failing behavioral test → minimal implementation → passing checks → independent specification compliance and code review → PR evidence. Never claim application tests or CI pass when only configuration exists.
+## Offline checks
 
-## Primary references
+```bash
+python -B -m unittest discover -s tools/tests -v
+for script in .specify/scripts/bash/*.sh; do bash -n "$script" || exit; done
+SPECIFY_FEATURE_DIRECTORY=specs/001-sentinel-foundation \
+SPECIFY_FEATURE_NO_PERSIST=1 \
+.specify/scripts/bash/check-prerequisites.sh --paths-only --json
+```
 
-- https://github.com/obra/superpowers/tree/22f0b463e7a5e579904dd6211a520321035526f7
-- https://github.com/obra/superpowers/blob/22f0b463e7a5e579904dd6211a520321035526f7/.hermes-plugin/plugin.yaml
-- https://github.com/obra/superpowers/blob/22f0b463e7a5e579904dd6211a520321035526f7/.hermes-plugin/__init__.py
-- https://github.com/github/spec-kit/tree/99d10403a2681981be98bd372fa412045180d105
-- https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins
+These are setup checks, not application tests or product containment gates. Feature context is process-scoped; do not commit `.specify/feature.json`. No application package manager, provider key or target is needed for these checks.
+
+## History and limits
+
+Historical workflow scope is recorded in [decision 0001](decisions/0001-development-workflow.md) and its dated acceptance note. Those documents do not establish current activation, authorize helpers or transfer exceptional tooling permissions. This change adopts no new global integration.
+
+Missing supplied artifacts remain explicit: the original HTML preview and `sentinel-build-backlog.json` were not provided. The preserved product/execution plans retain their original references; GitHub issues and root specs are the current handoff, not a fabricated replacement for those missing files.
+
+## Source references
+
+- Claude cloud configuration: https://code.claude.com/docs/en/cloud-environments
+- Claude skills and project-thread caveats: https://code.claude.com/docs/en/skills
+- Spec Kit pinned integration: https://github.com/github/spec-kit/blob/99d10403a2681981be98bd372fa412045180d105/docs/integrations/claude.md
+- Superpowers pinned source: https://github.com/obra/superpowers/tree/22f0b463e7a5e579904dd6211a520321035526f7
+- Maintainer-reported cloud setup example (not independently reproduced): https://github.com/rudolfjs/agent-extensions/commit/4367c887d5fb344daf7ec5256e82011d2299a1ab

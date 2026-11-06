@@ -1,17 +1,24 @@
-# Sentinel implementation rules
+# Vaultforge agent rules
 
-Read docs/plans/, docs/development-workflow.md, .specify/memory/constitution.md and the current feature spec/plan/tasks before changes. This is tooling/specification work; no application, runtime, target access, authority deployment or security gate has passed.
+## Ownership and entry points
 
-Spec-driven development is required: review requirements and acceptance scenarios, then plan/tasks, then test-first implementation. Use one canonical spec/plan/task source. Tooling activation is not established by this historical document. Do not force blocked installations, disable scans or imply unverified activation. Any exception requires separately scoped explicit authority.
+Claude Code **on the web** implements application code. Eleven prepares specifications, GitHub issues, coordination and authorized review; do not replace that executor with local coding or a local Claude CLI session. Unaccepted local scaffolding is not an implementation baseline.
 
-- Maximum four active agents including Lead; explicit exclusive paths.
-- Lead alone changes root configuration, package versions, lockfile, packages/contracts/, authority, shared fixtures and acceptance tests.
-- Agent A owns mission-service, Jev/CDM/MCP and evidence integrations; B owns web; C owns worker/runtime and substrate feasibility. Start dependent work only after accepted contracts.
-- Use tests-first RED/GREEN cycles. Record actual commands and blockers. No claimed passes for skipped integrations.
-- Models choose frozen IDs and produce untrusted derived data. Never grant authorization or verified findings from model output.
-- RAPTOR is the first tool-engine candidate to evaluate, not an approved runtime. Strix remains an alternative. Neither owns mission lifecycle or grants.
-- No arbitrary target execution, credential copying, infrastructure/network changes, global tooling upgrade, automatic merge, public publication, or real provider spend.
-- Validate shape separately from authentication/authorization. No pure TypeScript function establishes an OS or network boundary.
-- Keep raw observations separate from derived summaries; hashes establish identity, not truth.
-- No secrets, runtime databases, local absolute paths, or private infrastructure details in commits. CI uses no provider credentials.
-- Read back every GitHub write. Independent review before application-code publication; do not equate CI with containment.
+Read `.specify/memory/constitution.md`, `docs/development-workflow.md`, the assigned GitHub issue and its root `specs/<NNN>-<project>-<feature>/` packet. For Sentinel, read `projects/sentinel/AGENTS.md` and its plans/research. These rules supersede historical paths/executor instructions. Never initialize a second Git repository inside a project.
+
+## Specification-driven delivery
+
+- Requirements/acceptance scenarios → reviewed spec → plan → tasks → RED/GREEN implementation → independent spec/code review → verified PR.
+- Keep one canonical root feature packet with project name in the directory; no competing Superpowers plan tree.
+- Verify repository-provided skill discovery in the actual Claude web session. Hermes plugin activation is not web activation. Missing optional plugin support does not remove spec/TDD/review requirements.
+- Maximum Lead plus three active agents; exclusive paths. Only the Claude lead edits shared manifests/lockfiles/contracts.
+- Start dependent issues only after accepted prerequisites. Stop at the assigned PR; no automatic merge or whole-backlog continuation.
+
+## Safety and truthfulness
+
+- No secrets, private host paths, infrastructure credentials, live provider spend, target operations, VM/network/account changes, public publication or destructive cleanup without applicable explicit authority.
+- Do not disable scans or broaden permissions. Any exceptional tooling authorization must be separately scoped to the exact harness, revision and helper; it is not transferable.
+- Do not launch visual companions, telemetry, upstream provider evals or diagnostic exports as setup side effects.
+- Preserve original evidence and lineage. Hashes identify bytes, not truth; models cannot mint authorization or verified findings.
+- Record real tests, skips and blockers. Demo/CI results do not establish live integration or containment.
+- Read back external writes. Claim cloud dispatch only with an actual session handle and repository/task readback.

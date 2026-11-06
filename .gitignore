@@ -9,3 +9,5 @@ coverage/
 *.log
 .DS_Store
 .vitest/
+__pycache__/
+*.py[cod]
