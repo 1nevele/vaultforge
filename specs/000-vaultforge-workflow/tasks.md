@@ -7,6 +7,6 @@
 - [x] T005: Write root/project agent entry points and resolve canonical paths.
 - [x] T006: Create/read back tracker + S01–S05 issues and Claude-web starting brief.
 - [x] T007: Exercise offline checks and independent setup review; record limits. Ten checks pass; tampered/symlinked assets are rejected. Real Claude-web loading remains blocked and untested.
-- [ ] T008: Publish explicit setup paths and verify exact GitHub identity/privacy/revision/file hashes.
+- [ ] T008: Verify authorized repository identity, visibility, sanitized revision and consequential file hashes. Publication history was privacy-sanitized; earlier revision and file-hash readbacks are superseded and are not proof of current repository state. Fresh verification is required before publication.
 
 Setup evidence is not application implementation or a passed product security gate.

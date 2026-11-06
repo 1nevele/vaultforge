@@ -12,7 +12,7 @@
 - [x] Write root/project agent rules and a draft offline-foundation specification.
 - [x] Create/read back a tracker plus S01–S05 issues with scope, dependencies, tests and stop conditions.
 - [x] Exercise offline checks and independent setup review; fix material findings. No material local blocker remains; real Claude-web discovery is separately untested.
-- [ ] Publish explicit setup paths; verify private repo identity/revision and consequential file hashes.
+- [ ] Verify authorized repository identity, visibility, sanitized revision and consequential file hashes. Publication history was privacy-sanitized; earlier revision and file-hash readbacks are superseded and are not proof of current repository state. Fresh verification is required before publication.
 
 ## Review focus
 
