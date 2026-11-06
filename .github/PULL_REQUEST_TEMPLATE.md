@@ -10,6 +10,7 @@
 
 - RED:
 - GREEN:
+- For documentation-only changes, mark behavioral RED/GREEN as not applicable; do not invent test evidence.
 - Type/build/security checks:
 - Independent spec/code review (review link and reviewed commit):
 - CodeRabbit review on the latest commit, or explicit skipped/blocked reason:
