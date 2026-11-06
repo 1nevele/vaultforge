@@ -5,15 +5,9 @@
 1. Claude Code on the web implements the assigned, ready issue using the canonical
    spec packet and real RED/GREEN evidence. A fresh reviewer checks the work
    before handoff, following the bundled requesting-code-review skill.
-2. CodeRabbit provides advisory PR reviews when its GitHub App is installed for
-   this repository. `.coderabbit.yaml` enables automatic non-draft/incremental
-   reviews with project-specific instructions. Automated approvals, code-writing
-   finishing touches and automatic issue planning are disabled. Knowledge-base
-   retention features and cross-repository integrations are opted out/disabled;
-   this is not a promise of zero service-side retention.
-3. Eleven independently checks specification compliance, actual verification and
+2. Eleven independently checks specification compliance, actual verification and
    security-sensitive changes, and records actionable findings on GitHub.
-4. A maintainer other than the PR author approves; the operator decides whether
+3. A maintainer other than the PR author approves; the operator decides whether
    to merge. No automatic merge. A bot's completed check does not establish that
    findings are resolved or replace independent approval.
 
@@ -51,14 +45,18 @@ The intended protected-main settings are:
 - Apply protection to administrators; disallow force pushes and branch deletion.
 - Auto-merge disabled.
 
-Do not require an invented CodeRabbit status name before observing a real review.
-Its completion signal can include skipped/rate-limited reviews; inspect the
-review itself. It remains advisory rather than an approval gate.
+## Automated-review status
+
+CodeRabbit was retired at the owner's request on 2026-11-06. Its GitHub App was
+uninstalled and its repository configuration removed. Earlier review comments,
+checks and dated setup evidence are historical, not an active review dependency.
+
+No replacement automated reviewer or zero-human-review merge gate is configured
+by this change. Those require a separately verified integration and policy update.
+Existing CI and protected-main approval requirements remain unchanged.
 
 This document specifies policy, not proof of activation. Verify the live branch
-protection API, actual Actions results and CodeRabbit review on a real PR before
-claiming each component is active. Installing the GitHub App requires the account
-owner to grant access to **only Vaultforge** and review the requested permissions.
+protection API and actual Actions results before claiming each component is active.
 
 ## Licensing
 
