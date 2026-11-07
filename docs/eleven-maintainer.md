@@ -11,15 +11,32 @@ work in `1nevele/vaultforge`, not other projects or the private archive.
 ## Approach
 
 Use a durable Hermes scheduled job rather than a chat-local loop. Before opening
-an AI session, a lightweight script checks GitHub's open PR queue with pagination.
-An empty queue returns `wakeAgent: false`: no agent/session, inference tokens or
-Discord notification. A lookup failure also fails closed without waking an agent;
-its status is recorded locally for diagnosis. An open PR allows the maintainer
-run to proceed. Polling avoids adding a public webhook endpoint or new credentials.
-Reports go to the existing Discord `pull-requests` channel, not the setup thread;
-no new Discord thread is created. A webhook can be evaluated separately; a
-notification-only watcher would not fulfill the requested maintainer role. The
-monitor owns triage and review, not application implementation.
+an AI session, `tools/sentinel_maintainer_gate.py` reads paginated PR and issue
+metadata. Host approved activity-based waking after reviewing the PR-only
+triage deadlock: a new or changed open Sentinel development issue can wake the
+maintainer even with no PR open. Candidates have `project:sentinel` and not
+`type:tracking`; changed labels, descriptions or comments prompt triage, not
+automatic readiness. Blocked or in-progress issues retain their safety locks.
+
+PR activity includes revisions, independent reviews/comments, CI transitions,
+and removal of a previously observed PR (one reconciliation after close/merge).
+Open PRs alone do not wake repeatedly. With neither unacknowledged PR activity
+nor changed candidate issues, return `wakeAgent: false`: no AI session, tokens
+or Discord notification. API/state errors fail closed and are recorded locally.
+The first nonempty snapshot receives one reconciliation pass.
+
+A completed maintainer pass acknowledges its exact gate `event_id`, including
+when it has verified and reported a blocker. An incomplete/failed pass leaves
+that event pending for retry; retries are not mistaken for fresh work. The ack
+must not refetch and consume newer activity. Snapshot writes are atomic and
+locked. PR updates generated solely by Eleven's own review/comments are omitted
+to avoid self-waking loops. Issue-label writes may cause one follow-up triage pass.
+No repository-provided code runs as a scheduler side effect: deployment of this
+operator-owned script is a separate, reviewed action.
+
+Polling avoids a public webhook endpoint or new credentials. Reports go to the
+existing Discord `pull-requests` channel, not the setup thread; no new Discord
+thread is created. The monitor owns triage and review, not application coding.
 
 ## Operating contract
 
