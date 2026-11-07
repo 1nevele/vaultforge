@@ -5,12 +5,16 @@
 1. Claude Code on the web implements the assigned, ready issue using the canonical
    spec packet and real RED/GREEN evidence. A fresh reviewer checks the work
    before handoff, following the bundled requesting-code-review skill.
-2. Eleven independently checks specification compliance, actual verification and
-   security-sensitive changes, and records actionable findings on GitHub.
+2. For Sentinel, CodeRabbit provides PR review. Eleven checks existing approvals,
+   verification and risk/scope eligibility only to decide whether it may merge;
+   Eleven does not independently submit code reviews, dispatch fixes or manage
+   issues. Blockers are notified to host, who gives direction to Claude.
 3. CodeRabbit's automatic approval satisfies the required approval: a PR it
    approves, with required checks passing, is eligible to merge without a human
    approval. A maintainer other than the PR author may also approve. The
-   operator decides whether to merge; no automatic merge. A bot's completed
+   operator delegates routine Sentinel merges to Eleven under
+   `docs/eleven-maintainer.md`; other merges and sensitive changes remain with
+   the operator. Claude never merges. A bot's completed
    check or summary, as opposed to its approving review, does not establish
    that findings are resolved.
 
