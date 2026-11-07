@@ -9,7 +9,7 @@
     "commit": "22f0b463e7a5e579904dd6211a520321035526f7",
     "version": "7.0.2",
     "distribution": "native-project-skill-subset",
-    "skill_count": 5,
+    "skill_count": 3,
     "state": "repository-assets-prepared",
     "full_plugin_installed": false,
     "automatic_hooks": false,
