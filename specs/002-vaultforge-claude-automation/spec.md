@@ -15,7 +15,10 @@ execution routes and no automated Claude code-review gate.
 - CA-001: **Scheduled issue execution.** A Claude cloud scheduled task (configured
   in the operator's claude.ai account, not in this repository) periodically starts a
   fresh Claude Code on the web session for `1nevele/vaultforge`. Each run executes
-  at most one issue, following `docs/claude-web-handoff.md`.
+  at most one issue, following `docs/claude-web-handoff.md`. A second task with no
+  schedule runs the same rules when GitHub reports an issue opened (a GitHub event
+  trigger on the task). It exits early unless the triggering issue is open and
+  labelled both `claude:scheduled` and `status:ready`.
 - CA-002: **Issue selection (opt-in).** Only issues labelled `claude:scheduled` are
   eligible. A run picks the lowest-numbered open issue labelled both
   `claude:scheduled` and `status:ready`, and not labelled `status:blocked` or
