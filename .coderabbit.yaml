@@ -17,8 +17,9 @@ reviews:
   auto_apply_labels: false
   auto_assign_reviewers: false
   auto_review:
-    enabled: true
-    auto_incremental_review: true
+    # Temporary PoC pause; manual review requests remain available.
+    enabled: false
+    auto_incremental_review: false
     drafts: false
   finishing_touches:
     docstrings:
