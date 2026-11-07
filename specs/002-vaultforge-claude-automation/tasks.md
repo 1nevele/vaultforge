@@ -22,3 +22,4 @@
 - [x] T020 Address CodeRabbit review of 2914a90: every merged PR must target `main`; closing an issue by hand needs the same acceptance evidence (CA-010)
 - [x] T021 Keep the issue-event trigger: serialize selection and claiming with an atomic claim lock (`executor.lock` on `executor-lock`, contents-API create without sha, delete by sha, 30-minute stale break) (CA-003)
 - [ ] T022 Host: paste the updated `docs/executor-prompt.md` into the scheduled task after merge
+- [x] T023 Web sessions (scheduled or ad hoc) run built-in `/code-review` before push, replacing the retired Superpowers review skills; CodeRabbit remains the PR reviewer (2026-11-07, owner request; from PR #24)

@@ -7,9 +7,10 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 SUPERPOWERS = {
-    "test-driven-development", "systematic-debugging", "requesting-code-review",
-    "receiving-code-review", "verification-before-completion",
+    "test-driven-development", "systematic-debugging", "verification-before-completion",
 }
+# Code review moved to the built-in /code-review, run in-session before push.
+RETIRED_SUPERPOWERS = {"requesting-code-review", "receiving-code-review"}
 SPECKIT = {
     "speckit-analyze", "speckit-checklist", "speckit-clarify", "speckit-constitution",
     "speckit-converge", "speckit-implement", "speckit-plan", "speckit-specify", "speckit-tasks",
@@ -37,6 +38,15 @@ class WorkflowSetupTests(unittest.TestCase):
     def test_native_inventory_is_bounded_and_complete(self):
         actual = {p.parent.name for p in (ROOT / ".claude/skills").glob("*/SKILL.md")}
         self.assertEqual(actual, SUPERPOWERS | SPECKIT)
+
+    def test_retired_review_skills_are_absent(self):
+        for name in RETIRED_SUPERPOWERS:
+            self.assertFalse((ROOT / ".claude/skills" / name).exists(), name)
+
+    def test_lock_skill_counts_match_the_native_inventory(self):
+        data = json.loads((ROOT / "development-tools.lock.json").read_text())
+        self.assertEqual(data["superpowers"]["skill_count"], len(SUPERPOWERS))
+        self.assertEqual(data["spec_kit"]["skill_count"], len(SPECKIT))
 
     def test_pins_and_unexercised_cloud_status(self):
         data = self.manifest()

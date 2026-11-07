@@ -8,7 +8,7 @@
 
 - [x] Inspect actual repo identity/privacy, collision-free name, tracked/untracked state and primary tooling docs.
 - [x] Preserve the original privately under a separate name; create the fresh destination; sanitize all reachable history before publishing there; update origin. This replaces the original identity-preserving rename step. Exclude unaccepted local scaffold; do not delete unrelated local artifacts.
-- [x] Configure five pinned native Superpowers skills and nine official Claude Spec Kit skills, licenses and provenance; no full-plugin behavior claimed.
+- [x] Configure five pinned native Superpowers skills (reduced to three by the 2026-11-07 amendment) and nine official Claude Spec Kit skills, licenses and provenance; no full-plugin behavior claimed.
 - [x] Write root/project agent rules and a draft offline-foundation specification.
 - [x] Create/read back a tracker plus S01–S05 issues with scope, dependencies, tests and stop conditions.
 - [x] Exercise offline checks and independent setup review; fix material findings. Fresh sanitized-tree verification on 2026-11-06 passed all ten workflow tests, Bash syntax/feature-context checks, actionlint, official CodeRabbit schema validation and Gitleaks scans. GitHub Actions passed both main-push and PR checks. Real Claude-web discovery remains untested; CodeRabbit installation/first review and final publication settings require separate live verification.

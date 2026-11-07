@@ -18,6 +18,6 @@ No runtime installer, startup download hook or vendored VMM is supplied. See `do
 
 ## Updating assets
 
-Do not edit a pin or refresh hashes merely to silence a failure. Review the proposed upstream revision and license; generate Spec Kit in a separate scratch project with the documented pinned official integration; preserve the project constitution. Reapply only the documented native-namespace/canonical-path/excluded-skill adaptations and inspect the diff. Validate source hashes against the exact upstream Git tree, replay declared adaptations, then validate output hashes and complete inventory. Commit changed provenance and actual verification evidence together.
+Do not edit a pin or refresh hashes merely to silence a failure. Review the proposed upstream revision and license; generate Spec Kit in a separate scratch project with the documented pinned official integration; preserve the project constitution. Reapply only the documented native-namespace/excluded-skill adaptations and inspect the diff. Validate source hashes against the exact upstream Git tree, replay declared adaptations, then validate output hashes and complete inventory. Commit changed provenance and actual verification evidence together.
 
 Generated metadata records preparation-time versions and timestamps; it does not establish the cloud runtime version. This repository does not install the Specify CLI in Claude's cloud environment. Native skill prompts call the committed Bash scripts directly. Optional workflow CLI dispatch requires a separately reviewed installation if needed later.

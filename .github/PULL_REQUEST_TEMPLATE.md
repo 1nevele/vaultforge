@@ -13,7 +13,7 @@
 - GREEN:
 - For documentation-only changes, mark behavioral RED/GREEN as not applicable; do not invent test evidence.
 - Type/build/security checks:
-- Independent spec/code review (review link and reviewed commit):
+- `/code-review` before push (reviewed commit, each finding and its resolution; `/security-review` too for security-relevant changes; write "exempt" for `@claude` small-fix PRs, or "not a web session" and who reviewed instead for other PRs):
 - CodeRabbit review on the latest commit, or explicit skipped/blocked reason:
 
 Follow [the review policy](https://github.com/1nevele/vaultforge/blob/main/docs/code-review.md). CodeRabbit's approving review

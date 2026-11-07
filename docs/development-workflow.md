@@ -1,19 +1,19 @@
 # Vaultforge development workflow
 
-Updated 2026-11-06. Scope: repository preparation and Claude Code **on the web**, not Sentinel execution.
+Updated 2026-11-07. Scope: repository preparation and Claude Code **on the web**, not Sentinel execution.
 
 ## One workflow
 
-Spec Kit owns one canonical root `specs/<NNN>-<project>-<feature>/{spec,plan,tasks}.md` packet. Existing product plans and research are inputs, not a reason to restart discovery. Superpowers supplies bounded implementation/TDD/debugging/review guidance; it does not create another plan hierarchy. Root instructions and project safety rules take precedence over examples in upstream skills.
+Spec Kit owns one canonical root `specs/<NNN>-<project>-<feature>/{spec,plan,tasks}.md` packet. Existing product plans and research are inputs, not a reason to restart discovery. Superpowers supplies bounded TDD/debugging/verification guidance; it does not create another plan hierarchy. Code review uses the built-in `/code-review` in-session before push (`CLAUDE.md`). Root instructions and project safety rules take precedence over examples in upstream skills.
 
-Roles, labels and the issue flow are in [operating-model.md](operating-model.md): the host gives direction, Eleven maintains and merges, Claude Code on the web implements one issue per PR with independent review and real tests, then stops.
+Roles, labels and the issue flow are in [operating-model.md](operating-model.md): the host gives direction, Eleven maintains and merges, Claude Code on the web implements one issue per PR with real tests and an in-session `/code-review` (CodeRabbit is the independent reviewer), then stops.
 
 ## Adopted repository assets
 
-- **Superpowers:** `obra/superpowers@22f0b463e7a5e579904dd6211a520321035526f7` (7.0.2, MIT). Five native, unnamespaced project skills: `test-driven-development`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `verification-before-completion`. Supporting resources are included. This is a subset, **not** the complete plugin or its hooks.
+- **Superpowers:** `obra/superpowers@22f0b463e7a5e579904dd6211a520321035526f7` (7.0.2, MIT). Three native, unnamespaced project skills: `test-driven-development`, `systematic-debugging`, `verification-before-completion`. Supporting resources are included. `requesting-code-review` and `receiving-code-review` were retired on 2026-11-07 in favour of the built-in `/code-review`. This is a subset, **not** the complete plugin or its hooks.
 - **Spec Kit:** `github/spec-kit@99d10403a2681981be98bd372fa412045180d105` (generator 1.3.2.dev0, MIT). Official Claude integration generated with `specify init <scratch-project> --integration claude --ignore-agent-tools --non-interactive --integration-options="--events false"`. Its nine native `speckit-*` skills, scripts and templates are committed, preserving the custom constitution. Generation used an isolated preparation environment; no cloud or global CLI installation is implied.
 - `tools/provenance.json` records source pins, source/output hashes, exact text adaptations, generated-file hashes and licenses. `development-tools.lock.json` describes this executor, not the earlier Hermes installation.
-- Superpowers text changes remove included `superpowers:` skill namespaces, point an illustrative review-plan path at the canonical spec hierarchy, and replace one reference to an excluded skill-authoring workflow with the explicit cloud smoke-check boundary. No plugin code, automatic hooks, browser companion or diagnostics framework is adopted.
+- Superpowers text changes remove included `superpowers:` skill namespaces and replace one reference to an excluded skill-authoring workflow with the explicit cloud smoke-check boundary. No plugin code, automatic hooks, browser companion or diagnostics framework is adopted.
 
 ## Cloud loading and readiness
 

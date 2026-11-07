@@ -9,4 +9,6 @@
 - [x] T007: Fresh sanitized-tree checks on 2026-11-06 passed all ten workflow tests (including integrity/safe-path checks), Bash syntax/feature-context checks, actionlint, official CodeRabbit schema validation and Gitleaks scans. Both initial main and PR Actions runs passed. Independent privacy/configuration reviews passed with documented clarifications addressed. Real Claude-web discovery remains untested; CodeRabbit installation and first review are not established by these checks.
 - [ ] T008: Verify authorized repository identity, visibility, sanitized revision and consequential file hashes. Publication history was privacy-sanitized; earlier revision and file-hash readbacks are superseded and are not proof of current repository state. Fresh verification is required before publication.
 
+- [x] T009: 2026-11-07 amendment applied (three Superpowers skills, scoped TDD in constitution 0.4.0, in-session `/code-review` before push; CodeRabbit kept); offline workflow tests pass.
+
 Setup evidence is not application implementation or a passed product security gate.

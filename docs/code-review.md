@@ -18,8 +18,10 @@ See [eleven-maintainer.md](eleven-maintainer.md) for the authoritative merge gat
 Roles and the issue flow are in [operating-model.md](operating-model.md).
 
 1. Claude Code on the web implements the assigned, ready issue using the canonical
-   spec packet and real RED/GREEN evidence. A fresh reviewer checks the work
-   before handoff, following the bundled requesting-code-review skill.
+   spec packet and real RED/GREEN evidence, and runs the built-in `/code-review`
+   (plus `/security-review` for security-relevant changes) on the diff before
+   every push, recording the reviewed commit and each finding's resolution in the
+   PR. That is author-run review; CodeRabbit is the independent PR reviewer.
 2. CodeRabbit reviews every PR. The Claude session that opened the PR subscribes to
    it and fixes failing checks and verified findings from CI, CodeRabbit or Eleven,
    plus host direction given through Eleven or the session prompt; other commenters
