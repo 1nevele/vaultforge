@@ -1,0 +1,14 @@
+{
+  "mission_id": "m-0001",
+  "schema_version": "1.0.0",
+  "client_request_id": "cr-0001",
+  "authenticated_producer": "authority",
+  "task": {
+    "task_id": "t-0001",
+    "schema_version": "1.0.0",
+    "objective": "enumerate the synthetic lab web service",
+    "workflow_template": "web-service-recon",
+    "scope_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "submitted_at": "2026-11-07T00:00:00.000Z"
+}

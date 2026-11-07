@@ -1,0 +1,21 @@
+{
+  "inference_id": "inf-0001",
+  "mission_id": "m-0001",
+  "execution_generation": 1,
+  "schema_version": "1.0.0",
+  "task_kind": "classify",
+  "provider": "synthetic-cdm",
+  "model_id": "classify-small",
+  "adapter_version": "1.0.0",
+  "rubric_schema_version": "1.0.0",
+  "data_policy_version": "1.0.0",
+  "source_artifact_hashes": ["sha256:1111111111111111111111111111111111111111111111111111111111111111"],
+  "evidence_snapshot_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "canonical_input_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+  "rendered_provider_input_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+  "score_semantics": "softmax-normalized label scores summing to 1.0",
+  "source_spans": [{ "start": 0, "end": 12, "offset_unit": "utf8-byte" }],
+  "transformation_lineage": ["raw", "normalized"],
+  "completeness_flags": { "truncated": false, "partial": false },
+  "outcome": "unknown"
+}
