@@ -10,10 +10,16 @@ work in `1nevele/vaultforge`, not other projects or the private archive.
 
 ## Approach
 
-Use a durable Hermes scheduled job rather than a chat-local loop. Polling avoids
-adding a public webhook endpoint or new credentials. A webhook can be evaluated
-separately; a notification-only watcher would not fulfill the requested maintainer
-role. The monitor owns triage and review, not application implementation.
+Use a durable Hermes scheduled job rather than a chat-local loop. Before opening
+an AI session, a lightweight script checks GitHub's open PR queue with pagination.
+An empty queue returns `wakeAgent: false`: no agent/session, inference tokens or
+Discord notification. A lookup failure also fails closed without waking an agent;
+its status is recorded locally for diagnosis. An open PR allows the maintainer
+run to proceed. Polling avoids adding a public webhook endpoint or new credentials.
+Reports go to the existing Discord `pull-requests` channel, not the setup thread;
+no new Discord thread is created. A webhook can be evaluated separately; a
+notification-only watcher would not fulfill the requested maintainer role. The
+monitor owns triage and review, not application implementation.
 
 ## Operating contract
 
@@ -47,8 +53,8 @@ role. The monitor owns triage and review, not application implementation.
 - Never execute PR code with the gateway's credentials or on the homelab. Use
   verified ephemeral CI evidence, or stop for a safe isolated test environment.
   No external target/provider/worker execution follows from a PR merge.
-- Report merges, new blockers and decisions to the originating Discord thread;
-  deduplicate unchanged observations and suppress no-change notifications.
+- Report merges, new blockers and decisions to the existing Discord pull-requests
+  channel; deduplicate unchanged observations and suppress no-change notifications.
 
 ## Activation and bootstrap
 
