@@ -20,3 +20,5 @@
 - [x] T018 Address CodeRabbit review of 2e5d4bf: drop the claim-comment protocol in favour of schedule-serialized runs (no event triggers; documented as a known gap), re-check eligibility after claiming, merge gate covers every issue GitHub will close (all closing keywords and Development-section links), handoff uses the canonical dependency definition (CA-003)
 - [x] T019 Address CodeRabbit review of 0e86410: merge gate allows an empty closing set for `Part of #N` PRs; post-claim re-check also covers `claude:scheduled`, `status:blocked` and a vanished claim; repository-agnostic reference wording (CA-003)
 - [x] T020 Address CodeRabbit review of 2914a90: every merged PR must target `main`; closing an issue by hand needs the same acceptance evidence (CA-010)
+- [x] T021 Keep the issue-event trigger: serialize selection and claiming with an atomic claim lock (`executor.lock` on `executor-lock`, contents-API create without sha, delete by sha, 30-minute stale break) (CA-003)
+- [ ] T022 Host: paste the updated `docs/executor-prompt.md` into the scheduled task after merge

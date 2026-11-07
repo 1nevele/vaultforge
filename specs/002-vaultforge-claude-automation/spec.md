@@ -31,8 +31,10 @@ follow-through.
   starting work. Merging the issue's `Closes #N` PR closes it and releases the lock;
   if the PR is abandoned or merged as `Part of #N`, Eleven (or the host) adds
   `status:hold` first if it needs a decision, then removes `status:in-progress`,
-  then adds `status:ready`, so no new claim can land mid-reset. Runs are serialized by the task's schedule
-  (no event triggers); after claiming, a run re-checks that the issue is still
+  then adds `status:ready`, so no new claim can land mid-reset. Runs may overlap (schedule plus issue-event
+  triggers), so selection and claiming are serialized by an atomic claim lock, the
+  file `executor.lock` on the `executor-lock` branch, created without a sha and
+  deleted by sha (stale after 30 minutes); after claiming, a run re-checks that the issue is still
   open, scheduled, unheld, unblocked and claimed, and otherwise releases the claim
   (restoring `status:ready` unless the issue is closed or blocked) and stops. A stale label blocks later runs;
   it is never cleared by the scheduled run itself.
