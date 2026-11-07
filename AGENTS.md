@@ -2,17 +2,17 @@
 
 ## Ownership and entry points
 
-Roles, labels and the issue flow are defined once in `docs/operating-model.md`: the host gives direction, Eleven maintains the repository and merges (`docs/eleven-maintainer.md`), Claude Code **on the web** implements, CodeRabbit reviews, and anyone may open issues. Do not replace Claude with local coding or a local Claude CLI session. Unaccepted local scaffolding is not an implementation baseline.
+Roles, labels and the issue flow are defined once in `docs/operating-model.md`: the host gives direction, Eleven maintains the repository and merges, Claude Code **on the web** implements, and anyone may open issues. Do not replace Claude with local coding or a local Claude CLI session. Unaccepted local scaffolding is not an implementation baseline.
 
 Read `.specify/memory/constitution.md`, `docs/development-workflow.md`, the assigned GitHub issue and its root `specs/<NNN>-<project>-<feature>/` packet. For Sentinel, read `projects/sentinel/AGENTS.md` and its plans/research. These rules supersede historical paths/executor instructions. Never initialize a second Git repository inside a project.
 
 ## Specification-driven delivery
 
-- Requirements/acceptance scenarios → reviewed spec → plan → tasks → RED/GREEN implementation (test-first for behavioral logic, invariants and adversarial cases) → in-session `/code-review` before push from a web session (the `@claude` small-fix route is exempt) → CodeRabbit PR review (paused under the constitution's PoC amendment) → verified PR.
+- Requirements/acceptance scenarios → reviewed spec → plan → tasks → RED/GREEN implementation (test-first for behavioral logic, invariants and adversarial cases) → review as defined in `docs/operating-model.md` → verified PR.
 - Keep one canonical root feature packet with project name in the directory; no competing Superpowers plan tree.
 - Verify repository-provided skill discovery in the actual Claude web session. Hermes plugin activation is not web activation. Missing optional plugin support does not remove spec/TDD/review requirements.
 - Maximum Lead plus three active agents that edit files (read-only reviewer subagents do not count); exclusive paths. Only the Claude lead edits shared manifests/lockfiles/contracts.
-- Start dependent issues only after accepted prerequisites. Claude follows its assigned PR through CI and review; no Claude merge or whole-backlog continuation. Eleven merges under `docs/eleven-maintainer.md`; sensitive changes (`.github/CODEOWNERS` paths and the constitution's reserved categories) still require the host's explicit go-ahead.
+- Start dependent issues only after accepted prerequisites. Claude follows its assigned PR through CI and review; no Claude merge or whole-backlog continuation. Eleven merges; sensitive changes need the host's go-ahead (`docs/operating-model.md`).
 
 ## Safety and truthfulness
 

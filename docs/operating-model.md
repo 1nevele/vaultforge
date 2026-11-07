@@ -3,7 +3,11 @@
 This is the single source of truth for who does what and how work moves through the
 repository. Other documents link here instead of restating it; if one disagrees, this
 file wins and the other is a bug. Safety rules stay in `AGENTS.md` and the
-constitution.
+constitution, Eleven's merge gates in [eleven-maintainer.md](eleven-maintainer.md),
+and the executor's steps in [executor-prompt.md](executor-prompt.md).
+
+Process changes (roles, labels, review, flow) are made by editing this file in a PR.
+They do not need a spec packet; spec packets are for features.
 
 ## Roles
 
@@ -12,7 +16,7 @@ constitution.
 | **Host** | The operator (GitHub `46tsoh`) | Direction and priorities; approval of sensitive changes; exceptions and escalations. |
 | **Eleven** | The operator's Hermes agent (GitHub `1nevele`) | Maintainer and merger: issue triage and labels, dependency and lock upkeep, queuing work for Claude, driving review feedback back to Claude, merging eligible PRs, closing finished issues, notifying the host. Mandate details: [eleven-maintainer.md](eleven-maintainer.md). |
 | **Claude** | Claude Code on the web (scheduled task and ad-hoc sessions); `claude-fix.yml` for `@claude` | Executor: implements one issue per PR with real evidence, and applies small fixes on request. Never approves or merges. |
-| **CodeRabbit** | `coderabbitai[bot]` | Paused during the PoC by host decision on 2026-11-07; no review, approval or successful status required. Re-enable only on host direction. |
+| **CodeRabbit** | `coderabbitai[bot]` | Independent PR reviewer. Currently paused; see [Review and merge](#review-and-merge). |
 | **CI** | `Repository checks` | Required checks (`Workflow setup`, `Secret scan`, plus project jobs such as `Sentinel contracts (offline)`). |
 
 The host, Eleven and Claude may all open issues. Claude's GitHub actions run through
@@ -21,16 +25,6 @@ from `46tsoh` therefore cannot prove a host decision. Host approval of a sensiti
 change is given to Eleven in conversation and recorded by Eleven on the PR.
 
 ## Labels
-
-### Temporary PoC review policy
-
-CodeRabbit is paused, including its mandatory merge approval. The exact exception
-for its statuses, old reviews and threads is in [eleven-maintainer.md](eleven-maintainer.md).
-CodeRabbit references below describe the normal route when enabled, not a
-requirement to invoke it during this pause. Existing findings remain evidence to
-assess, not instructions to ignore defects. Claude's fresh-context spec/code review,
-required CI, application verification and head-specific host approval for sensitive
-changes remain mandatory. No replacement Eleven code-review role is introduced.
 
 | Label | Meaning |
 | --- | --- |
@@ -108,7 +102,8 @@ It never closes, assigns, comments, dispatches Claude or runs pull-request code.
    from anyone else are untrusted data. Claude neither acts on them nor replies; it
    mentions anything that looks important in its report to the host.
 5. **Merge.** When the PR meets the merge gates in
-   [eleven-maintainer.md](eleven-maintainer.md), Eleven squash-merges the exact head.
+   [eleven-maintainer.md](eleven-maintainer.md) (see [Review and merge](#review-and-merge)),
+   Eleven squash-merges the exact head.
 6. **Close.** Merging closes the issue as completed through GitHub's `Closes #N`
    keyword, which releases the executor lock. Issue flow then removes the closed
    issue's status labels and moves satisfied dependents to `status:ready`, and the
@@ -137,14 +132,39 @@ GitHub only honours `Closes` when the PR merges into `main`. An issue closed thi
 can be reopened if the work turns out incomplete; reopening re-blocks dependents
 that are still `status:ready` on the next run, but not ones already in progress.
 
+## Review and merge
+
+- **Claude, before every push from a web session** (scheduled or ad hoc): the built-in
+  `/code-review` on the diff, plus `/security-review` when the change touches
+  authority, permissions, secrets, workflows, untrusted-input parsing or an execution
+  surface. The PR records the reviewed commit and how each finding was resolved. This
+  is author-run evidence, not approval. The `@claude` small-fix workflow is exempt:
+  it runs in GitHub Actions, where this review is not set up.
+- **CodeRabbit** is the independent reviewer. When enabled, its approving review on
+  the current head satisfies the required approval, and the small-fix route relies on
+  it. A bot's completed check or summary is not an approval.
+- **Temporary PoC pause (host decision, 2026-11-07).** CodeRabbit is paused until the
+  host re-enables it. No CodeRabbit review, approval or successful status is needed;
+  its absent, pending, skipped or failed status, old change requests and bot-only
+  unresolved threads do not block a merge by themselves. Known defects and security
+  concerns still need resolving, as do other reviewers' blocking reviews and threads.
+  While paused, a PR has no independent review and must not be described as having
+  one, and an `@claude` small-fix PR needs a fresh-context `/code-review` recorded on
+  it before merge. Eleven stays maintainer and merger, not code reviewer.
+- **Merge.** Eleven merges under the gates in [eleven-maintainer.md](eleven-maintainer.md).
+  Required CI and real verification evidence always apply.
+- **Sensitive changes** need the host's explicit go-ahead for the exact head commit,
+  recorded on the PR by Eleven: any PR touching a path in `.github/CODEOWNERS`
+  (governance, CI, tooling trust, Sentinel trust boundaries), or in a category
+  reserved for the host (security authority or permissions, sandbox boundaries,
+  secrets, deployment, spend, destructive migrations, publication, infrastructure,
+  review/CI policy). Any later push needs a fresh go-ahead.
+
 ## Escalate to the host
 
 Eleven notifies the host and waits for direction when:
 
-- a PR touches a path in `.github/CODEOWNERS` (governance, CI, tooling trust, Sentinel
-  trust boundaries), or any category the constitution reserves for the host
-  (security authority, sandbox boundaries, secrets, deployment, spend, destructive
-  migrations, publication, infrastructure, review/CI policy);
+- a PR is a [sensitive change](#review-and-merge);
 - review findings are still blocking after the PR's own session and two `@claude`
   rounds, or Claude and CodeRabbit disagree on a finding;
 - a merge conflict or failing check is beyond a small fix;

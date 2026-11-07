@@ -4,9 +4,9 @@ Updated 2026-11-07. Scope: repository preparation and Claude Code **on the web**
 
 ## One workflow
 
-Spec Kit owns one canonical root `specs/<NNN>-<project>-<feature>/{spec,plan,tasks}.md` packet. Existing product plans and research are inputs, not a reason to restart discovery. Superpowers supplies bounded TDD/debugging/verification guidance; it does not create another plan hierarchy. Code review uses the built-in `/code-review` in-session before push (`CLAUDE.md`). Root instructions and project safety rules take precedence over examples in upstream skills.
+Spec Kit owns one canonical root `specs/<NNN>-<project>-<feature>/{spec,plan,tasks}.md` packet. Existing product plans and research are inputs, not a reason to restart discovery. Superpowers supplies bounded TDD/debugging/verification guidance; it does not create another plan hierarchy. Root instructions and project safety rules take precedence over examples in upstream skills.
 
-Roles, labels and the issue flow are in [operating-model.md](operating-model.md): the host gives direction, Eleven maintains and merges, Claude Code on the web implements one issue per PR with real tests and an in-session `/code-review` (CodeRabbit is the independent reviewer), then stops.
+Roles, labels, review and the issue flow are in [operating-model.md](operating-model.md).
 
 ## Adopted repository assets
 

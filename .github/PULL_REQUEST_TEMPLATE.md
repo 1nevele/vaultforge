@@ -16,9 +16,8 @@
 - `/code-review` before push (reviewed commit, each finding and its resolution; `/security-review` too for security-relevant changes; write "exempt" for `@claude` small-fix PRs, or "not a web session" and who reviewed instead for other PRs):
 - CodeRabbit review on the latest commit, or explicit skipped/blocked reason:
 
-Follow [the review policy](https://github.com/1nevele/vaultforge/blob/main/docs/code-review.md). CodeRabbit's approving review
-satisfies the required approval; a completed bot check or summary alone does
-not prove that findings have been resolved.
+Review rules, including the current CodeRabbit pause, are under "Review and merge"
+in [the operating model](https://github.com/1nevele/vaultforge/blob/main/docs/operating-model.md#review-and-merge).
 
 ## Limitations and security assumptions
 

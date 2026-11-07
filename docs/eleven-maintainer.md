@@ -14,17 +14,12 @@ Eleven may:
 - open, edit, label and triage issues; declare dependencies; set `status:*`;
 - queue work for the scheduled executor by adding `claude:scheduled` + `status:ready`
   to issues inside the host's current direction;
-- release the executor lock: merging a PR with `Closes #N` closes its issue; when a
-  PR is abandoned, or right after merging a `Part of #N` PR: first add
-  `status:hold` if the remaining work needs a decision (keep any hold already
-  there), then remove `status:in-progress`, then add `status:ready`. This order
-  keeps a new executor run from claiming the issue mid-reset; close an issue by
-  hand only when its work landed on `main` without a closing keyword and its
-  acceptance is evidenced;
-- ask Claude for review fixes with an `@claude` comment on a PR, quoting the findings
-  to address, at most two rounds per PR, on the first wake after a blocking finding
-  or red check has gone two hours without a push or reply from Claude (operating
-  model, flow step 4);
+- release the executor lock when a PR is abandoned or right after a `Part of #N`
+  merge, in the order of the operating model's flow step 7 (keep any hold already
+  there); close an issue by hand only when its work landed on `main` without a
+  closing keyword and its acceptance is evidenced;
+- ask Claude for review fixes with an `@claude` comment quoting the findings, as in
+  the operating model's flow step 4 (at most two rounds per PR);
 - merge PRs that meet every gate below;
 - notify the host in the Discord `pull-requests` channel.
 
@@ -38,16 +33,13 @@ file.
 
 All must hold on the exact head being merged:
 
-- **Temporary PoC policy (host decision, 2026-11-07): CodeRabbit is paused.**
-  No CodeRabbit review, approval or successful status is required. Its absent,
-  pending, skipped or failed status, old change requests and unresolved bot threads
-  are not merge blockers by themselves. This exception applies only to CodeRabbit:
-  known defects, security concerns and other reviewers' outstanding change requests
-  or unresolved conversations still require resolution. Claude's fresh-context
-  spec/code review and real verification evidence remain required; Eleven checks
-  merge eligibility, not application code. Re-enable only on host direction.
+- **Review**, as defined under "Review and merge" in the operating model: Claude's
+  recorded `/code-review` on the head (or, for an `@claude` small-fix PR, the review
+  that section requires), and a CodeRabbit approval on the head only while CodeRabbit
+  is enabled. Eleven checks merge eligibility, not application code.
 - All required checks successful, the branch up to date with `main`, and no
-  unresolved review conversations except the CodeRabbit-only pause above.
+  unresolved review conversations (bot-only CodeRabbit threads excepted while it is
+  paused).
 - Real verification evidence in the PR body for application changes (tests, types,
   build); repository setup or secret checks alone are not application verification.
   Missing, skipped, pending or failed mandatory evidence blocks merge.
@@ -63,14 +55,10 @@ All must hold on the exact head being merged:
 - **Base branch.** Every PR Eleven merges targets `main`, checked at merge time
   (GitHub ignores closing keywords on other bases, and work merged elsewhere has not
   landed, so neither may release the executor lock).
-- **Sensitive changes:** if the PR touches a path in `.github/CODEOWNERS`, or a
-  category the constitution reserves for the host (security authority or
-  permissions, sandbox boundaries, secrets, deployment, spend, destructive
-  migrations, publication, infrastructure, review/CI policy), Eleven merges only
-  after the host's explicit go-ahead in conversation for that PR's current head
-  commit, and records the go-ahead with that commit SHA in a PR comment before
-  merging. Any later push to the PR needs a fresh go-ahead. CodeRabbit approval
-  cannot waive this.
+- **Sensitive changes** (defined under "Review and merge" in the operating model):
+  merge only after the host's explicit go-ahead in conversation for the PR's current
+  head commit, recorded with that commit SHA in a PR comment before merging. Any
+  later push needs a fresh go-ahead. A CodeRabbit approval cannot waive this.
 
 Merge mechanics: re-read head, base, reviews and checks immediately before an
 exact-head squash merge. Never admin-bypass, force-push, dismiss reviews, weaken
@@ -82,15 +70,12 @@ execution permission.
 
 ## After a merge
 
-A `Closes #N` PR closes its issue as completed on merge, which releases the executor
-lock. The issue-flow workflow then removes the closed issue's status labels and moves
-dependents whose dependencies are all satisfied from `status:blocked` to
-`status:ready`. Check that
-the issue closed and the labels moved, and notify the host with the merge commit and
-anything newly ready. If the PR said `Part of #N`, release the lock right away as
-above, otherwise the queue stops. If a closing keyword was missing for finished
-work, close the issue by hand only after checking the same acceptance evidence the
-closing gate requires; otherwise treat it as a `Part of #N` merge.
+Check that the issue closed and issue flow moved the labels (operating model, flow
+step 6), and notify the host with the merge commit and anything newly ready. If the
+PR said `Part of #N`, release the lock right away (flow step 7), otherwise the queue
+stops. If a closing keyword was missing for finished work, close the issue by hand
+only after checking the same acceptance evidence the closing gate requires; otherwise
+treat it as a `Part of #N` merge.
 
 ## Monitoring
 
@@ -104,12 +89,10 @@ retry, and a newer snapshot is never acknowledged in place of the pending one.
 Eleven's own PR activity is ignored for wake detection. Deployment is explicit;
 never execute a PR checkout automatically.
 
-Issue-only changes do not wake the poller. Mechanical label upkeep is handled by the
-issue-flow workflow; triage of new issues happens on Eleven's next pass or when the
-host asks. An executor blocker reported on an issue before any PR exists does not
-reach Eleven; it reaches the host through the scheduled task's push notification.
-Nor does a PR whose session has gone quiet: with no PR change there is no wake, so
-the two-hour `@claude` fallback waits for the next one and the host is the backstop.
+Issue-only changes do not wake the poller: label upkeep is the issue-flow workflow's,
+and triage of new issues happens on Eleven's next pass or when the host asks. What
+the poller therefore misses is covered in the operating model (escalation and known
+gaps).
 
 ## Verification
 

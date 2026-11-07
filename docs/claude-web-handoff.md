@@ -34,7 +34,7 @@ account change, optional helper, permission bypass or manual-read substitute.
 
 Refine/review the existing feature spec and create plan.md/tasks.md in that same
 packet. Do not generate a competing spec or Superpowers plan tree. Use Spec Kit
-for specification artifacts and Superpowers for implementation, TDD and review;
+for specification artifacts and Superpowers for TDD, debugging and verification;
 preserve the project safety/ownership requirements above them.
 
 Implement only after spec/plan review. Detect the actual cloud toolchain, pin
@@ -74,6 +74,6 @@ A dispatched task requires a real Claude web session handle and repository/assig
 
 The scheduled task **Vaultforge ready-issue executor** lives in the host's claude.ai
 account (pause or edit it there) and runs [executor-prompt.md](executor-prompt.md).
-How issues are queued, locked, released and unblocked is in
+How issues are queued, claimed, released and unblocked is in
 [operating-model.md](operating-model.md). `@claude` comments are for small fixes only
 (`.github/workflows/claude-fix.yml`).
