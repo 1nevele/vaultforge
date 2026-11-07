@@ -49,10 +49,11 @@ All must hold on the exact head being merged:
   as completed, which can unblock dependents. Check them all: issues named with any
   closing keyword (`close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`,
   `resolves`, `resolved`, in any case) and issues linked in the PR's Development
-  section. That set must be exactly the issue the PR was opened for; each of its
-  acceptance items must be evidenced in the PR body (a completion claim is not
-  evidence); and a closing PR must target `main` (GitHub ignores closing keywords
-  on other bases, which would leave the issue locked). Otherwise ask Claude to say
+  section. That set must be either empty (a `Part of #N` PR, which closes nothing)
+  or only the issue the PR was opened for. If it is not empty, each acceptance item
+  of that issue must be evidenced in the PR body (a completion claim is not
+  evidence), and the PR must target `main` (GitHub ignores closing keywords on
+  other bases, which would leave the issue locked). Otherwise ask Claude to say
   `Part of #N`, remove the extra link, and say what remains.
 - **Sensitive changes:** if the PR touches a path in `.github/CODEOWNERS`, or a
   category the constitution reserves for the host (security authority or

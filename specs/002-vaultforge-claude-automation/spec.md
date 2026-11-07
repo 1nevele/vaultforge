@@ -33,7 +33,8 @@ follow-through.
   `status:hold` first if it needs a decision, then removes `status:in-progress`,
   then adds `status:ready`, so no new claim can land mid-reset. Runs are serialized by the task's schedule
   (no event triggers); after claiming, a run re-checks that the issue is still
-  open, unheld and unblocked, and otherwise releases the claim and stops. A stale label blocks later runs;
+  open, scheduled, unheld, unblocked and claimed, and otherwise releases the claim
+  (restoring `status:ready` unless the issue is closed or blocked) and stops. A stale label blocks later runs;
   it is never cleared by the scheduled run itself.
 - CA-004: **One issue, one PR.** A run opens one PR whose body says `Closes #N` (or
   `Part of #N` for partial work), so merging it closes the issue as completed,

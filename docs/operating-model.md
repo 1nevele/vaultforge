@@ -40,7 +40,7 @@ status the rules give it. `claude-implement` is retired and starts nothing.
 
 Declare dependencies in a `## Dependencies` section of the issue body (for example
 `- Blocked by #1 (S01), #3 (S03)`) or on a `Depends-on: #N, #M` line anywhere. Every
-`#N`, `1nevele/vaultforge#N` or issue/PR URL of this repository in that section (up
+`#N`, `owner/repo#N` or issue/PR URL of this repository in that section (up
 to the next heading of the same or higher level) or on that line counts. References
 elsewhere in the body (for example a tracker checklist), inside code fences or in
 HTML comments do not. A dependency is satisfied when it is an issue closed as
