@@ -64,3 +64,33 @@ jobs:
         env:
           GITLEAKS_BIN: ${{ runner.temp }}/gitleaks
         run: '"$GITLEAKS_BIN" git . --log-opts=--all --redact=100 --no-banner --ignore-gitleaks-allow'
+
+  sentinel-contracts:
+    name: Sentinel contracts (offline)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: projects/sentinel
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22.23.4'
+      - name: Enable Corepack (pinned pnpm from packageManager)
+        run: corepack enable
+      - name: Install with the committed lockfile
+        run: pnpm install --frozen-lockfile
+      # Offline unit/setup checks only. These are NOT G0-G8 security or
+      # live-integration gates (spec S01-007); they run with no provider
+      # credentials, no network targets and no execution surface.
+      - name: Typecheck (strict)
+        run: pnpm --dir packages/contracts typecheck
+      - name: Build
+        run: pnpm --dir packages/contracts build
+      - name: Test (vitest, offline)
+        run: pnpm --dir packages/contracts test

@@ -1,0 +1,46 @@
+import { describe, expectTypeOf, test } from "vitest";
+import type { Generation, OperationId, Sequence, Sha256Digest } from "../src/common.js";
+import type { CandidateSet, Selection } from "../src/candidates.js";
+import type { MissionSnapshot, ProjectionCursor } from "../src/snapshot.js";
+import type { EventEnvelope } from "../src/events.js";
+import type { DerivedInferenceRecord } from "../src/derived.js";
+import { checkOperationBinding, type OperationRef, type ReviewRef } from "../src/operation.js";
+import type { RuntimeActor } from "../src/actor.js";
+
+// Fencing values must carry the shared brands, so an unbranded number cannot be
+// passed where a fenced generation/sequence is expected (CodeRabbit #21 review).
+describe("generation and sequence fields use the shared brands (S01-002)", () => {
+  test("execution_generation is a branded Generation everywhere", () => {
+    expectTypeOf<CandidateSet["execution_generation"]>().toEqualTypeOf<Generation>();
+    expectTypeOf<Selection["execution_generation"]>().toEqualTypeOf<Generation>();
+    expectTypeOf<MissionSnapshot["execution_generation"]>().toEqualTypeOf<Generation>();
+    expectTypeOf<EventEnvelope["execution_generation"]>().toEqualTypeOf<Generation>();
+    expectTypeOf<DerivedInferenceRecord["execution_generation"]>().toEqualTypeOf<Generation>();
+    expectTypeOf<OperationRef["expected_actor_generation"]>().toEqualTypeOf<Generation>();
+    expectTypeOf<RuntimeActor["execution_generation"]>().toEqualTypeOf<Generation>();
+  });
+
+  test("candidate_set_version is a branded Generation", () => {
+    expectTypeOf<CandidateSet["candidate_set_version"]>().toEqualTypeOf<Generation>();
+    expectTypeOf<Selection["candidate_set_version"]>().toEqualTypeOf<Generation>();
+  });
+
+  test("projection_sequence is a branded Sequence everywhere", () => {
+    expectTypeOf<ProjectionCursor["projection_sequence"]>().toEqualTypeOf<Sequence>();
+    expectTypeOf<EventEnvelope["projection_sequence"]>().toEqualTypeOf<Sequence>();
+  });
+});
+
+describe("binding helpers take branded expected values (S01-002)", () => {
+  test("a swapped operation id and digest does not compile", () => {
+    const id = "op-1" as OperationId;
+    const digest = ("sha256:" + "e".repeat(64)) as Sha256Digest;
+    const ref = {} as ReviewRef;
+    // @ts-expect-error — digest passed where the operation id belongs
+    void (() => checkOperationBinding({ operation_id: digest, operation_digest: id }, ref));
+    expectTypeOf(checkOperationBinding).parameter(0).toEqualTypeOf<{
+      operation_id: OperationId;
+      operation_digest: Sha256Digest;
+    }>();
+  });
+});
