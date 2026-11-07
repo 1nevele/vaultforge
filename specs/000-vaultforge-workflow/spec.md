@@ -1,6 +1,6 @@
 # 000 — Vaultforge monorepo and Claude-web workflow
 
-Status: requested tooling/repository setup; no application implementation in this feature. User approved Vaultforge as the monorepo, Sentinel as a project, and the repository-native Claude Code web setup. Implementation uses five pinned Superpowers skills plus nine official generated Spec Kit skills, not a full Superpowers plugin. Actual cloud discovery remains a separate gate.
+Status: requested tooling/repository setup; no application implementation in this feature. User approved Vaultforge as the monorepo, Sentinel as a project, and the repository-native Claude Code web setup. Implementation uses five pinned Superpowers skills (three since the 2026-11-07 amendment below) plus nine official generated Spec Kit skills, not a full Superpowers plugin. Actual cloud discovery remains a separate gate.
 
 ## Requirements
 

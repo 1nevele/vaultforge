@@ -4,7 +4,7 @@
 
 Claude Code **on the web** implements application code. For Sentinel, host gives direction, Claude owns development work and issue management within that direction, CodeRabbit reviews, and Eleven only checks merge eligibility, merges eligible PRs and notifies host under `docs/eleven-maintainer.md`. Eleven does not independently manage issues/specs, dispatch work or submit code reviews. Do not replace Claude with local coding or a local Claude CLI session. Unaccepted local scaffolding is not an implementation baseline.
 
-Execution routes (`specs/002-vaultforge-claude-automation`): issues opted in with `claude:scheduled` plus `status:ready` run through the scheduled Claude cloud task, one at a time, locked by `status:in-progress` on a `claude:scheduled` issue; `@claude` comments run `.github/workflows/claude-fix.yml` for small fixes only. There is no automated code-review gate.
+Execution routes (`specs/002-vaultforge-claude-automation`): issues opted in with `claude:scheduled` plus `status:ready` run through the scheduled Claude cloud task, one at a time, locked by `status:in-progress` on a `claude:scheduled` issue; `@claude` comments run `.github/workflows/claude-fix.yml` for small fixes only. There is no CI code-review gate; Claude's pre-push `/code-review` is an author-run check and CodeRabbit reviews PRs.
 
 Read `.specify/memory/constitution.md`, `docs/development-workflow.md`, the assigned GitHub issue and its root `specs/<NNN>-<project>-<feature>/` packet. For Sentinel, read `projects/sentinel/AGENTS.md` and its plans/research. These rules supersede historical paths/executor instructions. Never initialize a second Git repository inside a project.
 

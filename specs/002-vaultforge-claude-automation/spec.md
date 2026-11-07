@@ -35,7 +35,7 @@ execution routes and no automated Claude code-review gate.
   fixes (turn and time limits, scope instruction) and declines spec/feature work,
   dependency changes and `.github/` edits by pointing to a scheduled issue
   (`claude:scheduled` + `status:ready`).
-- CA-006: **No Claude review gate.** No Claude review workflow runs on PR open.
+- CA-006: **No Claude review gate in CI.** No Claude review workflow runs on PR open.
   Automated review is CodeRabbit (`.coderabbit.yaml`, see `docs/code-review.md`);
   neither Claude route approves or merges. Scheduled web sessions also run the
   built-in `/code-review` in-session before pushing and record it in the PR

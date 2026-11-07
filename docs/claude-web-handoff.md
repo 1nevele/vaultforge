@@ -7,7 +7,7 @@
 - **Start only S01:** https://github.com/1nevele/vaultforge/issues/1
 - S02–S05 (#2–#5) are blocked on independently accepted/integrated S01.
 
-Eleven prepares specs/backlog and reviews. Claude Code **on the web** implements application code. No cloud session has been launched by preparing these files/issues. A user/session must have access to the private repository; do not guess an account or invite collaborators automatically.
+Host gives direction, CodeRabbit reviews PRs and Eleven only checks merge eligibility. Claude Code **on the web** implements application code. No cloud session has been launched by preparing these files/issues. A user/session must have access to the private repository; do not guess an account or invite collaborators automatically.
 
 ## Paste-ready first assignment
 
