@@ -18,16 +18,39 @@ class ReviewContractTests(unittest.TestCase):
         spec.loader.exec_module(self.mod)
         self.expected: dict[str, Any] = dict(repository_id=1448718197, pr=8,
             head_sha='a'*40, base_sha='b'*40, policy_sha='c'*40,
-            nonce='d'*64, input_sha256='e'*64,
+            nonce='d'*64, input_sha256='e'*64, risk_ceiling='low',
             files=['docs/code-review.md', '.coderabbit.yaml'])
         self.current = copy.deepcopy(self.expected)
-        self.verdict = {k:v for k,v in self.expected.items() if k != 'files'}
+        self.verdict = {k:v for k,v in self.expected.items() if k not in ('files', 'risk_ceiling')}
         self.verdict.update(decision='approve', complete=True, findings=[],
             reviewed_files=['.coderabbit.yaml', 'docs/code-review.md'],
+            risk='low', risk_ceiling='low',
             summary='No blocking defects identified in the supplied complete change.')
 
     def check(self):
         return self.mod.validate_review(self.verdict, self.expected, self.current)
+
+    def test_risk_ceiling_low_for_small_doc_only_diff(self):
+        self.assertEqual(self.mod.compute_risk_ceiling(['docs/code-review.md'], 2, 0), 'low')
+
+    def test_risk_ceiling_medium_for_source_code_change(self):
+        self.assertEqual(self.mod.compute_risk_ceiling(['tools/widget.py'], 12, 4), 'medium')
+
+    def test_risk_ceiling_high_for_workflow_or_sensitive_paths(self):
+        for path in ('.github/workflows/anything.yml', '.claude/settings.json',
+                      'tools/claude_review.py', 'AGENTS.md'):
+            with self.subTest(path=path):
+                self.assertEqual(self.mod.compute_risk_ceiling([path], 1, 0), 'high')
+
+    def test_risk_ceiling_high_for_large_diff_regardless_of_path(self):
+        self.assertEqual(self.mod.compute_risk_ceiling(['docs/a.md'], 300, 150), 'high')
+
+    def test_risk_ceiling_medium_for_moderate_diff(self):
+        self.assertEqual(self.mod.compute_risk_ceiling(['docs/a.md'], 60, 10), 'medium')
+
+    def test_risk_ceiling_is_max_across_all_files(self):
+        self.assertEqual(self.mod.compute_risk_ceiling(['docs/a.md', 'tools/x.py'], 3, 0), 'medium')
+        self.assertEqual(self.mod.compute_risk_ceiling(['docs/a.md', '.github/workflows/x.yml'], 1, 0), 'high')
 
     def test_paginated_gh_output_conserves_every_page(self):
         self.assertEqual(self.mod.decode_pages('[{"id":1}]\n[{"id":2}]\n'), [[{'id':1}], [{'id':2}]])
@@ -35,7 +58,7 @@ class ReviewContractTests(unittest.TestCase):
         with self.assertRaises(ValueError): self.mod.decode_pages('{"id":1}')
 
     def test_valid_clean_current_review_accepts(self):
-        self.assertEqual(self.check(), self.verdict['summary'])
+        self.assertEqual(self.check()['summary'], self.verdict['summary'])
 
     def test_reject_verdict_blocks(self):
         self.verdict['decision'] = 'reject'
@@ -104,6 +127,36 @@ class ReviewContractTests(unittest.TestCase):
 
     def test_no_changed_files_cannot_obtain_approval(self):
         self.expected['files']=[]; self.current['files']=[]; self.verdict['reviewed_files']=[]
+        with self.assertRaises(ValueError): self.check()
+
+    def test_low_risk_clean_approve_is_merge_eligible(self):
+        outcome = self.check()
+        self.assertTrue(outcome['merge_eligible'])
+        self.assertEqual(outcome['risk'], 'low')
+        self.assertEqual(outcome['summary'], self.verdict['summary'])
+
+    def test_medium_or_high_ceiling_blocks_merge_eligibility_even_if_clean(self):
+        for ceiling in ('medium', 'high'):
+            with self.subTest(ceiling=ceiling):
+                self.expected['risk_ceiling'] = ceiling
+                self.current['risk_ceiling'] = ceiling
+                self.verdict['risk_ceiling'] = ceiling
+                self.verdict['risk'] = ceiling
+                outcome = self.check()
+                self.assertFalse(outcome['merge_eligible'])
+                self.assertEqual(outcome['risk'], ceiling)
+
+    def test_model_cannot_self_report_below_the_deterministic_ceiling(self):
+        self.verdict['risk_ceiling'] = 'high'
+        self.verdict['risk'] = 'low'
+        with self.assertRaises(ValueError): self.check()
+
+    def test_unknown_risk_value_blocks(self):
+        self.verdict['risk'] = 'none'
+        with self.assertRaises(ValueError): self.check()
+
+    def test_risk_ceiling_identity_mismatch_blocks(self):
+        self.verdict['risk_ceiling'] = 'medium'
         with self.assertRaises(ValueError): self.check()
 
 
