@@ -88,4 +88,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: python -B tools/risk_gate.py
+        run: |
+          # Fail closed when the base has no gate (e.g. the PR that introduces it):
+          # never fall back to the PR's own, possibly modified, copy.
+          if [ ! -f tools/risk_gate.py ]; then
+            echo "BLOCKED: tools/risk_gate.py is not on the base branch; cannot evaluate risk."
+            exit 1
+          fi
+          python -B tools/risk_gate.py
