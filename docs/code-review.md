@@ -56,19 +56,22 @@ auto-review enabled, author self-approval disabled, finishing-touches
 (docstrings/tests/autofix/etc.) disabled.
 
 CodeRabbit's `auto_approvals` is enabled: it submits its own approving GitHub
-review (a separate bot identity, so it counts toward the required-approval
-check) once its automated pass finds no blocking issues. CodeRabbit itself has
-no concept of diff risk, so a separate required `Risk gate` check
-(`tools/risk_gate.py`) runs on every PR and fails (blocking) for diffs
-touching sensitive paths or exceeding a size threshold, independent of
-CodeRabbit's or any reviewer's verdict. In combination: a low/medium-risk PR
-can merge on CodeRabbit's auto-approval alone; a high-risk PR stays blocked by
-the risk gate until a human looks, regardless of what any bot approves.
+review as a separate bot identity once its automated pass finds no blocking
+issues. If GitHub counts that
+approval, a PR may satisfy the required-approval check without a human
+approval. Repository policy (Responsibilities, above) still requires approval
+by a maintainer other than the author; a bot approval does not change that.
+
+CodeRabbit has no concept of diff risk. A deterministic `Risk gate` check
+(`tools/risk_gate.py`) that would block PRs touching sensitive paths or
+exceeding a size threshold is proposed on the unmerged `ci/risk-gate` branch.
+It is not on `main` and not a required check, so no risk-based blocking is
+currently in effect.
 
 `main`'s `enforce_admins` was disabled on 2026-11-07 at the owner's explicit
 request, so the repository admin can push/merge directly, bypassing the PR
 and review requirement entirely. That bypass is independent of CodeRabbit and
-the risk gate and is not limited by risk tier.
+any risk gate and is not limited by risk tier.
 
 ## Claude execution routes
 
