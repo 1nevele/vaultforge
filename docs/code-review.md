@@ -50,7 +50,7 @@ The intended protected-main settings are:
 CodeRabbit is active on this repository, scoped only to `1nevele/vaultforge`
 (the private archive repo is explicitly excluded from its installation). It
 was briefly retired on 2026-11-06 at the owner's request, then reinstated on
-2026-11-07 alongside the new Claude Max review/implementation workflows below.
+2026-11-07; it is separate from the Claude execution routes below.
 `.coderabbit.yaml` in the repository root carries the active configuration:
 auto-review enabled, author self-approval disabled, finishing-touches
 (docstrings/tests/autofix/etc.) disabled.
@@ -70,11 +70,13 @@ request, so the repository admin can push/merge directly, bypassing the PR
 and review requirement entirely. That bypass is independent of CodeRabbit and
 the risk gate and is not limited by risk tier.
 
-Claude Max-backed review verification (`tools/claude_review.py`, triggered
-manually via the `Repository checks` workflow's `review_pr` input) and the
-`claude-implement.yml` issue-implementation workflow remain separate,
-additional automation layered on top of CodeRabbit, not a replacement for it.
-Neither currently has approval or merge authority of its own.
+## Claude execution routes
+
+Per `specs/002-vaultforge-claude-automation`: a Claude cloud scheduled task
+executes one `status:ready` issue at a time and stops at the PR, and
+`.github/workflows/claude-fix.yml` handles `@claude` small-fix requests. Neither
+approves or merges. `claude-fix.yml` holds a write-scoped token and the
+`CLAUDE_CODE_OAUTH_TOKEN` secret; it acts only for actors with write access.
 
 This document specifies policy, not proof of activation. Verify the live branch
 protection API, the GitHub App's actual installation scope, and real Actions
