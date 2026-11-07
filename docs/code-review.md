@@ -67,11 +67,18 @@ approves, with required checks passing, may be merged without a human approval.
 Verify on the first such PR that GitHub counts the bot's review toward the
 required-approval rule; if it does not, a human approval is still needed.
 
-CodeRabbit has no concept of diff risk. A deterministic `Risk gate` check
-(`tools/risk_gate.py`) that would block PRs touching sensitive paths or
-exceeding a size threshold is proposed on the unmerged `ci/risk-gate` branch.
-It is not on `main` and not a required check, so no risk-based blocking is
-currently in effect.
+CodeRabbit has no concept of diff risk. The `Risk gate` job in `Repository
+checks` (`tools/risk_gate.py`) fails for PRs that touch sensitive paths
+(including a rename's source path) or exceed a size threshold. It runs the gate
+script from the PR's base commit, so a PR cannot weaken the script to pass
+itself. It blocks merging only once `Risk gate` is added to main's required
+status checks; until then it is advisory.
+
+Known limit: under `pull_request`, GitHub runs the workflow file from the PR, so
+a PR that edits `.github/workflows/` can change or skip the gate job. Closing
+that needs a repository-level control, such as a ruleset that requires this
+workflow from `main`, or CODEOWNERS review on `.github/workflows/`. Neither is
+configured by this change.
 
 `main`'s `enforce_admins` was disabled on 2026-11-07 at the owner's explicit
 request, so the repository admin can push/merge directly, bypassing the PR
