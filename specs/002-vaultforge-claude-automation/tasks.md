@@ -23,3 +23,4 @@
 - [x] T021 Keep the issue-event trigger: serialize selection and claiming with an atomic claim lock (`executor.lock` on `executor-lock`, contents-API create without sha, delete by sha, 30-minute stale break) (CA-003)
 - [ ] T022 Host: paste the updated `docs/executor-prompt.md` into the scheduled task after merge
 - [x] T023 Web sessions (scheduled or ad hoc) run built-in `/code-review` before push, replacing the retired Superpowers review skills; CodeRabbit remains the PR reviewer (2026-11-07, owner request; from PR #24)
+- [x] T024 Replace T021's contents-API lock, which the session's GitHub tools cannot release by sha, with a git compare-and-swap lock (`tools/executor_lock.py` on `claude/executor-lock`, tested against a bare remote by `tools/tests/test_executor_lock.py`) (CA-003)

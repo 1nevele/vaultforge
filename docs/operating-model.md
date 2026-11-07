@@ -173,10 +173,12 @@ still waiting on something, then remove `status:in-progress`, then add
 - The scheduled task's live prompt is stored in the host's claude.ai account. Keep it
   identical to [executor-prompt.md](executor-prompt.md).
 - Executor runs can overlap (the task also fires on issue events), so selection and
-  claiming run under an atomic claim lock: `executor.lock` on the `executor-lock`
-  branch (see [executor-prompt.md](executor-prompt.md)). A run that crashes while
-  holding it blocks claims for up to 30 minutes, after which the next run breaks the
-  lock. If runs keep reporting a held lock, delete that file by hand.
+  claiming run under an atomic claim lock: the tip of the `claude/executor-lock`
+  branch, managed by `tools/executor_lock.py` (see [executor-prompt.md](executor-prompt.md)).
+  It is not a PR branch; do not clean it up. A run that crashes while holding it
+  blocks claims for up to 30 minutes, after which the next run breaks the lock. If
+  runs keep reporting a held lock, delete the branch by hand; the next run recreates
+  it.
 - Eleven's poller has no time-based wake, so the two-hour `@claude` fallback only
   runs when some PR change wakes Eleven; a stalled PR with no activity relies on the
   host noticing.

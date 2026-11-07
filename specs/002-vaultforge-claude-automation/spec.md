@@ -33,8 +33,11 @@ follow-through.
   `status:hold` first if it needs a decision, then removes `status:in-progress`,
   then adds `status:ready`, so no new claim can land mid-reset. Runs may overlap (schedule plus issue-event
   triggers), so selection and claiming are serialized by an atomic claim lock, the
-  file `executor.lock` on the `executor-lock` branch, created without a sha and
-  deleted by sha (stale after 30 minutes); after claiming, a run re-checks that the issue is still
+  tip of the `claude/executor-lock` branch (`tools/executor_lock.py`): an empty-tree
+  commit `held <token>` or `free <token>`, changed only by a non-force push of a child
+  of the tip just read, so concurrent claims cannot both land; a held tip whose
+  committer date is over 30 minutes old is broken the same way, an unrecognised tip
+  counts as held until stale, and a run re-checks its token just before claiming; after claiming, a run re-checks that the issue is still
   open, scheduled, unheld, unblocked and claimed, and otherwise releases the claim
   (restoring `status:ready` unless the issue is closed or blocked) and stops. A stale label blocks later runs;
   it is never cleared by the scheduled run itself.
