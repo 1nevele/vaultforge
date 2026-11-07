@@ -1,0 +1,29 @@
+# Sensitive paths (docs/operating-model.md). Eleven merges a PR touching any of
+# these only after the host's explicit go-ahead, recorded on the PR. Both accounts
+# are listed so a PR authored by either can still get a code-owner review.
+# "Require review from Code Owners" is not enabled; that is a host decision.
+
+# Governance, review and executor policy
+/AGENTS.md                         @1nevele @46tsoh
+/CLAUDE.md                         @1nevele @46tsoh
+/docs/operating-model.md           @1nevele @46tsoh
+/docs/eleven-maintainer.md         @1nevele @46tsoh
+/docs/code-review.md               @1nevele @46tsoh
+/docs/executor-prompt.md           @1nevele @46tsoh
+/.coderabbit.yaml                  @1nevele @46tsoh
+
+# CI, workflows and this file
+/.github/                          @1nevele @46tsoh
+
+# Development tooling trust
+/.claude/                          @1nevele @46tsoh
+/.specify/                         @1nevele @46tsoh
+/tools/                            @1nevele @46tsoh
+/development-tools.lock.json       @1nevele @46tsoh
+
+# Sentinel trust boundaries
+/projects/sentinel/AGENTS.md                @1nevele @46tsoh
+/projects/sentinel/packages/contracts/      @1nevele @46tsoh
+/projects/sentinel/apps/authority/          @1nevele @46tsoh
+/projects/sentinel/packages/worker/         @1nevele @46tsoh
+/projects/sentinel/infra/                   @1nevele @46tsoh

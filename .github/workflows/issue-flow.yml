@@ -1,0 +1,41 @@
+name: Issue flow
+
+# Keeps issue status labels consistent and unblocks dependents when their
+# dependencies close (specs/002-vaultforge-claude-automation CA-008,
+# docs/operating-model.md). It edits `status:*` labels only: it never closes,
+# assigns, comments, dispatches Claude or runs pull-request code. Label changes
+# made with GITHUB_TOKEN do not trigger further workflow runs, so it cannot loop.
+
+on:
+  issues:
+    types: [opened, edited, reopened, labeled, unlabeled, closed]
+  schedule:
+    # Daily safety-net sweep.
+    - cron: '41 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  # Serialize per issue; sweeps share one group. Every run also sweeps all open
+  # issues, so a superseded pending run loses nothing durable.
+  group: issue-flow-${{ github.event.issue.number || 'sweep' }}
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    name: Issue flow
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      # Issue and schedule events always run the default branch's copy.
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Reconcile status labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 -B tools/issue_flow.py

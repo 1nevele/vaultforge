@@ -10,4 +10,4 @@ Inherit root AGENTS.md. Claude Code on the web implements application code.
 - Preserve model/worker/supervisor/authority/verifier producer distinctions; models cannot self-upgrade trust.
 - Lead owns contracts/authority/shared config/security acceptance. A: mission-service, Jev/CDM/MCP, evidence. B: web. C: worker/runtime/verification/substrate. Maximum lead plus three; prerequisites must be accepted before dependent work.
 - Explicit synthetic demos have no execution capability. Missing live prerequisites remain blockers, not unlabeled mocks or passed checks.
-- Claude must not merge. Eleven may merge routine reviewed Sentinel PRs only under `docs/eleven-maintainer.md`. No automatic publication, external scanning, host infrastructure change or unapproved evidence export.
+- Claude must not merge. Eleven merges eligible PRs under `docs/eleven-maintainer.md`; trust-boundary paths in `.github/CODEOWNERS` need the host's explicit go-ahead. No automatic publication, external scanning, host infrastructure change or unapproved evidence export.

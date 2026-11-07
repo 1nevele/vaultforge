@@ -2,9 +2,7 @@
 
 ## Ownership and entry points
 
-Claude Code **on the web** implements application code. For Sentinel, host gives direction, Claude owns development work and issue management within that direction, CodeRabbit reviews, and Eleven only checks merge eligibility, merges eligible PRs and notifies host under `docs/eleven-maintainer.md`. Eleven does not independently manage issues/specs, dispatch work or submit code reviews. Do not replace Claude with local coding or a local Claude CLI session. Unaccepted local scaffolding is not an implementation baseline.
-
-Execution routes (`specs/002-vaultforge-claude-automation`): issues opted in with `claude:scheduled` plus `status:ready` run through the scheduled Claude cloud task, one at a time, locked by `status:in-progress` on a `claude:scheduled` issue; `@claude` comments run `.github/workflows/claude-fix.yml` for small fixes only. There is no automated code-review gate.
+Roles, labels and the issue flow are defined once in `docs/operating-model.md`: the host gives direction, Eleven maintains the repository and merges (`docs/eleven-maintainer.md`), Claude Code **on the web** implements, CodeRabbit reviews, and anyone may open issues. Do not replace Claude with local coding or a local Claude CLI session. Unaccepted local scaffolding is not an implementation baseline.
 
 Read `.specify/memory/constitution.md`, `docs/development-workflow.md`, the assigned GitHub issue and its root `specs/<NNN>-<project>-<feature>/` packet. For Sentinel, read `projects/sentinel/AGENTS.md` and its plans/research. These rules supersede historical paths/executor instructions. Never initialize a second Git repository inside a project.
 
@@ -14,7 +12,7 @@ Read `.specify/memory/constitution.md`, `docs/development-workflow.md`, the assi
 - Keep one canonical root feature packet with project name in the directory; no competing Superpowers plan tree.
 - Verify repository-provided skill discovery in the actual Claude web session. Hermes plugin activation is not web activation. Missing optional plugin support does not remove spec/TDD/review requirements.
 - Maximum Lead plus three active agents; exclusive paths. Only the Claude lead edits shared manifests/lockfiles/contracts.
-- Start dependent issues only after accepted prerequisites. Claude stops at the assigned PR; no Claude automatic merge or whole-backlog continuation. Eleven's bounded Sentinel maintainer authority is defined in `docs/eleven-maintainer.md`; sensitive changes still require host approval.
+- Start dependent issues only after accepted prerequisites. Claude stops at the assigned PR; no Claude merge or whole-backlog continuation. Eleven merges under `docs/eleven-maintainer.md`; sensitive changes (`.github/CODEOWNERS` paths and the constitution's reserved categories) still require the host's explicit go-ahead.
 
 ## Safety and truthfulness
 

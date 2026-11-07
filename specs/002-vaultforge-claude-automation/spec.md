@@ -6,9 +6,13 @@ runtime acceptance; see "Verification" below.
 
 ## Goal
 
-Claude is the executor for the operator and their Hermes agent (Eleven). Humans and
-Eleven prepare specs and issues; Claude implements them. There are exactly two
-execution routes and no automated Claude code-review gate.
+Claude is the executor for the operator (host) and their Hermes agent (Eleven), who
+is the repository's maintainer and merger. Anyone may open issues; Claude implements
+them. There are exactly two execution routes and no automated Claude code-review
+gate. Roles and the issue flow are summarized in `docs/operating-model.md`.
+
+Amended 2026-11-07: CA-003 lock release, CA-008 issue flow, CA-009 executor prompt in
+the repository, CA-010 roles.
 
 ## Requirements
 
@@ -23,9 +27,10 @@ execution routes and no automated Claude code-review gate.
   `status:ready` issue without `claude:scheduled` is never picked up.
 - CA-003: **One at a time.** If any open issue is labelled both `claude:scheduled`
   and `status:in-progress`, the run exits without changes. A run labels its issue `status:in-progress` before
-  starting work. The operator or Eleven removes that label after accepting, merging
-  or abandoning the PR. A stale label blocks later runs; it is never cleared by the
-  scheduled run itself.
+  starting work. Eleven (or the host) releases the lock by closing the issue after
+  merging its PR, or by resetting it to `status:ready` / `status:blocked` when the PR
+  is abandoned; CA-008 then removes the stale label. A stale label blocks later runs;
+  it is never cleared by the scheduled run itself.
 - CA-004: **Stop at the PR.** A run opens one PR referencing (not closing) the issue,
   with real evidence per the PR template, then stops. No merge, approval, issue
   closing, unblocking of dependent issues or continuation to the next issue.
@@ -41,6 +46,22 @@ execution routes and no automated Claude code-review gate.
 - CA-007: Labels and triggers `claude-implement` / assignee `claude` no longer start
   work. Existing safety rules in `AGENTS.md` and the constitution still apply to both
   routes.
+- CA-008: **Issue flow.** `.github/workflows/issue-flow.yml` runs
+  `tools/issue_flow.py` on issue events, daily and on demand, with an issues-scoped
+  token. It edits `status:*` labels only: at most one status label per open issue (a
+  newly added one wins, otherwise in-progress > blocked > ready); none on a closed
+  issue; `status:blocked` becomes `status:ready` when every dependency declared in
+  the issue body (`## Dependencies` → `Blocked by #N` / `Depends on #N`, or a
+  `Depends-on: #N` line) is closed as completed; `status:ready` with an open declared
+  dependency becomes `status:blocked`; a block with no declared dependency is left
+  alone. It never closes, assigns, comments, dispatches or runs PR code.
+- CA-009: **Executor prompt in the repository.** `docs/executor-prompt.md` is the
+  reviewed source of the scheduled task's prompt. The host copies merged changes into
+  the scheduled task; merging does not update the live task.
+- CA-010: **Roles.** The host directs; Eleven maintains (triage, labels,
+  dependencies, queuing, `@claude` review-fix requests, lock release) and merges under
+  `docs/eleven-maintainer.md`; anyone may open issues. Sensitive paths are listed in
+  `.github/CODEOWNERS` and need the host's explicit go-ahead before merge.
 
 ## Acceptance scenarios
 
@@ -54,8 +75,18 @@ execution routes and no automated Claude code-review gate.
    `claude/fix-*`; a `@claude` comment asking for a new feature produces a reply that
    redirects to a scheduled issue and no code change.
 5. Labelling an issue `claude-implement` starts no workflow.
+6. Adding `status:in-progress` to a `status:ready` issue leaves only
+   `status:in-progress`; adding `status:ready` to an in-progress issue releases the
+   lock.
+7. Closing an issue as completed removes its status labels, and each open
+   `status:blocked` issue whose declared dependencies are now all completed becomes
+   `status:ready`; one with any open dependency, or closed as not planned, stays
+   blocked.
+8. A consistent issue set produces no label changes.
 
 ## Verification
 
-Scenarios 1–5 require live runs and are not established by this change. Record the
+Scenarios 1–5 require live runs and are not established by this change. Scenarios
+6–8 are covered offline by `tools/tests/test_issue_flow.py`; their live behaviour is
+established by the first real issue events after merge. Record the
 scheduled task's session handle and the PR/issue readback for the first real run.
