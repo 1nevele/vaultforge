@@ -114,6 +114,22 @@ class ExecutorLockTests(unittest.TestCase):
         with self.assertRaises(self.lock.LockError):
             self.lock.acquire(self.a)
 
+    def test_policy_rejection_raises_instead_of_reading_as_held(self):
+        # A pre-receive hook stands in for a ruleset or proxy refusing the push.
+        hook = self.remote / 'hooks' / 'pre-receive'
+        hook.write_text('#!/bin/sh\necho denied >&2\nexit 1\n')
+        hook.chmod(0o755)
+        with self.assertRaises(self.lock.LockError):
+            self.lock.acquire(self.a)
+
+    def test_reset_frees_a_held_lock_and_its_holder_learns_it_lost(self):
+        token = self.lock.acquire(self.a)
+        self.assertTrue(self.lock.reset(self.b))
+        self.assertEqual(self.tip_message(), f'free {token}')
+        self.assertFalse(self.lock.check(self.a, token))
+        self.assertTrue(self.lock.reset(self.b))  # already free: nothing to do
+        self.assertIsNotNone(self.lock.acquire(self.b))
+
     def test_lock_commits_carry_no_files(self):
         self.lock.acquire(self.a)
         self.fetch()
@@ -131,6 +147,10 @@ class ExecutorLockTests(unittest.TestCase):
         self.assertEqual(run('release', token).returncode, 0)
         self.assertEqual(run('check', token).returncode, 3)
         self.assertEqual(run('bogus').returncode, 2)
+        self.assertEqual(run('acquire', '--stale-minutes', '-1').returncode, 2)
+        self.assertEqual(run('acquire', '--stale-minutes', 'x').returncode, 2)
+        self.assertEqual(run('acquire').returncode, 0)
+        self.assertEqual(run('reset').returncode, 0)
         git(self.a, 'remote', 'set-url', 'origin', str(Path(self.tmp.name) / 'missing.git'))
         failed = run('acquire')
         self.assertEqual(failed.returncode, 1)

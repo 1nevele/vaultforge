@@ -177,8 +177,9 @@ still waiting on something, then remove `status:in-progress`, then add
   branch, managed by `tools/executor_lock.py` (see [executor-prompt.md](executor-prompt.md)).
   It is not a PR branch; do not clean it up. A run that crashes while holding it
   blocks claims for up to 30 minutes, after which the next run breaks the lock. If
-  runs keep reporting a held lock, delete the branch by hand; the next run recreates
-  it.
+  runs keep reporting a held lock, free it with `python3 -B tools/executor_lock.py
+  reset` from a clone with push access. Do not delete or force-push the branch: a
+  run that read the old tip could then land a claim on the recreated branch.
 - Eleven's poller has no time-based wake, so the two-hour `@claude` fallback only
   runs when some PR change wakes Eleven; a stalled PR with no activity relies on the
   host noticing.

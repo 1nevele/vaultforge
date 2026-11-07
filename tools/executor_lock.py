@@ -14,6 +14,10 @@ Usage, from a clone with push access (exit 0 success, 3 refused, 1 error, 2 usag
     python3 tools/executor_lock.py acquire [--stale-minutes N]   # prints the token
     python3 tools/executor_lock.py check TOKEN
     python3 tools/executor_lock.py release TOKEN
+    python3 tools/executor_lock.py reset          # operator: free whatever holds it
+
+Staleness compares the holder's committer date with the reader's clock, so it
+assumes container clocks agree to well within the stale limit.
 """
 import os
 import re
@@ -37,7 +41,7 @@ class LockError(RuntimeError):
 
 def _git(cwd, *args, env=None, check=True):
     result = subprocess.run(['git', *args], cwd=cwd, capture_output=True, text=True, input='',
-                            env={**os.environ, **(env or {})}, timeout=120)
+                            env={**os.environ, 'LC_ALL': 'C', **(env or {})}, timeout=120)
     if check and result.returncode != 0:
         raise LockError(f'git {args[0]} failed: {result.stderr.strip()[:300]}')
     return result
@@ -45,10 +49,12 @@ def _git(cwd, *args, env=None, check=True):
 
 def fetch_tip(cwd):
     """The remote lock tip as {'sha', 'state', 'token', 'time'}, or None if absent."""
-    listed = _git(cwd, 'ls-remote', REMOTE, f'refs/heads/{BRANCH}').stdout.split()
-    if not listed:
-        return None
-    _git(cwd, 'fetch', '-q', '--no-tags', REMOTE, f'+refs/heads/{BRANCH}:{_LOCAL}')
+    fetched = _git(cwd, 'fetch', '-q', '--no-tags', REMOTE,
+                   f'+refs/heads/{BRANCH}:{_LOCAL}', check=False)
+    if fetched.returncode != 0:
+        if "couldn't find remote ref" in fetched.stderr:
+            return None
+        raise LockError(f'git fetch failed: {fetched.stderr.strip()[:300]}')
     sha, stamp, message = _git(cwd, 'log', '-1', '--format=%H%n%ct%n%s', _LOCAL).stdout.split('\n', 2)
     match = _MESSAGE.match(message.strip())
     return {'sha': sha, 'time': int(stamp),
@@ -66,8 +72,11 @@ def _push(cwd, tip, message, env=None):
                   check=False)
     if pushed.returncode == 0:
         return True
-    if any(line.startswith('!\t') for line in pushed.stdout.splitlines()):
-        return False  # rejected: someone else moved the tip first
+    # Only a plain `[rejected]` (non-fast-forward, fetch first) means another run moved
+    # the tip. `[remote rejected]` is a hook, ruleset or proxy refusal: an error.
+    if any(line.startswith('!\t') and '\t[rejected]' in line
+           for line in pushed.stdout.splitlines()):
+        return False
     raise LockError(f'git push failed: {(pushed.stderr or pushed.stdout).strip()[:300]}')
 
 
@@ -110,13 +119,23 @@ def release(cwd, token):
     return _push(cwd, tip, f'free {token}')
 
 
+def reset(cwd):
+    """Operator recovery: free the lock whoever holds it. True once it is free."""
+    tip = fetch_tip(cwd)
+    if tip is None or tip['state'] == 'free':
+        return True
+    return _push(cwd, tip, f"free {tip['token'] or '0' * 32}")
+
+
 def main(argv=None):
     args = list(sys.argv[1:] if argv is None else argv)
     cwd = os.getcwd()
     try:
         if args[:1] == ['acquire'] and len(args) in (1, 3) and args[1:2] in ([], ['--stale-minutes']):
-            stale = int(args[2]) if len(args) == 3 else STALE_MINUTES
-            token = acquire(cwd, stale_minutes=stale)
+            stale = args[2] if len(args) == 3 else str(STALE_MINUTES)
+            if not stale.isdigit():
+                return _usage()
+            token = acquire(cwd, stale_minutes=int(stale))
             if token is None:
                 print('executor_lock: held by another run', file=sys.stderr)
                 return 3
@@ -125,10 +144,16 @@ def main(argv=None):
         if args[:1] in (['check'], ['release']) and len(args) == 2:
             ok = (check if args[0] == 'check' else release)(cwd, args[1])
             return 0 if ok else 3
-    except (LockError, ValueError) as error:
+        if args == ['reset']:
+            return 0 if reset(cwd) else 3
+    except LockError as error:
         print(f'executor_lock: {error}', file=sys.stderr)
         return 1
-    print(__doc__.split('Usage', 1)[1].strip(), file=sys.stderr)
+    return _usage()
+
+
+def _usage():
+    print(__doc__.split('Usage', 1)[1].split('\n\n', 1)[0].strip(), file=sys.stderr)
     return 2
 
 
