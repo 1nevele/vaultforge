@@ -22,10 +22,10 @@ Use the native Skill tool when available. Reading a file manually is only a docu
 
 ## Code review
 
-Review runs inside the Claude session; there is no CI review job, CodeRabbit or Superpowers review skill.
+Two layers: Claude reviews its own diff in-session before pushing, and CodeRabbit reviews the PR. There is no Superpowers review skill and no CI review job.
 
 - **Before every push:** run the built-in `/code-review` on the diff, and `/security-review` as well when the change touches authority, permissions, secrets, workflows, untrusted-input parsing or an execution surface. Fix blocking findings, or list each unfixed one with its reason in the PR's verification section, naming the reviewed commit.
-- These reviewers run as subagents in a fresh context, but the authoring session triggers and reports them: the PR record is author-reported evidence, not an independent approval. Approval is the host's (`docs/eleven-maintainer.md`). Never approve or merge.
+- These reviewers run as subagents in a fresh context, but the authoring session triggers and reports them: the PR record is author-reported evidence. CodeRabbit is the independent reviewer whose approval counts (`docs/code-review.md`, `docs/eleven-maintainer.md`). Address CodeRabbit findings on the PR. Never approve or merge.
 - The required reviewer is the built-in `code-review` skill; record that name in the PR. The operator may enable Anthropic plugins on their account (`security-guidance` for automatic diff/commit review, `claude-security` for deep scans). They are optional, supplement rather than replace `/code-review`, and are not committed to this repository. Confirm one actually loaded in the session before relying on or citing it.
 
 **Before application work:** follow `docs/claude-web-skill-smoke.md`. Report actual discovered names and exercise a benign skill. If discovery is unavailable, stop with that blocker; do not silently install a plugin or substitute an unlabeled manual read.

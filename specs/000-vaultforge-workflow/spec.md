@@ -24,7 +24,7 @@ Status: requested tooling/repository setup; no application implementation in thi
 
 - Superpowers subset reduced to three skills; `requesting-code-review` and `receiving-code-review` retired in favour of the built-in `/code-review`, run in-session before push.
 - Constitution 0.3.0 scopes test-first RED/GREEN to behavioral logic, invariants and adversarial cases; declarative schemas/config need adversarial tests, not test-first ritual. Verification before claims is unchanged.
-- CodeRabbit retired; see `docs/code-review.md` and specs/002 CA-006.
+- CodeRabbit stays the PR reviewer; see `docs/code-review.md` and specs/002 CA-006.
 
 ## Exclusions
 

@@ -35,13 +35,11 @@ execution routes and no automated Claude code-review gate.
   fixes (turn and time limits, scope instruction) and declines spec/feature work,
   dependency changes and `.github/` edits by pointing to a scheduled issue
   (`claude:scheduled` + `status:ready`).
-- CA-006: **In-session review, no review gate.** No review workflow runs on PR
-  open, and CodeRabbit is retired (2026-11-07, owner request). Scheduled web
-  sessions run the built-in `/code-review` (plus `/security-review` where
-  relevant) before pushing and record the result in the PR. The `@claude`
-  small-fix route is not instructed to review its own diff; the host reviews those
-  PRs directly. Neither route approves or merges; the host approves
-  (`docs/code-review.md`).
+- CA-006: **No Claude review gate.** No Claude review workflow runs on PR open.
+  Automated review is CodeRabbit (`.coderabbit.yaml`, see `docs/code-review.md`);
+  neither Claude route approves or merges. Scheduled web sessions also run the
+  built-in `/code-review` in-session before pushing and record it in the PR
+  (2026-11-07); the `@claude` small-fix route is not instructed to.
 - CA-007: Labels and triggers `claude-implement` / assignee `claude` no longer start
   work. Existing safety rules in `AGENTS.md` and the constitution still apply to both
   routes.
