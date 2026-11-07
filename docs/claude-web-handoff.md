@@ -67,13 +67,15 @@ A Claude cloud scheduled task named **Vaultforge ready-issue executor** starts a
 web session every four hours. It lives in the operator's claude.ai account (scheduled
 tasks), not in this repository; pause or edit it there. Each run:
 
-1. Exits without changes if any open issue is labelled `status:in-progress`, or if no
-   open issue is labelled `status:ready` without `status:blocked`.
+1. Exits without changes if any open `claude:scheduled` issue is labelled
+   `status:in-progress`, or if no open issue is labelled both `claude:scheduled` and
+   `status:ready` without `status:blocked`.
 2. Otherwise takes the lowest-numbered such issue, labels it `status:in-progress`, and
    follows the assignment above for that issue (smoke check, spec/plan/tasks, TDD,
    independent review).
 3. Opens one PR that references (does not close) the issue, and stops.
 
-To queue work, label an issue `status:ready`. After accepting, merging or abandoning
+To queue work, label an issue both `claude:scheduled` and `status:ready`; issues without
+`claude:scheduled` are ignored. After accepting, merging or abandoning
 the PR, remove `status:in-progress` (and close the issue if done) so the next run can
 proceed. `@claude` comments are for small fixes only (`.github/workflows/claude-fix.yml`).

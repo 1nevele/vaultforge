@@ -4,7 +4,7 @@ Read `AGENTS.md`, `.specify/memory/constitution.md`, `docs/claude-web-handoff.md
 
 Claude Code **on the web** implements application code; it is the executor for the operator and Eleven (their Hermes agent), who prepare specifications, issues and review. There are two execution routes (`specs/002-vaultforge-claude-automation`):
 
-- **Scheduled issue execution:** a Claude cloud scheduled task starts a fresh web session that takes the lowest-numbered open `status:ready` issue, labels it `status:in-progress`, opens a PR with real evidence, and stops. If any issue is already `status:in-progress`, it does nothing.
+- **Scheduled issue execution:** a Claude cloud scheduled task starts a fresh web session that takes the lowest-numbered open issue labelled both `claude:scheduled` and `status:ready`, labels it `status:in-progress`, opens a PR with real evidence, and stops. If any `claude:scheduled` issue is already `status:in-progress`, it does nothing. Issues without `claude:scheduled` are never picked up.
 - **Small fixes:** `@claude` comments run `.github/workflows/claude-fix.yml` for small, self-contained fixes only.
 
 No automatic merge, approval, issue closing or blocked-work continuation.
