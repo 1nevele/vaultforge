@@ -52,15 +52,29 @@ CodeRabbit is active on this repository, scoped only to `1nevele/vaultforge`
 was briefly retired on 2026-11-06 at the owner's request, then reinstated on
 2026-11-07 alongside the new Claude Max review/implementation workflows below.
 `.coderabbit.yaml` in the repository root carries the active configuration:
-auto-review enabled, auto-approval disabled, author self-approval disabled,
-finishing-touches (docstrings/tests/autofix/etc.) disabled.
+auto-review enabled, author self-approval disabled, finishing-touches
+(docstrings/tests/autofix/etc.) disabled.
+
+CodeRabbit's `auto_approvals` is enabled: it submits its own approving GitHub
+review (a separate bot identity, so it counts toward the required-approval
+check) once its automated pass finds no blocking issues. CodeRabbit itself has
+no concept of diff risk, so a separate required `Risk gate` check
+(`tools/risk_gate.py`) runs on every PR and fails (blocking) for diffs
+touching sensitive paths or exceeding a size threshold, independent of
+CodeRabbit's or any reviewer's verdict. In combination: a low/medium-risk PR
+can merge on CodeRabbit's auto-approval alone; a high-risk PR stays blocked by
+the risk gate until a human looks, regardless of what any bot approves.
+
+`main`'s `enforce_admins` was disabled on 2026-11-07 at the owner's explicit
+request, so the repository admin can push/merge directly, bypassing the PR
+and review requirement entirely. That bypass is independent of CodeRabbit and
+the risk gate and is not limited by risk tier.
 
 Claude Max-backed review verification (`tools/claude_review.py`, triggered
 manually via the `Repository checks` workflow's `review_pr` input) and the
-`claude-implement.yml` issue-implementation workflow are separate, additional
-automation layered on top of CodeRabbit, not a replacement for it. Neither
-CodeRabbit nor the Claude review step currently has approval or merge
-authority; a human must still approve per the main-branch policy below.
+`claude-implement.yml` issue-implementation workflow remain separate,
+additional automation layered on top of CodeRabbit, not a replacement for it.
+Neither currently has approval or merge authority of its own.
 
 This document specifies policy, not proof of activation. Verify the live branch
 protection API, the GitHub App's actual installation scope, and real Actions
