@@ -19,7 +19,9 @@ const valid = {
   canonical_input_hash: digest("3"),
   rendered_provider_input_hash: digest("4"),
   score_semantics: "softmax-normalized label scores summing to 1.0",
-  source_spans: [{ start: 0, end: 4, offset_unit: "utf8-byte" }],
+  source_spans: [
+    { artifact_hash: digest("1"), start: 0, end: 4, offset_unit: "utf8-byte" },
+  ],
   transformation_lineage: ["raw", "normalized"],
   completeness_flags: { truncated: false, partial: false },
   outcome: "completed",
@@ -32,7 +34,10 @@ function rejectedPaths(input: unknown): PropertyKey[][] {
   return r.error.issues.map((i) => i.path);
 }
 
-const withSpan = (span: unknown) => ({ ...valid, source_spans: [span] });
+const withSpan = (span: Record<string, unknown>) => ({
+  ...valid,
+  source_spans: [{ artifact_hash: digest("1"), ...span }],
+});
 
 describe("DerivedInferenceRecord v1 (S01-005)", () => {
   test("accepts an honest completed record with lineage and completeness", () => {
@@ -60,20 +65,31 @@ describe("DerivedInferenceRecord v1 (S01-005)", () => {
   test("rejects a span missing its offset unit (S01-005 span encoding)", () => {
     const bad = {
       ...valid,
-      source_spans: [{ start: 0, end: 4 }],
+      source_spans: [{ artifact_hash: digest("1"), start: 0, end: 4 }],
     };
     expect(rejectedPaths(bad)).toEqual([["source_spans", 0, "offset_unit"]]);
   });
 
   test("rejects a forbidden 'verified' field — derived records cannot mint findings", () => {
-    const bad = { ...valid, verified: true };
-    expect(DerivedInferenceRecord.safeParse(bad).success).toBe(false);
+    const r = DerivedInferenceRecord.safeParse({ ...valid, verified: true });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      expect(r.error.issues).toEqual([
+        expect.objectContaining({ code: "unrecognized_keys", keys: ["verified"] }),
+      ]);
+    }
+  });
+
+  test.each(["failed", "abstained"])("accepts an honest '%s' outcome", (outcome) => {
+    expect(rejectedPaths({ ...valid, outcome })).toEqual([]);
   });
 
   test("rejects a span whose offset unit is not a known encoding", () => {
     const bad = {
       ...valid,
-      source_spans: [{ start: 0, end: 4, offset_unit: "furlongs" }],
+      source_spans: [
+        { artifact_hash: digest("1"), start: 0, end: 4, offset_unit: "furlongs" },
+      ],
     };
     expect(DerivedInferenceRecord.safeParse(bad).success).toBe(false);
   });
@@ -107,6 +123,37 @@ describe("SourceSpan and lineage boundaries (S01-005)", () => {
   test("rejects an empty transformation lineage", () => {
     expect(rejectedPaths({ ...valid, transformation_lineage: [] })).toEqual([
       ["transformation_lineage"],
+    ]);
+  });
+});
+
+describe("spans are bound to a declared source artifact (S01-005)", () => {
+  test("rejects a span without an artifact hash", () => {
+    const bad = { ...valid, source_spans: [{ start: 0, end: 4, offset_unit: "utf8-byte" }] };
+    expect(rejectedPaths(bad)).toEqual([["source_spans", 0, "artifact_hash"]]);
+  });
+
+  test("rejects a span pointing at an artifact not in source_artifact_hashes", () => {
+    expect(
+      rejectedPaths(withSpan({ artifact_hash: digest("9"), start: 0, end: 4, offset_unit: "utf8-byte" })),
+    ).toEqual([["source_spans", 0, "artifact_hash"]]);
+  });
+
+  test("accepts spans over several declared artifacts", () => {
+    const record = {
+      ...valid,
+      source_artifact_hashes: [digest("1"), digest("5")],
+      source_spans: [
+        { artifact_hash: digest("1"), start: 0, end: 4, offset_unit: "utf8-byte" },
+        { artifact_hash: digest("5"), start: 2, end: 3, offset_unit: "utf8-byte" },
+      ],
+    };
+    expect(rejectedPaths(record)).toEqual([]);
+  });
+
+  test("rejects a record with no source artifact hashes", () => {
+    expect(rejectedPaths({ ...valid, source_artifact_hashes: [], source_spans: [] })).toEqual([
+      ["source_artifact_hashes"],
     ]);
   });
 });

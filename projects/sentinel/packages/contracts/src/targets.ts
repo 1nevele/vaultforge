@@ -9,7 +9,7 @@
  */
 import { z } from "zod";
 import { AuthenticatedProducer } from "./producers.js";
-import { SchemaVersion, Sha256Digest } from "./common.js";
+import { SchemaVersionV1, Sha256Digest } from "./common.js";
 
 export const TargetRelationship = z.enum([
   "hypothesis",
@@ -21,7 +21,7 @@ export type TargetRelationship = z.infer<typeof TargetRelationship>;
 export const TargetObservation = z
   .object({
     observation_id: z.string().min(1),
-    schema_version: SchemaVersion,
+    schema_version: SchemaVersionV1,
     node: z.string().min(1),
     // Same field name as EventEnvelope and the key rejectSelfAssignedProducer
     // inspects, so the single ingest guard covers this record's producer channel

@@ -1,7 +1,7 @@
 {
   "scope_id": "s-0001",
   "schema_version": "1.0.0",
-  "targets": ["web.lab.synthetic:8080", "db.lab.internal"],
+  "targets": ["web.lab.test:8080", "db.lab.example"],
   "protocols": ["http", "tcp-connect"],
   "effects": ["http-request", "tcp-connect"],
   "limits": {

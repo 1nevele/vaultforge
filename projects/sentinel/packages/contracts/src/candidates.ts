@@ -8,7 +8,7 @@
  * (product plan: "Jev selects an action ID or abstains"; review Jev hazard).
  */
 import { z } from "zod";
-import { CandidateId, Generation, SchemaVersion } from "./common.js";
+import { CandidateId, Generation, SchemaVersionV1 } from "./common.js";
 
 /** A candidate carries an opaque id and a human label — never a command. */
 export const Candidate = z
@@ -21,9 +21,9 @@ export type Candidate = z.infer<typeof Candidate>;
 
 export const CandidateSet = z
   .object({
-    candidate_set_version: z.number().int().nonnegative(),
+    candidate_set_version: Generation,
     execution_generation: Generation,
-    schema_version: SchemaVersion,
+    schema_version: SchemaVersionV1,
     candidates: z.array(Candidate),
   })
   .strict()
@@ -42,14 +42,14 @@ export const Selection = z.discriminatedUnion("kind", [
     .object({
       kind: z.literal("choose"),
       candidate_id: CandidateId,
-      candidate_set_version: z.number().int().nonnegative(),
+      candidate_set_version: Generation,
       execution_generation: Generation,
     })
     .strict(),
   z
     .object({
       kind: z.literal("abstain"),
-      candidate_set_version: z.number().int().nonnegative(),
+      candidate_set_version: Generation,
       execution_generation: Generation,
     })
     .strict(),

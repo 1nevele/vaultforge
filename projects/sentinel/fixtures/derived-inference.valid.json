@@ -14,7 +14,14 @@
   "canonical_input_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
   "rendered_provider_input_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
   "score_semantics": "softmax-normalized label scores summing to 1.0",
-  "source_spans": [{ "start": 0, "end": 12, "offset_unit": "utf8-byte" }],
+  "source_spans": [
+    {
+      "artifact_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "start": 0,
+      "end": 12,
+      "offset_unit": "utf8-byte"
+    }
+  ],
   "transformation_lineage": ["raw", "normalized"],
   "completeness_flags": { "truncated": false, "partial": false },
   "outcome": "unknown"

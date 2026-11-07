@@ -8,7 +8,7 @@
  * rather than silently permitted.
  */
 import { z } from "zod";
-import { SchemaVersion } from "./common.js";
+import { SchemaVersionV1 } from "./common.js";
 
 /** Closed set of testing effects the first slice is willing to describe. */
 export const TestingEffect = z.enum([
@@ -33,7 +33,7 @@ export type Limits = z.infer<typeof Limits>;
 export const Scope = z
   .object({
     scope_id: z.string().min(1),
-    schema_version: SchemaVersion,
+    schema_version: SchemaVersionV1,
     // Shape-only in S01. A target grammar (hostname/CIDR, no URLs or
     // credentials) is deferred to a later slice and must be enforced before any
     // dispatch path consumes `targets`.

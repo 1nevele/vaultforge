@@ -120,8 +120,8 @@ Add a `sentinel-contracts` job to `.github/workflows/repository-checks.yml` (pin
 `actions/checkout` and `actions/setup-node` by SHA, `persist-credentials: false`,
 `corepack enable`, `--frozen-lockfile`, then typecheck + build + test). This is a
 setup/unit gate, explicitly **not** a G0–G8 security or live-integration gate
-(spec S01-007; execution plan §10). Editing this workflow makes the diff high-risk
-under `tools/risk_gate.py`, which is expected and requires human review before merge.
+(spec S01-007; execution plan §10). Editing this workflow is a CI-policy change, so
+the PR needs the host's explicit go-ahead before Eleven merges it.
 
 ## Ownership and serialization
 

@@ -4,7 +4,8 @@
  * Validation only. Nothing here authenticates a caller, approves a grant, or
  * performs an effect. Consumers (mission service, authority, UI, worker — all
  * future slices) import these to parse and reject untrusted shapes at their
- * boundaries.
+ * boundaries. String fields carry no length limits; size limits belong to the
+ * ingesting service boundary.
  */
 /**
  * Version of the contract schemas as a whole. It is independent of the npm

@@ -19,6 +19,15 @@ export const SchemaVersion = z
 export type SchemaVersion = z.infer<typeof SchemaVersion>;
 
 /**
+ * Record schema version for the v1 contracts: a SchemaVersion whose major is 1.
+ * A record declaring another major version is rejected rather than silently
+ * parsed as v1, so a major bump actually fences old parsers.
+ */
+export const SchemaVersionV1 = SchemaVersion.refine((v) => v.startsWith("1."), {
+  message: "expected a 1.x.y schema version",
+});
+
+/**
  * Content-addressed digest: `sha256:` followed by exactly 64 lowercase hex
  * characters. Uppercase is rejected so the encoded form is canonical and two
  * encodings of the same bytes cannot disagree (spec S01-002: reject digest
@@ -58,8 +67,9 @@ export type ClientRequestId = z.infer<typeof ClientRequestId>;
 
 /**
  * RFC3339 / ISO-8601 instant in UTC with a `Z` suffix only; explicit offsets
- * such as `+00:00` are rejected so one instant has one encoding. Display/order
- * aid only; not a causality source.
+ * such as `+00:00` are rejected. Fractional-second precision is not fixed, so
+ * compare instants by value, not by string. Display/order aid only; not a
+ * causality source.
  */
 export const Timestamp = z
   .string()

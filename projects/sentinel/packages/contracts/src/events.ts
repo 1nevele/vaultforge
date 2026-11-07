@@ -16,7 +16,7 @@ import {
   Generation,
   MissionId,
   OperationId,
-  SchemaVersion,
+  SchemaVersionV1,
   Sequence,
   Sha256Digest,
   Timestamp,
@@ -61,7 +61,7 @@ export const EventEnvelope = z
     event_id: EventId,
     mission_id: MissionId,
     projection_sequence: Sequence,
-    schema_version: SchemaVersion,
+    schema_version: SchemaVersionV1,
     actor_id: ActorId,
     execution_generation: Generation,
     operation_id: OperationId.nullable(),
@@ -80,6 +80,13 @@ export const EventEnvelope = z
       message:
         "authenticated_producer is not the owner of this event_type",
       path: ["event_type"],
+    },
+  )
+  .refine(
+    (e) => !e.event_type.startsWith("operation.") || e.operation_id !== null,
+    {
+      message: "operation events must reference their operation",
+      path: ["operation_id"],
     },
   );
 export type EventEnvelope = z.infer<typeof EventEnvelope>;

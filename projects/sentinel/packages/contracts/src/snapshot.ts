@@ -7,7 +7,8 @@
  * ordering or causality.
  */
 import { z } from "zod";
-import { Generation, MissionId, SchemaVersion, Sequence } from "./common.js";
+import { Generation, MissionId, SchemaVersionV1, Sequence } from "./common.js";
+import type { EventEnvelope } from "./events.js";
 
 export const MissionStatus = z.enum([
   "pending",
@@ -29,10 +30,47 @@ export type ProjectionCursor = z.infer<typeof ProjectionCursor>;
 export const MissionSnapshot = z
   .object({
     mission_id: MissionId,
-    schema_version: SchemaVersion,
+    schema_version: SchemaVersionV1,
     status: MissionStatus,
     execution_generation: Generation,
     cursor: ProjectionCursor,
   })
   .strict();
 export type MissionSnapshot = z.infer<typeof MissionSnapshot>;
+
+export type CursorCheckResult =
+  | { ok: true }
+  | {
+      ok: false;
+      reason:
+        | "foreign_mission"
+        | "stale_generation"
+        | "already_in_snapshot"
+        | "sequence_gap";
+    };
+
+/**
+ * Check that an event is the next one to apply after a snapshot: same mission,
+ * not from an older execution generation, and exactly one past the cursor.
+ * An event at or behind the cursor is already reflected in the snapshot; one
+ * further ahead means events were missed and the client must re-hydrate.
+ */
+export function checkEventAfterSnapshot(
+  snapshot: MissionSnapshot,
+  event: EventEnvelope,
+): CursorCheckResult {
+  if (event.mission_id !== snapshot.mission_id) {
+    return { ok: false, reason: "foreign_mission" };
+  }
+  if (event.execution_generation < snapshot.execution_generation) {
+    return { ok: false, reason: "stale_generation" };
+  }
+  const cursor = snapshot.cursor.projection_sequence;
+  if (event.projection_sequence <= cursor) {
+    return { ok: false, reason: "already_in_snapshot" };
+  }
+  if (event.projection_sequence !== cursor + 1) {
+    return { ok: false, reason: "sequence_gap" };
+  }
+  return { ok: true };
+}

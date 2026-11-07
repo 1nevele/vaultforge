@@ -7,7 +7,7 @@
  * the UI cannot be told an actor is a producer class it is not.
  */
 import { z } from "zod";
-import { ActorId, Generation, SchemaVersion } from "./common.js";
+import { ActorId, Generation, SchemaVersionV1 } from "./common.js";
 
 export const ActorRole = z.enum([
   "runtime",
@@ -26,7 +26,7 @@ export type ActorRole = z.infer<typeof ActorRole>;
 export const RuntimeActor = z
   .object({
     actor_id: ActorId,
-    schema_version: SchemaVersion,
+    schema_version: SchemaVersionV1,
     role: ActorRole,
     execution_generation: Generation,
   })

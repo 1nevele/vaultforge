@@ -1,5 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { OperationRef, ReviewRef, ReceiptRef } from "../src/operation.js";
+import {
+  OperationRef,
+  ReviewRef,
+  ReceiptRef,
+  checkOperationBinding,
+} from "../src/operation.js";
 
 const digest = "sha256:" + "c".repeat(64);
 const scriptDigest = "sha256:" + "d".repeat(64);
@@ -73,5 +78,45 @@ describe("ReceiptRef (S01-002)", () => {
         issued_at: "2026-11-07T00:30:00.000Z",
       }).success,
     ).toBe(false);
+  });
+});
+
+describe("checkOperationBinding: identifier/digest mismatch (S01-002)", () => {
+  const opDigest = "sha256:" + "e".repeat(64);
+  const expected = { operation_id: "op-1", operation_digest: opDigest };
+  const review = ReviewRef.parse({
+    review_id: "rev-1",
+    schema_version: "1.0.0",
+    operation_id: "op-1",
+    operation_digest: opDigest,
+    expires_at: "2026-11-07T01:00:00.000Z",
+  });
+  const receipt = ReceiptRef.parse({
+    receipt_id: "rcpt-1",
+    schema_version: "1.0.0",
+    operation_id: "op-1",
+    operation_digest: opDigest,
+    issued_at: "2026-11-07T00:30:00.000Z",
+  });
+
+  test("accepts a review and receipt bound to the same operation id and digest", () => {
+    expect(checkOperationBinding(OperationRef.parse(validOp).operation_id, opDigest, review)).toEqual({ ok: true });
+    expect(checkOperationBinding(expected.operation_id, expected.operation_digest, receipt)).toEqual({ ok: true });
+  });
+
+  test("rejects a reference to a different operation id", () => {
+    const foreign = ReceiptRef.parse({ ...receipt, operation_id: "op-2" });
+    expect(checkOperationBinding(expected.operation_id, expected.operation_digest, foreign)).toEqual({
+      ok: false,
+      reason: "operation_id_mismatch",
+    });
+  });
+
+  test("rejects a reference whose canonical digest differs", () => {
+    const tampered = ReviewRef.parse({ ...review, operation_digest: "sha256:" + "f".repeat(64) });
+    expect(checkOperationBinding(expected.operation_id, expected.operation_digest, tampered)).toEqual({
+      ok: false,
+      reason: "operation_digest_mismatch",
+    });
   });
 });

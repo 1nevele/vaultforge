@@ -9,7 +9,7 @@ import { z } from "zod";
 import {
   ClientRequestId,
   MissionId,
-  SchemaVersion,
+  SchemaVersionV1,
   Sha256Digest,
   TaskId,
   Timestamp,
@@ -22,7 +22,7 @@ import {
 export const TaskEnvelope = z
   .object({
     task_id: TaskId,
-    schema_version: SchemaVersion,
+    schema_version: SchemaVersionV1,
     objective: z.string().min(1),
     workflow_template: z.string().min(1),
     scope_ref: Sha256Digest,
@@ -33,7 +33,7 @@ export type TaskEnvelope = z.infer<typeof TaskEnvelope>;
 export const MissionRequest = z
   .object({
     mission_id: MissionId,
-    schema_version: SchemaVersion,
+    schema_version: SchemaVersionV1,
     client_request_id: ClientRequestId,
     task: TaskEnvelope,
     submitted_at: Timestamp,

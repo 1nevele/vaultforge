@@ -20,7 +20,8 @@ function allFixtures(): Array<[string, unknown]> {
     .map((f): [string, unknown] => [f, readFixture(f)]);
 }
 
-const RESERVED_HOST = /\.(synthetic|internal|invalid|test|example)(:\d+)?$/;
+// RFC 2606 / RFC 6761 names that never resolve to a real host.
+const RESERVED_HOST = /\.(test|example|invalid)(:\d+)?$/;
 
 function allFixtureText(): string {
   return readdirSync(fixturesDir)
@@ -36,11 +37,19 @@ describe("fixtures validate against their contracts (S01-006)", () => {
     );
   });
 
-  test("adversarial mission request fixture is rejected", () => {
-    expect(
-      MissionRequest.safeParse(readFixture("mission-request.forged-authority.json"))
-        .success,
-    ).toBe(false);
+  test("adversarial mission request fixture is rejected for its forged producer", () => {
+    const r = MissionRequest.safeParse(
+      readFixture("mission-request.forged-authority.json"),
+    );
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      expect(r.error.issues).toEqual([
+        expect.objectContaining({
+          code: "unrecognized_keys",
+          keys: ["authenticated_producer"],
+        }),
+      ]);
+    }
   });
 
   test("valid scope fixture parses", () => {
@@ -58,8 +67,8 @@ describe("fixtures validate against their contracts (S01-006)", () => {
 describe("fixtures are synthetic and non-executing (S01-006)", () => {
   const text = allFixtureText();
 
-  test("contain no http(s) URL / provider endpoint", () => {
-    expect(/https?:\/\//i.test(text)).toBe(false);
+  test("contain no URL of any scheme / provider endpoint", () => {
+    expect(/\b[a-z][a-z0-9+.-]*:\/\//i.test(text)).toBe(false);
   });
 
   test("contain no shell shebang or script marker", () => {
@@ -102,6 +111,11 @@ describe("hostBearingValues finds hosts anywhere in a fixture", () => {
       observations: [{ host: "lab.test" }, { endpoint: "x.invalid:8443" }],
     };
     expect(hostBearingValues(json)).toEqual(["lab.test", "x.invalid:8443"]);
+  });
+
+  test("collects node, url, domain and ip fields", () => {
+    const json = { node: "n.test", url: "u.test", domain: "d.test", ip: "192.0.2.1" };
+    expect(hostBearingValues(json)).toEqual(["n.test", "u.test", "d.test", "192.0.2.1"]);
   });
 
   test("ignores strings under unrelated keys", () => {

@@ -3,7 +3,8 @@
  * however deeply nested, so the inertness check covers all fixtures rather than
  * one known file (CodeRabbit #21 review).
  */
-const HOST_KEY = /^(targets?|hosts?|hostnames?|addresses?|endpoints?)$/i;
+const HOST_KEY =
+  /^(targets?|hosts?|hostnames?|nodes?|addresses?|endpoints?|urls?|domains?|ips?)$/i;
 
 function strings(value: unknown): string[] {
   if (typeof value === "string") return [value];

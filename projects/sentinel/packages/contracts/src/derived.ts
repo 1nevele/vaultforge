@@ -11,14 +11,22 @@
  * that no such field (or any other) is smuggled in.
  */
 import { z } from "zod";
-import { Generation, MissionId, SchemaVersion, Sha256Digest } from "./common.js";
+import {
+  Generation,
+  MissionId,
+  SchemaVersion,
+  SchemaVersionV1,
+  Sha256Digest,
+} from "./common.js";
 
 /** Offset unit must be explicit so a character vs byte ambiguity cannot hide. */
 export const OffsetUnit = z.enum(["utf8-byte", "utf16-code-unit", "codepoint"]);
 export type OffsetUnit = z.infer<typeof OffsetUnit>;
 
+/** A span names the source artifact its offsets index into. */
 export const SourceSpan = z
   .object({
+    artifact_hash: Sha256Digest,
     start: z.number().int().nonnegative(),
     end: z.number().int().nonnegative(),
     offset_unit: OffsetUnit,
@@ -51,22 +59,22 @@ export type CompletenessFlags = z.infer<typeof CompletenessFlags>;
  * of `completed` with `truncated` or `partial` set is a valid, honest record —
  * the flags are how incompleteness is disclosed — so consumers must read
  * `completeness_flags` and never treat `completed` alone as proof of a complete
- * result. String length limits and span-to-artifact binding belong to the
- * ingesting service boundary, not this contract.
+ * result. Every span names one of `source_artifact_hashes`. String length
+ * limits belong to the ingesting service boundary, not this contract.
  */
 export const DerivedInferenceRecord = z
   .object({
     inference_id: z.string().min(1),
     mission_id: MissionId,
     execution_generation: Generation,
-    schema_version: SchemaVersion,
+    schema_version: SchemaVersionV1,
     task_kind: z.enum(["classify", "extract", "summarize", "compress", "select"]),
     provider: z.string().min(1),
     model_id: z.string().min(1),
     adapter_version: SchemaVersion,
     rubric_schema_version: SchemaVersion,
     data_policy_version: SchemaVersion,
-    source_artifact_hashes: z.array(Sha256Digest),
+    source_artifact_hashes: z.array(Sha256Digest).min(1),
     evidence_snapshot_hash: Sha256Digest,
     canonical_input_hash: Sha256Digest,
     rendered_provider_input_hash: Sha256Digest,
@@ -76,5 +84,17 @@ export const DerivedInferenceRecord = z
     completeness_flags: CompletenessFlags,
     outcome: DerivedOutcome,
   })
-  .strict();
+  .strict()
+  .superRefine((record, ctx) => {
+    const declared = new Set<string>(record.source_artifact_hashes);
+    record.source_spans.forEach((span, index) => {
+      if (!declared.has(span.artifact_hash)) {
+        ctx.addIssue({
+          code: "custom",
+          message: "span artifact_hash is not one of source_artifact_hashes",
+          path: ["source_spans", index, "artifact_hash"],
+        });
+      }
+    });
+  });
 export type DerivedInferenceRecord = z.infer<typeof DerivedInferenceRecord>;

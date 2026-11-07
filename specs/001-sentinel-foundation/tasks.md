@@ -40,12 +40,13 @@ command was actually run and observed (verification-before-completion).
   never yields parameters. GREEN: in-snapshot id resolves to that opaque id; explicit
   abstention resolves to abstention (spec scenario 3).
 - [x] T009 (S01-002) `operation.ts`: canonical `OperationRef`, `ReviewRef`,
-  `ReceiptRef` bound by content digest + expected versions + expiry. RED: digest
-  mismatch / missing expiry rejected; GREEN: valid refs accepted. Shape is not
-  approval.
+  `ReceiptRef` bound by content digest + expected versions + expiry. RED: malformed
+  digest / missing expiry rejected; `checkOperationBinding` rejects an operation id or
+  canonical digest mismatch (T022); GREEN: valid refs accepted. Shape is not approval.
 - [x] T010 (S01-002) `evidence.ts`: `EvidenceRef` + integrity metadata
-  (content-addressed digest, size, media type). RED: digest/identifier mismatch
-  rejected; GREEN: valid ref accepted.
+  (content-addressed digest, size, media type). RED: malformed digest rejected;
+  `checkEvidenceContent` rejects observed digest/size mismatch (T022); GREEN: valid
+  ref accepted.
 - [x] T011 (S01-002) `targets.ts`: `TargetObservation` with
   hypothesis/observed/verified relationship labels kept distinct. RED: a record
   asserting `verified` without a verifier producer is rejected; GREEN: observed /
@@ -57,7 +58,9 @@ command was actually run and observed (verification-before-completion).
   RED: event whose `event_type` is not owned by its producer rejected; unknown extra
   field rejected. GREEN: valid authority-receipt event accepted.
 - [x] T013 (S01-002) `snapshot.ts`: `MissionSnapshot` + `ProjectionCursor`. RED:
-  cursor behind/ahead inconsistency rejected; GREEN: valid snapshot+cursor accepted.
+  negative cursor rejected; `checkEventAfterSnapshot` rejects an event behind or
+  ahead of the cursor, from another mission or from an older generation (T022);
+  GREEN: valid snapshot+cursor accepted.
 - [x] T014 (S01-005) `derived.ts`: `DerivedInferenceRecord` v1. RED: missing
   canonical/rendered input hash, missing span offset unit, or a forbidden `verified`
   field rejected; `outcome` outside `completed|abstained|failed|unknown` rejected.
@@ -68,8 +71,11 @@ command was actually run and observed (verification-before-completion).
 
 ## Fixtures
 
-- [x] T016 (S01-006) `fixtures/` synthetic valid + adversarial JSON for each contract,
-  plus `README.md` declaring them synthetic and non-executing. RED/assert: a test
+- [x] T016 (S01-006) `fixtures/` synthetic JSON for the mission request (valid and
+  forged-authority), scope and derived-inference contracts, plus `README.md`
+  declaring them synthetic and non-executing. Other contracts' valid/adversarial
+  cases live in their unit tests; shared adversarial fixtures for later lanes
+  (stale selection, producer-spoofed event, self-verified target) are deferred. RED/assert: a test
   scans fixtures and fails if any contains a script, secret-shaped token, resolvable
   host, or provider endpoint (no execution surface).
 
@@ -97,6 +103,18 @@ command was actually run and observed (verification-before-completion).
   inconsistency), span-to-artifact binding (spans carry no artifact reference) and
   arbitrary string length limits (no spec limit); recorded as downstream boundary
   duties.
+- [x] T022 (S01-002, S01-005, S01-006) Address the independent re-review of PR #21,
+  RED first: `checkOperationBinding`, `checkEvidenceContent` and
+  `checkEventAfterSnapshot` implement the mismatch/cursor checks T009, T010 and T013
+  claimed; `SchemaVersionV1` makes every record's `schema_version` reject other major
+  versions; `SourceSpan.artifact_hash` must name one of a non-empty
+  `source_artifact_hashes` (reverses T021's span decline); `operation.*` events need a
+  non-null `operation_id`; `candidate_set_version` uses the `Generation` brand;
+  forged-key tests assert `unrecognized_keys`; `failed`/`abstained` outcomes accepted;
+  fixture scan covers `node`/`url`/`domain`/`ip` keys and URLs of any scheme, and
+  fixture hosts use only RFC 2606 names. Deferred: readonly/frozen candidate sets,
+  distinct brand for adapter/rubric/policy versions, whitespace/control-character
+  ids, scope coherence (duplicates, effect-vs-protocol), `packageManager` hash pin.
 
 ## Requirement → task map
 
@@ -109,4 +127,4 @@ command was actually run and observed (verification-before-completion).
 | S01-005 | T014 |
 | S01-006 | T016 |
 | S01-007 | T017–T020 |
-| Review | T021 |
+| Review | T021, T022 |

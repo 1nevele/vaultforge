@@ -39,6 +39,9 @@ export type IngestResult =
  * Reject a payload that attempts to declare its own producer provenance, and
  * otherwise stamp it with the class the authenticated transport supplies.
  *
+ * The check is on the payload's top-level key only; nested or differently
+ * spelled keys are left to the strict schemas that parse the payload next.
+ *
  * `hostAssigned` comes from the trusted ingest layer, not the payload. Shape
  * validation of the payload is not authentication; this function exists to make
  * the "never trust a payload-declared producer" rule executable and testable.

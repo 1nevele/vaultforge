@@ -10,10 +10,10 @@ rejected.
 They are **not** live data and carry **no execution capability**:
 
 - No secrets, API keys, tokens or credentials.
-- No URLs or provider endpoints.
+- No URLs (of any scheme) or provider endpoints.
 - No shell, script, or command content.
-- Hostnames use only non-resolvable reserved suffixes (`.synthetic`, `.internal`,
-  `.invalid`, `.test`, `.example`) and never point at a real host.
+- Hostnames use only the reserved top-level names `.test`, `.example` and
+  `.invalid` (RFC 2606 / RFC 6761), which never resolve to a real host.
 - Digests (`sha256:…`) are placeholder byte strings, not real content hashes of
   anything sensitive.
 

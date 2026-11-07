@@ -22,6 +22,24 @@ const base = {
   payload_reference: "sha256:" + "a".repeat(64),
 };
 
+describe("operation events carry their operation (S01-002)", () => {
+  test("rejects an operation.* event with a null operation_id", () => {
+    const r = EventEnvelope.safeParse({ ...base, operation_id: null });
+    expect(r.success).toBe(false);
+    if (!r.success) expect(r.error.issues.map((i) => i.path)).toEqual([["operation_id"]]);
+  });
+
+  test("allows a null operation_id on a non-operation event", () => {
+    const observation = {
+      ...base,
+      operation_id: null,
+      authenticated_producer: "worker",
+      event_type: "execution.observation",
+    };
+    expect(EventEnvelope.safeParse(observation).success).toBe(true);
+  });
+});
+
 describe("EventEnvelope (S01-002)", () => {
   test("accepts a valid authority-receipt event whose producer owns the type", () => {
     expect(EventEnvelope.parse(base).event_type).toBe(
