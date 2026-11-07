@@ -6,82 +6,82 @@ command was actually run and observed (verification-before-completion).
 
 ## Setup
 
-- [ ] T001 (S01-001) Create `projects/sentinel/` workspace: `package.json`,
+- [x] T001 (S01-001) Create `projects/sentinel/` workspace: `package.json`,
   `pnpm-workspace.yaml`, `tsconfig.base.json`, pinned devDeps
   (typescript 5.9.3, vitest 5.0.5, zod 4.6.6, @types/node 22.20.5), `packageManager`
   pinned. `pnpm install` produces a committed lockfile. No global installs.
-- [ ] T002 (S01-001) Create `packages/contracts/` package.json + tsconfig (extends
+- [x] T002 (S01-001) Create `packages/contracts/` package.json + tsconfig (extends
   base, `strict: true`), vitest config, and `pnpm` scripts: `typecheck`, `build`,
   `test`. Confirm empty `tsc --noEmit` and `vitest run` succeed on a trivial module.
 
 ## Contracts (TDD: test first, then schema)
 
-- [ ] T003 (S01-002) `common.ts`: branded `SchemaVersion`, `Sha256Digest`,
+- [x] T003 (S01-002) `common.ts`: branded `SchemaVersion`, `Sha256Digest`,
   `MissionId`, `OperationId`, `ActorId`, `EventId`, opaque `CandidateId`, cursor types.
   RED: reject malformed version `"1.0"`, bad digest `"sha256:xyz"`; GREEN: accept
   `"1.0.0"`, `"sha256:"+64hex`.
-- [ ] T004 (S01-002,004) `producers.ts`: closed `AuthenticatedProducer` enum
+- [x] T004 (S01-002,004) `producers.ts`: closed `AuthenticatedProducer` enum
   (`scheduler|worker|model|authority|verifier|supervisor`) + trust-class helpers.
   RED: a payload object carrying its own `authenticated_producer: "authority"` is
   rejected by `rejectSelfAssignedProducer`; GREEN: host-assigned producer passed as a
   separate argument is accepted.
-- [ ] T005 (S01-002) `mission.ts`: `MissionRequest` + immutable `TaskEnvelope` with
+- [x] T005 (S01-002) `mission.ts`: `MissionRequest` + immutable `TaskEnvelope` with
   client request id. RED: extra authority field rejected (`.strict`), malformed
   version rejected; GREEN: valid synthetic request round-trips and preserves the
   versioned value (spec scenario 1).
-- [ ] T006 (S01-002) `scope.ts`: registered `Scope` + `Limits` (protocols, testing
+- [x] T006 (S01-002) `scope.ts`: registered `Scope` + `Limits` (protocols, testing
   effects, time/cost caps). RED: unknown effect / negative limit rejected; GREEN:
   valid scope accepted. Note: scope shape is registration data, not authorization.
-- [ ] T007 (S01-002) `actor.ts`: `RuntimeActor` + `ExecutionGeneration` (monotonic).
+- [x] T007 (S01-002) `actor.ts`: `RuntimeActor` + `ExecutionGeneration` (monotonic).
   RED: non-integer / negative generation rejected; GREEN: valid actor accepted.
-- [ ] T008 (S01-003) `candidates.ts`: immutable `CandidateSet` (versioned, frozen),
+- [x] T008 (S01-003) `candidates.ts`: immutable `CandidateSet` (versioned, frozen),
   `Selection` (opaque id | abstention), and `resolveSelection`. RED: unknown id,
   stale generation, stale set version each rejected with a typed reason; selection
   never yields parameters. GREEN: in-snapshot id resolves to that opaque id; explicit
   abstention resolves to abstention (spec scenario 3).
-- [ ] T009 (S01-002) `operation.ts`: canonical `OperationRef`, `ReviewRef`,
+- [x] T009 (S01-002) `operation.ts`: canonical `OperationRef`, `ReviewRef`,
   `ReceiptRef` bound by content digest + expected versions + expiry. RED: digest
   mismatch / missing expiry rejected; GREEN: valid refs accepted. Shape is not
   approval.
-- [ ] T010 (S01-002) `evidence.ts`: `EvidenceRef` + integrity metadata
+- [x] T010 (S01-002) `evidence.ts`: `EvidenceRef` + integrity metadata
   (content-addressed digest, size, media type). RED: digest/identifier mismatch
   rejected; GREEN: valid ref accepted.
-- [ ] T011 (S01-002) `targets.ts`: `TargetObservation` with
+- [x] T011 (S01-002) `targets.ts`: `TargetObservation` with
   hypothesis/observed/verified relationship labels kept distinct. RED: a record
   asserting `verified` without a verifier producer is rejected; GREEN: observed /
   hypothesis records accepted. (Verification itself is out of scope.)
-- [ ] T012 (S01-002,004) `events.ts`: event envelope
+- [x] T012 (S01-002,004) `events.ts`: event envelope
   (`event_id, mission_id, projection_sequence, schema_version, actor_id,
   execution_generation, operation_id, event_type, authenticated_producer,
   correlation_id, causation_id, timestamp, payload_reference`) + public event union.
   RED: event whose `event_type` is not owned by its producer rejected; unknown extra
   field rejected. GREEN: valid authority-receipt event accepted.
-- [ ] T013 (S01-002) `snapshot.ts`: `MissionSnapshot` + `ProjectionCursor`. RED:
+- [x] T013 (S01-002) `snapshot.ts`: `MissionSnapshot` + `ProjectionCursor`. RED:
   cursor behind/ahead inconsistency rejected; GREEN: valid snapshot+cursor accepted.
-- [ ] T014 (S01-005) `derived.ts`: `DerivedInferenceRecord` v1. RED: missing
+- [x] T014 (S01-005) `derived.ts`: `DerivedInferenceRecord` v1. RED: missing
   canonical/rendered input hash, missing span offset unit, or a forbidden `verified`
   field rejected; `outcome` outside `completed|abstained|failed|unknown` rejected.
   GREEN: honest `failed`/`unknown` record with lineage + completeness accepted
   (spec S01-005).
-- [ ] T015 `index.ts`: `CONTRACTS_SCHEMA_VERSION` constant + re-exports. Typecheck
+- [x] T015 `index.ts`: `CONTRACTS_SCHEMA_VERSION` constant + re-exports. Typecheck
   passes.
 
 ## Fixtures
 
-- [ ] T016 (S01-006) `fixtures/` synthetic valid + adversarial JSON for each contract,
+- [x] T016 (S01-006) `fixtures/` synthetic valid + adversarial JSON for each contract,
   plus `README.md` declaring them synthetic and non-executing. RED/assert: a test
   scans fixtures and fails if any contains a script, secret-shaped token, resolvable
   host, or provider endpoint (no execution surface).
 
 ## Verification + handoff
 
-- [ ] T017 (S01-007) Run and record: `pnpm --dir projects/sentinel install
+- [x] T017 (S01-007) Run and record: `pnpm --dir projects/sentinel install
   --frozen-lockfile`, `typecheck`, `build`, `test` with observed counts; re-run the
   repository-level offline checks. Confirm fresh-checkout reproducibility; no provider
   credentials used.
-- [ ] T018 (S01-007) Add the pinned `sentinel-contracts` CI job. Label it a setup/unit
+- [x] T018 (S01-007) Add the pinned `sentinel-contracts` CI job. Label it a setup/unit
   gate, not G0–G8.
-- [ ] T019 (S01-007) Independent spec/code review via `requesting-code-review` with a
+- [x] T019 (S01-007) Independent spec/code review via `requesting-code-review` with a
   fresh reviewer; record findings + resolutions.
 - [ ] T020 Open the S01 PR: changed paths, requirement→test map, commands + observed
   RED/GREEN, skipped gates, trust assumptions, blockers. Stop; no merge, no self-close,

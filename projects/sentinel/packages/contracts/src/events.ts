@@ -40,10 +40,19 @@ export const EVENT_TYPE_OWNERS = {
   "mission.cancellation.requested": "scheduler",
 } as const satisfies Record<string, AuthenticatedProducer>;
 
-export const EventType = z.enum(
-  Object.keys(EVENT_TYPE_OWNERS) as [string, ...string[]],
-);
 export type EventType = keyof typeof EVENT_TYPE_OWNERS;
+
+/**
+ * Literal tuple of event types. Typed as `[EventType, ...EventType[]]` so the
+ * zod enum's inferred value type is the precise `EventType` union rather than
+ * widening to `string` — downstream exhaustiveness checks then hold.
+ */
+export const EVENT_TYPES = Object.keys(EVENT_TYPE_OWNERS) as [
+  EventType,
+  ...EventType[],
+];
+
+export const EventType = z.enum(EVENT_TYPES);
 
 export const EventEnvelope = z
   .object({

@@ -49,6 +49,21 @@ describe("rejectSelfAssignedProducer (S01-004)", () => {
     expect(result.ok).toBe(false);
   });
 
+  test("covers the target-observation channel: a payload self-claiming supervisor is rejected", () => {
+    // TargetObservation carries its producer under the same key, so the single
+    // guard protects it too (observed/hypothesis records, not just verified).
+    const ingested = {
+      observation_id: "obs-1",
+      node: "lab.internal.synthetic:8080",
+      authenticated_producer: "supervisor",
+      relationship: "observed",
+      evidence_ref: "sha256:" + "f".repeat(64),
+    };
+    const result = rejectSelfAssignedProducer(ingested, "worker");
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).toBe("self_assigned_producer");
+  });
+
   test("TRUSTED_PRODUCERS lists only authority, verifier and supervisor", () => {
     expect([...TRUSTED_PRODUCERS].sort()).toEqual([
       "authority",

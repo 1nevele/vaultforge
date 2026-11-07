@@ -23,13 +23,17 @@ export const TargetObservation = z
     observation_id: z.string().min(1),
     schema_version: SchemaVersion,
     node: z.string().min(1),
-    producer: AuthenticatedProducer,
+    // Same field name as EventEnvelope and the key rejectSelfAssignedProducer
+    // inspects, so the single ingest guard covers this record's producer channel
+    // too — not only the verified→verifier refine below (S01-004).
+    authenticated_producer: AuthenticatedProducer,
     relationship: TargetRelationship,
     evidence_ref: Sha256Digest,
   })
   .strict()
   .refine(
-    (o) => o.relationship !== "verified" || o.producer === "verifier",
+    (o) =>
+      o.relationship !== "verified" || o.authenticated_producer === "verifier",
     {
       message: "only the verifier producer may assert a verified relationship",
       path: ["relationship"],

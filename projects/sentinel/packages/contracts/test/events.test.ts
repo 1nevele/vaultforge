@@ -1,5 +1,10 @@
-import { describe, expect, test } from "vitest";
-import { EventEnvelope, EVENT_TYPE_OWNERS } from "../src/events.js";
+import { describe, expect, expectTypeOf, test } from "vitest";
+import {
+  EventEnvelope,
+  EVENT_TYPE_OWNERS,
+  type EventEnvelope as EventEnvelopeType,
+  type EventType,
+} from "../src/events.js";
 
 const base = {
   event_id: "e-1",
@@ -55,5 +60,12 @@ describe("EventEnvelope (S01-002)", () => {
 
   test("EVENT_TYPE_OWNERS maps a verified-finding event to the verifier only", () => {
     expect(EVENT_TYPE_OWNERS["finding.verified"]).toBe("verifier");
+  });
+
+  test("the frozen event_type is the precise union, not widened to string", () => {
+    // Compile-time assertion (checked by `pnpm typecheck`): the inferred field
+    // type must be the EventType union, so downstream exhaustiveness holds.
+    expectTypeOf<EventEnvelopeType["event_type"]>().toEqualTypeOf<EventType>();
+    expectTypeOf<EventType>().not.toEqualTypeOf<string>();
   });
 });

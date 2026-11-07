@@ -5,7 +5,7 @@ const base = {
   observation_id: "obs-1",
   schema_version: "1.0.0",
   node: "lab.internal.synthetic:8080",
-  producer: "worker",
+  authenticated_producer: "worker",
   evidence_ref: "sha256:" + "f".repeat(64),
 };
 
@@ -15,10 +15,17 @@ describe("TargetObservation (S01-002)", () => {
     expect(o.relationship).toBe("observed");
   });
 
+  test("names the producer channel 'authenticated_producer', matching the ingest guard (S01-004)", () => {
+    // The field must share its name with EventEnvelope and with the key that
+    // rejectSelfAssignedProducer inspects, so one guard covers this record too.
+    const o = TargetObservation.parse({ ...base, relationship: "observed" });
+    expect(o.authenticated_producer).toBe("worker");
+  });
+
   test("accepts a hypothesis marker from a model producer", () => {
     const o = TargetObservation.parse({
       ...base,
-      producer: "model",
+      authenticated_producer: "model",
       relationship: "hypothesis",
     });
     expect(o.relationship).toBe("hypothesis");
@@ -28,7 +35,7 @@ describe("TargetObservation (S01-002)", () => {
     expect(
       TargetObservation.safeParse({
         ...base,
-        producer: "worker",
+        authenticated_producer: "worker",
         relationship: "verified",
       }).success,
     ).toBe(false);
@@ -37,10 +44,10 @@ describe("TargetObservation (S01-002)", () => {
   test("accepts 'verified' only when the producer is the verifier", () => {
     const o = TargetObservation.parse({
       ...base,
-      producer: "verifier",
+      authenticated_producer: "verifier",
       relationship: "verified",
     });
-    expect(o.producer).toBe("verifier");
+    expect(o.authenticated_producer).toBe("verifier");
   });
 
   test("rejects an unknown relationship label", () => {
