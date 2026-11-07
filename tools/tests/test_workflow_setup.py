@@ -43,6 +43,11 @@ class WorkflowSetupTests(unittest.TestCase):
         for name in RETIRED_SUPERPOWERS:
             self.assertFalse((ROOT / ".claude/skills" / name).exists(), name)
 
+    def test_lock_skill_counts_match_the_native_inventory(self):
+        data = json.loads((ROOT / "development-tools.lock.json").read_text())
+        self.assertEqual(data["superpowers"]["skill_count"], len(SUPERPOWERS))
+        self.assertEqual(data["spec_kit"]["skill_count"], len(SPECKIT))
+
     def test_pins_and_unexercised_cloud_status(self):
         data = self.manifest()
         self.assertEqual(data["superpowers"]["commit"], "22f0b463e7a5e579904dd6211a520321035526f7")

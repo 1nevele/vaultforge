@@ -8,7 +8,7 @@ Read `.specify/memory/constitution.md`, `docs/development-workflow.md`, the assi
 
 ## Specification-driven delivery
 
-- Requirements/acceptance scenarios → reviewed spec → plan → tasks → RED/GREEN implementation (test-first for behavioral logic, invariants and adversarial cases) → in-session `/code-review` before push from a web session (the `@claude` small-fix route is exempt) → CodeRabbit PR review → verified PR.
+- Requirements/acceptance scenarios → reviewed spec → plan → tasks → RED/GREEN implementation (test-first for behavioral logic, invariants and adversarial cases) → in-session `/code-review` before push from a web session (the `@claude` small-fix route is exempt) → CodeRabbit PR review (paused under the constitution's PoC amendment) → verified PR.
 - Keep one canonical root feature packet with project name in the directory; no competing Superpowers plan tree.
 - Verify repository-provided skill discovery in the actual Claude web session. Hermes plugin activation is not web activation. Missing optional plugin support does not remove spec/TDD/review requirements.
 - Maximum Lead plus three active agents that edit files (read-only reviewer subagents do not count); exclusive paths. Only the Claude lead edits shared manifests/lockfiles/contracts.
