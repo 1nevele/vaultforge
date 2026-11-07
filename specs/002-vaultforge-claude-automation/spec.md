@@ -32,9 +32,9 @@ execution routes and no automated Claude code-review gate.
   comments and PR reviews, from actors with write access. It is limited to small
   fixes (turn and time limits, scope instruction) and declines spec/feature work,
   dependency changes and `.github/` edits by pointing to a `status:ready` issue.
-- CA-006: **No automated review gate.** No Claude review workflow runs on PR open.
-  Protected-main approval and the existing Repository checks remain the merge gate.
-  A future third-party reviewer (e.g. CodeRabbit) needs its own change.
+- CA-006: **No Claude review gate.** No Claude review workflow runs on PR open.
+  Automated review is CodeRabbit (`.coderabbit.yaml`, see `docs/code-review.md`);
+  neither Claude route approves or merges.
 - CA-007: Labels and triggers `claude-implement` / assignee `claude` no longer start
   work. Existing safety rules in `AGENTS.md` and the constitution still apply to both
   routes.
