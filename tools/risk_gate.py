@@ -14,7 +14,7 @@ import sys
 SENSITIVE = ('.github/workflows/', '.github/claude-review/', '.claude/',
              '.specify/memory/', 'specs/002-vaultforge-claude-automation/')
 SENSITIVE_FILES = {
-    'AGENTS.md', 'CLAUDE.md', 'CODEOWNERS', '.github/CODEOWNERS',
+    'AGENTS.md', 'CLAUDE.md', 'CODEOWNERS', '.github/CODEOWNERS', 'docs/CODEOWNERS',
     '.coderabbit.yaml', 'tools/claude_review.py', 'tools/tests/test_claude_review.py',
     'tools/risk_gate.py', 'tools/tests/test_risk_gate.py',
 }
@@ -28,6 +28,13 @@ def compute_risk(paths, additions, deletions):
     if total > 40 or any(p.lower().endswith(CODE_EXTENSIONS) for p in paths):
         return 'medium'
     return 'low'
+
+
+def collect_paths(files):
+    """Paths to classify: each file's path plus a rename's source path."""
+    paths = [f['filename'] for f in files]
+    paths.extend(f['previous_filename'] for f in files if f.get('previous_filename'))
+    return paths
 
 
 def decide(risk):
@@ -46,11 +53,11 @@ def main():
         page, end = decoder.raw_decode(remaining)
         files.extend(page)
         remaining = remaining[end:].lstrip()
-    paths = [f['filename'] for f in files]
+    paths = collect_paths(files)
     additions = sum(f['additions'] for f in files)
     deletions = sum(f['deletions'] for f in files)
     risk = compute_risk(paths, additions, deletions)
-    print(f'risk={risk} files={len(paths)} additions={additions} deletions={deletions}')
+    print(f'risk={risk} files={len(files)} additions={additions} deletions={deletions}')
     if risk == 'high':
         print('BLOCKED: high-risk diff requires explicit human review before merge.')
     sys.exit(decide(risk))

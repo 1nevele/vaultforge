@@ -23,7 +23,7 @@ class RiskGateTests(unittest.TestCase):
 
     def test_high_for_sensitive_paths(self):
         for path in ('.github/workflows/anything.yml', '.claude/settings.json',
-                      '.coderabbit.yaml', 'CODEOWNERS', '.github/CODEOWNERS',
+                      '.coderabbit.yaml', 'CODEOWNERS', '.github/CODEOWNERS', 'docs/CODEOWNERS',
                       'AGENTS.md', 'tools/risk_gate.py', 'tools/tests/test_risk_gate.py'):
             with self.subTest(path=path):
                 self.assertEqual(self.mod.compute_risk([path], 1, 0), 'high')
@@ -42,6 +42,16 @@ class RiskGateTests(unittest.TestCase):
         self.assertEqual(self.mod.decide('low'), 0)
         self.assertEqual(self.mod.decide('medium'), 0)
         self.assertEqual(self.mod.decide('high'), 1)
+
+    def test_collect_paths_includes_rename_source(self):
+        files = [{'filename': 'docs/x.yml', 'previous_filename': '.github/workflows/x.yml',
+                  'status': 'renamed', 'additions': 0, 'deletions': 0}]
+        self.assertIn('.github/workflows/x.yml', self.mod.collect_paths(files))
+
+    def test_renaming_workflow_out_of_sensitive_path_is_high(self):
+        files = [{'filename': 'docs/x.yml', 'previous_filename': '.github/workflows/x.yml',
+                  'status': 'renamed', 'additions': 0, 'deletions': 0}]
+        self.assertEqual(self.mod.compute_risk(self.mod.collect_paths(files), 0, 0), 'high')
 
     def test_empty_file_list_is_low(self):
         self.assertEqual(self.mod.compute_risk([], 0, 0), 'low')
