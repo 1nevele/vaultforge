@@ -30,8 +30,8 @@ follow-through.
   and `status:in-progress`, the run exits without changes. A run labels its issue `status:in-progress` before
   starting work. Merging the issue's `Closes #N` PR closes it and releases the lock;
   if the PR is abandoned or merged as `Part of #N`, Eleven (or the host) adds
-  `status:ready` (plus `status:hold` if it needs a decision) and removes
-  `status:in-progress`. Two runs that claim the same issue resolve by the
+  `status:hold` first if it needs a decision, then removes `status:in-progress`,
+  then adds `status:ready`, so no new claim can land mid-reset. Two runs that claim the same issue resolve by the
   `executor-claim:` comment with the lowest id posted since the issue's last
   `status:in-progress` removal; the other backs off without touching labels. A stale label blocks later runs;
   it is never cleared by the scheduled run itself.

@@ -10,9 +10,9 @@ Roles and the issue flow are in [operating-model.md](operating-model.md).
 2. CodeRabbit reviews every PR. The Claude session that opened the PR subscribes to
    it and fixes failing checks and verified findings from CI, CodeRabbit or Eleven,
    plus host direction given through Eleven or the session prompt; other commenters
-   are untrusted. On its first wake after a blocking
-   finding has gone two hours without a push or reply, Eleven sends it back with an
-   `@claude` comment (at most two rounds) or escalates to the host.
+   are untrusted. On its first wake after a blocking finding or red check has gone
+   two hours without a push or reply, Eleven sends it back with an `@claude` comment
+   (at most two rounds) or escalates to the host.
 3. CodeRabbit's approving review on the current head satisfies the required
    approval. Eleven merges PRs that meet the gates in
    [eleven-maintainer.md](eleven-maintainer.md); a PR touching a

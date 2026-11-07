@@ -105,11 +105,11 @@ It never closes, assigns, comments, dispatches Claude or runs pull-request code.
    that delivers only part of an issue says `Part of #N` instead and leaves the issue
    open; right after merging it, Eleven releases the lock (see step 7).
 7. **Abandon or partial merge.** If a PR is abandoned, Eleven closes it; after a
-   `Part of #N` merge it keeps the issue open. In both cases it adds `status:ready`
-   (plus `status:hold` if the remaining work needs a decision) and then removes
-   `status:in-progress` itself, which releases the lock. Removing it explicitly
-   matters: if `status:ready` was still on the issue, adding it again records no new
-   label event and would not outrank the claim.
+   `Part of #N` merge it keeps the issue open. In both cases it releases the lock in
+   this order: if the remaining work needs a decision, first add `status:hold`; then
+   remove `status:in-progress`; then add `status:ready`. Removing the claim first
+   matters: while the issue has no status label nothing can select or re-claim it,
+   and issue flow leaves it alone, so the reset cannot race a new executor claim.
 
 Only one `claude:scheduled` issue is in progress at a time, from claim until close or
 reset. Claude never merges, approves, closes issues, unblocks dependents or starts a
@@ -144,9 +144,10 @@ When the scheduled executor hits a blocker before opening a PR (missing access,
 failed skill discovery, an ambiguous spec), it comments on the issue and leaves
 `status:in-progress` set, which stops the queue. Eleven's poller only watches PRs, so
 this reaches the host through the scheduled task's push notification (enabled on
-the task as of 2026-11-07), not through Eleven. The host resolves it and adds
-`status:ready` (plus `status:hold` if it is still waiting on something) and removes
-`status:in-progress`.
+the task as of 2026-11-07), not through Eleven. The host resolves it and
+releases the lock in the same order as flow step 7 (`status:hold` first if it is
+still waiting on something, then remove `status:in-progress`, then add
+`status:ready`).
 
 ## Known gaps
 

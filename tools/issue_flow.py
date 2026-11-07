@@ -129,7 +129,7 @@ def reconcile(event_name, event, gh):
     """Plan every affected issue from current state, then apply all writes."""
     cache = {}
 
-    repository = getattr(gh, 'repository', '')
+    repository = gh.repository
 
     def satisfied(number):
         """Whether one dependency is met; other repositories never are."""

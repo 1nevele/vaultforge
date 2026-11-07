@@ -15,9 +15,10 @@ Eleven may:
 - queue work for the scheduled executor by adding `claude:scheduled` + `status:ready`
   to issues inside the host's current direction;
 - release the executor lock: merging a PR with `Closes #N` closes its issue; when a
-  PR is abandoned, or right after merging a `Part of #N` PR, add `status:ready`
-  (plus `status:hold` if the remaining work needs a decision) and then remove
-  `status:in-progress`; close an issue by hand only when its work
+  PR is abandoned, or right after merging a `Part of #N` PR: first add
+  `status:hold` if the remaining work needs a decision (keep any hold already
+  there), then remove `status:in-progress`, then add `status:ready`. This order
+  keeps a new executor run from claiming the issue mid-reset; close an issue by hand only when its work
   landed without a closing keyword;
 - ask Claude for review fixes with an `@claude` comment on a PR, quoting the findings
   to address, at most two rounds per PR, on the first wake after a blocking finding
@@ -45,7 +46,9 @@ All must hold on the exact head being merged:
   build); repository setup or secret checks alone are not application verification.
   Missing, skipped, pending or failed mandatory evidence blocks merge.
 - **Closing keywords.** Merging `Closes #N` marks the issue completed and can unblock
-  its dependents, so: closing keywords name only the issue the PR was opened for;
+  its dependents, so: a `Closes` PR must target `main` (GitHub ignores closing
+  keywords on other bases, which would leave the issue locked); closing keywords
+  name only the issue the PR was opened for;
   `Closes` needs each of that issue's acceptance items to be evidenced in the PR
   body (a completion claim is not evidence). Otherwise ask Claude to change it to
   `Part of #N` and say what remains.
