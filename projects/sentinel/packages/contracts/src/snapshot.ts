@@ -42,18 +42,16 @@ export type CursorCheckResult =
   | { ok: true }
   | {
       ok: false;
-      reason:
-        | "foreign_mission"
-        | "stale_generation"
-        | "already_in_snapshot"
-        | "sequence_gap";
+      reason: "foreign_mission" | "already_in_snapshot" | "sequence_gap";
     };
 
 /**
- * Check that an event is the next one to apply after a snapshot: same mission,
- * not from an older execution generation, and exactly one past the cursor.
- * An event at or behind the cursor is already reflected in the snapshot; one
- * further ahead means events were missed and the client must re-hydrate.
+ * Check that an event is the next one to apply after a snapshot: same mission
+ * and exactly one past the cursor. An event at or behind the cursor is already
+ * reflected in the snapshot; one further ahead means events were missed and the
+ * client must re-hydrate. Generation is deliberately not checked here: fencing
+ * obsolete workers happens before an event is sequenced, so a sequenced event
+ * from an older generation is part of the log and must still be applied.
  */
 export function checkEventAfterSnapshot(
   snapshot: MissionSnapshot,
@@ -61,9 +59,6 @@ export function checkEventAfterSnapshot(
 ): CursorCheckResult {
   if (event.mission_id !== snapshot.mission_id) {
     return { ok: false, reason: "foreign_mission" };
-  }
-  if (event.execution_generation < snapshot.execution_generation) {
-    return { ok: false, reason: "stale_generation" };
   }
   const cursor = snapshot.cursor.projection_sequence;
   if (event.projection_sequence <= cursor) {

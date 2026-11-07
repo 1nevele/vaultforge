@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { EvidenceRef, checkEvidenceContent } from "../src/evidence.js";
+import { Sha256Digest } from "../src/common.js";
 
 const validEvidence = {
   evidence_id: "ev-1",
@@ -44,18 +45,18 @@ describe("checkEvidenceContent: digest/size mismatch (S01-002)", () => {
   });
 
   test("accepts bytes whose observed digest and size match the reference", () => {
-    expect(checkEvidenceContent(ref, { digest: "sha256:" + "a".repeat(64), size_bytes: 12 })).toEqual({ ok: true });
+    expect(checkEvidenceContent(ref, { digest: Sha256Digest.parse("sha256:" + "a".repeat(64)), size_bytes: 12 })).toEqual({ ok: true });
   });
 
   test("rejects bytes whose observed digest differs", () => {
-    expect(checkEvidenceContent(ref, { digest: "sha256:" + "b".repeat(64), size_bytes: 12 })).toEqual({
+    expect(checkEvidenceContent(ref, { digest: Sha256Digest.parse("sha256:" + "b".repeat(64)), size_bytes: 12 })).toEqual({
       ok: false,
       reason: "digest_mismatch",
     });
   });
 
   test("rejects bytes whose observed size differs", () => {
-    expect(checkEvidenceContent(ref, { digest: "sha256:" + "a".repeat(64), size_bytes: 13 })).toEqual({
+    expect(checkEvidenceContent(ref, { digest: Sha256Digest.parse("sha256:" + "a".repeat(64)), size_bytes: 13 })).toEqual({
       ok: false,
       reason: "size_mismatch",
     });

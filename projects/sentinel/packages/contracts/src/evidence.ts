@@ -31,7 +31,7 @@ export type EvidenceContentResult =
  */
 export function checkEvidenceContent(
   ref: EvidenceRef,
-  observed: { digest: string; size_bytes: number },
+  observed: { digest: Sha256Digest; size_bytes: number },
 ): EvidenceContentResult {
   if (observed.digest !== ref.content_digest) {
     return { ok: false, reason: "digest_mismatch" };

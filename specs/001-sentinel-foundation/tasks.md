@@ -59,7 +59,8 @@ command was actually run and observed (verification-before-completion).
   field rejected. GREEN: valid authority-receipt event accepted.
 - [x] T013 (S01-002) `snapshot.ts`: `MissionSnapshot` + `ProjectionCursor`. RED:
   negative cursor rejected; `checkEventAfterSnapshot` rejects an event behind or
-  ahead of the cursor, from another mission or from an older generation (T022);
+  ahead of the cursor or from another mission; a sequenced event from an older
+  generation is still applied, since fencing happens before sequencing (T022);
   GREEN: valid snapshot+cursor accepted.
 - [x] T014 (S01-005) `derived.ts`: `DerivedInferenceRecord` v1. RED: missing
   canonical/rendered input hash, missing span offset unit, or a forbidden `verified`
@@ -110,6 +111,8 @@ command was actually run and observed (verification-before-completion).
   versions; `SourceSpan.artifact_hash` must name one of a non-empty
   `source_artifact_hashes` (reverses T021's span decline); `operation.*` events need a
   non-null `operation_id`; `candidate_set_version` uses the `Generation` brand;
+  binding helpers take branded expected values so a swapped id/digest does not
+  compile;
   forged-key tests assert `unrecognized_keys`; `failed`/`abstained` outcomes accepted;
   fixture scan covers `node`/`url`/`domain`/`ip` keys and URLs of any scheme, and
   fixture hosts use only RFC 2606 names. Deferred: readonly/frozen candidate sets,

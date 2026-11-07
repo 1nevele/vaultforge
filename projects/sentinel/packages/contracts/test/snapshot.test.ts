@@ -82,10 +82,9 @@ describe("checkEventAfterSnapshot: cursor behind/ahead (S01-002)", () => {
     });
   });
 
-  test("rejects an event from an older execution generation", () => {
+  test("applies a sequenced event from an older generation (fencing is the writer's job)", () => {
     expect(checkEventAfterSnapshot(snapshot, event({ execution_generation: 1 }))).toEqual({
-      ok: false,
-      reason: "stale_generation",
+      ok: true,
     });
   });
 });

@@ -63,14 +63,13 @@ export type OperationBindingResult =
  * approval — authority is established outside this package.
  */
 export function checkOperationBinding(
-  expectedOperationId: string,
-  expectedOperationDigest: string,
+  expected: { operation_id: OperationId; operation_digest: Sha256Digest },
   ref: ReviewRef | ReceiptRef,
 ): OperationBindingResult {
-  if (ref.operation_id !== expectedOperationId) {
+  if (ref.operation_id !== expected.operation_id) {
     return { ok: false, reason: "operation_id_mismatch" };
   }
-  if (ref.operation_digest !== expectedOperationDigest) {
+  if (ref.operation_digest !== expected.operation_digest) {
     return { ok: false, reason: "operation_digest_mismatch" };
   }
   return { ok: true };
