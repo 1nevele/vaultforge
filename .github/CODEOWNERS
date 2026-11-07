@@ -1,0 +1,34 @@
+# Sensitive paths (docs/operating-model.md). Eleven merges a PR touching any of
+# these only after the host's explicit go-ahead for its head commit, recorded on the
+# PR. GitHub requests a review from the listed owner who did not author the PR; for
+# Claude's PRs (authored as 46tsoh) that is Eleven. Requiring code-owner review would
+# not add a host gate while Claude and the host share an account.
+
+# Governance, review and executor policy
+/AGENTS.md                         @1nevele @46tsoh
+/CLAUDE.md                         @1nevele @46tsoh
+/docs/operating-model.md           @1nevele @46tsoh
+/docs/eleven-maintainer.md         @1nevele @46tsoh
+/docs/code-review.md               @1nevele @46tsoh
+/docs/executor-prompt.md           @1nevele @46tsoh
+/docs/claude-web-handoff.md        @1nevele @46tsoh
+/docs/claude-web-skill-smoke.md    @1nevele @46tsoh
+/docs/development-workflow.md      @1nevele @46tsoh
+/specs/002-vaultforge-claude-automation/  @1nevele @46tsoh
+/.coderabbit.yaml                  @1nevele @46tsoh
+
+# CI, workflows and this file
+/.github/                          @1nevele @46tsoh
+
+# Development tooling trust
+/.claude/                          @1nevele @46tsoh
+/.specify/                         @1nevele @46tsoh
+/tools/                            @1nevele @46tsoh
+/development-tools.lock.json       @1nevele @46tsoh
+
+# Sentinel trust boundaries
+/projects/sentinel/AGENTS.md                @1nevele @46tsoh
+/projects/sentinel/packages/contracts/      @1nevele @46tsoh
+/projects/sentinel/apps/authority/          @1nevele @46tsoh
+/projects/sentinel/packages/worker/         @1nevele @46tsoh
+/projects/sentinel/infra/                   @1nevele @46tsoh

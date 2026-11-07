@@ -6,7 +6,7 @@ Updated 2026-11-06. Scope: repository preparation and Claude Code **on the web**
 
 Spec Kit owns one canonical root `specs/<NNN>-<project>-<feature>/{spec,plan,tasks}.md` packet. Existing product plans and research are inputs, not a reason to restart discovery. Superpowers supplies bounded implementation/TDD/debugging/review guidance; it does not create another plan hierarchy. Root instructions and project safety rules take precedence over examples in upstream skills.
 
-Eleven prepares specifications, issues and review. Claude Code on the web implements application code. Start S01 (#1), produce a PR with independent review and real tests, then stop. S02–S05 remain blocked on accepted/integrated S01.
+Roles, labels and the issue flow are in [operating-model.md](operating-model.md): the host gives direction, Eleven maintains and merges, Claude Code on the web implements one issue per PR with independent review and real tests, then stops.
 
 ## Adopted repository assets
 

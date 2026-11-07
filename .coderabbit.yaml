@@ -81,6 +81,7 @@ knowledge_base:
       - "**/AGENTS.md"
       - ".specify/memory/constitution.md"
       - "docs/development-workflow.md"
+      - "docs/operating-model.md"
   jira:
     usage: disabled
   linear:
