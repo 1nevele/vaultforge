@@ -7,10 +7,14 @@
  */
 import { z } from "zod";
 
-/** Semantic-ish schema version: MAJOR.MINOR.PATCH, digits only. */
+/**
+ * Schema version: MAJOR.MINOR.PATCH, digits only, no leading zeros, so one
+ * version has exactly one accepted encoding (same canonical-form rule as
+ * Sha256Digest).
+ */
 export const SchemaVersion = z
   .string()
-  .regex(/^\d+\.\d+\.\d+$/, "expected MAJOR.MINOR.PATCH")
+  .regex(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/, "expected MAJOR.MINOR.PATCH")
   .brand<"SchemaVersion">();
 export type SchemaVersion = z.infer<typeof SchemaVersion>;
 
@@ -52,7 +56,11 @@ export type CandidateId = z.infer<typeof CandidateId>;
 export const ClientRequestId = brandedId("ClientRequestId");
 export type ClientRequestId = z.infer<typeof ClientRequestId>;
 
-/** RFC3339 / ISO-8601 instant. Display/order aid only; not a causality source. */
+/**
+ * RFC3339 / ISO-8601 instant in UTC with a `Z` suffix only; explicit offsets
+ * such as `+00:00` are rejected so one instant has one encoding. Display/order
+ * aid only; not a causality source.
+ */
 export const Timestamp = z
   .string()
   .datetime({ offset: false })

@@ -19,6 +19,17 @@ describe("SchemaVersion (S01-002)", () => {
   test("rejects a non-numeric version", () => {
     expect(SchemaVersion.safeParse("v1.0.0").success).toBe(false);
   });
+
+  test.each(["01.0.0", "1.00.0", "1.0.00"])(
+    "rejects non-canonical leading zeros (%s)",
+    (v) => {
+      expect(SchemaVersion.safeParse(v).success).toBe(false);
+    },
+  );
+
+  test.each(["0.0.0", "10.20.30"])("accepts canonical version %s", (v) => {
+    expect(SchemaVersion.parse(v)).toBe(v);
+  });
 });
 
 describe("Sha256Digest (S01-002)", () => {
@@ -62,5 +73,15 @@ describe("Timestamp (S01-002)", () => {
 
   test("rejects a non-timestamp string", () => {
     expect(Timestamp.safeParse("yesterday").success).toBe(false);
+  });
+});
+
+describe("Timestamp is Z-only (S01-002)", () => {
+  test("accepts a Z-suffixed instant", () => {
+    expect(Timestamp.safeParse("2026-01-01T00:00:00Z").success).toBe(true);
+  });
+
+  test("rejects an explicit +00:00 offset", () => {
+    expect(Timestamp.safeParse("2026-01-01T00:00:00+00:00").success).toBe(false);
   });
 });

@@ -5,6 +5,7 @@ import { describe, expect, test } from "vitest";
 import { MissionRequest } from "../src/mission.js";
 import { Scope } from "../src/scope.js";
 import { DerivedInferenceRecord } from "../src/derived.js";
+import { hostBearingValues } from "./fixture-scan.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixturesDir = join(here, "..", "..", "..", "fixtures");
@@ -12,6 +13,14 @@ const fixturesDir = join(here, "..", "..", "..", "fixtures");
 function readFixture(name: string): unknown {
   return JSON.parse(readFileSync(join(fixturesDir, name), "utf8"));
 }
+
+function allFixtures(): Array<[string, unknown]> {
+  return readdirSync(fixturesDir)
+    .filter((f) => f.endsWith(".json"))
+    .map((f): [string, unknown] => [f, readFixture(f)]);
+}
+
+const RESERVED_HOST = /\.(synthetic|internal|invalid|test|example)(:\d+)?$/;
 
 function allFixtureText(): string {
   return readdirSync(fixturesDir)
@@ -67,12 +76,35 @@ describe("fixtures are synthetic and non-executing (S01-006)", () => {
     );
   });
 
-  test("target hostnames use only non-resolvable reserved suffixes", () => {
-    const scope = readFixture("scope.valid.json") as { targets: string[] };
-    for (const t of scope.targets) {
-      expect(/\.(synthetic|internal|invalid|test|example)(:\d+)?$/.test(t)).toBe(
-        true,
-      );
-    }
+  test("every host-bearing value in every fixture uses a reserved suffix", () => {
+    const hosts = allFixtures().flatMap(([name, json]) =>
+      hostBearingValues(json).map((h) => `${name}: ${h}`),
+    );
+    expect(hosts.length).toBeGreaterThan(0);
+    const unreserved = hosts.filter((h) => !RESERVED_HOST.test(h));
+    expect(unreserved).toEqual([]);
+  });
+});
+
+describe("hostBearingValues finds hosts anywhere in a fixture", () => {
+  test("collects nested scope targets inside a mission request", () => {
+    const missionLike = {
+      mission: { scope: { targets: ["a.synthetic", "b.example.com"] } },
+    };
+    expect(hostBearingValues(missionLike)).toEqual([
+      "a.synthetic",
+      "b.example.com",
+    ]);
+  });
+
+  test("collects single host and endpoint fields and array items", () => {
+    const json = {
+      observations: [{ host: "lab.test" }, { endpoint: "x.invalid:8443" }],
+    };
+    expect(hostBearingValues(json)).toEqual(["lab.test", "x.invalid:8443"]);
+  });
+
+  test("ignores strings under unrelated keys", () => {
+    expect(hostBearingValues({ label: "real.example.com" })).toEqual([]);
   });
 });

@@ -25,6 +25,15 @@ const valid = {
   outcome: "completed",
 };
 
+/** Paths of every validation issue, so a test cannot pass for the wrong reason. */
+function rejectedPaths(input: unknown): PropertyKey[][] {
+  const r = DerivedInferenceRecord.safeParse(input);
+  if (r.success) return [];
+  return r.error.issues.map((i) => i.path);
+}
+
+const withSpan = (span: unknown) => ({ ...valid, source_spans: [span] });
+
 describe("DerivedInferenceRecord v1 (S01-005)", () => {
   test("accepts an honest completed record with lineage and completeness", () => {
     expect(DerivedInferenceRecord.parse(valid).outcome).toBe("completed");
@@ -37,16 +46,15 @@ describe("DerivedInferenceRecord v1 (S01-005)", () => {
   });
 
   test("rejects an outcome outside the closed set", () => {
-    expect(
-      DerivedInferenceRecord.safeParse({ ...valid, outcome: "verified" })
-        .success,
-    ).toBe(false);
+    expect(rejectedPaths({ ...valid, outcome: "verified" })).toEqual([
+      ["outcome"],
+    ]);
   });
 
   test("rejects a record missing the rendered provider input hash", () => {
     const { rendered_provider_input_hash, ...rest } = valid;
     void rendered_provider_input_hash;
-    expect(DerivedInferenceRecord.safeParse(rest).success).toBe(false);
+    expect(rejectedPaths(rest)).toEqual([["rendered_provider_input_hash"]]);
   });
 
   test("rejects a span missing its offset unit (S01-005 span encoding)", () => {
@@ -54,7 +62,7 @@ describe("DerivedInferenceRecord v1 (S01-005)", () => {
       ...valid,
       source_spans: [{ start: 0, end: 4 }],
     };
-    expect(DerivedInferenceRecord.safeParse(bad).success).toBe(false);
+    expect(rejectedPaths(bad)).toEqual([["source_spans", 0, "offset_unit"]]);
   });
 
   test("rejects a forbidden 'verified' field — derived records cannot mint findings", () => {
@@ -68,5 +76,37 @@ describe("DerivedInferenceRecord v1 (S01-005)", () => {
       source_spans: [{ start: 0, end: 4, offset_unit: "furlongs" }],
     };
     expect(DerivedInferenceRecord.safeParse(bad).success).toBe(false);
+  });
+});
+
+describe("SourceSpan and lineage boundaries (S01-005)", () => {
+  test("rejects a negative start offset", () => {
+    expect(
+      rejectedPaths(withSpan({ start: -1, end: 4, offset_unit: "utf8-byte" })),
+    ).toEqual([["source_spans", 0, "start"]]);
+  });
+
+  test("rejects a non-integer end offset", () => {
+    expect(
+      rejectedPaths(withSpan({ start: 0, end: 4.5, offset_unit: "utf8-byte" })),
+    ).toEqual([["source_spans", 0, "end"]]);
+  });
+
+  test("rejects a span whose end precedes its start", () => {
+    expect(
+      rejectedPaths(withSpan({ start: 5, end: 4, offset_unit: "utf8-byte" })),
+    ).toEqual([["source_spans", 0, "end"]]);
+  });
+
+  test("accepts an empty span (start === end)", () => {
+    expect(
+      rejectedPaths(withSpan({ start: 4, end: 4, offset_unit: "codepoint" })),
+    ).toEqual([]);
+  });
+
+  test("rejects an empty transformation lineage", () => {
+    expect(rejectedPaths({ ...valid, transformation_lineage: [] })).toEqual([
+      ["transformation_lineage"],
+    ]);
   });
 });

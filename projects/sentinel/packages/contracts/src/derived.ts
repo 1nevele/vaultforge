@@ -11,7 +11,7 @@
  * that no such field (or any other) is smuggled in.
  */
 import { z } from "zod";
-import { MissionId, SchemaVersion, Sha256Digest } from "./common.js";
+import { Generation, MissionId, SchemaVersion, Sha256Digest } from "./common.js";
 
 /** Offset unit must be explicit so a character vs byte ambiguity cannot hide. */
 export const OffsetUnit = z.enum(["utf8-byte", "utf16-code-unit", "codepoint"]);
@@ -46,11 +46,19 @@ export const CompletenessFlags = z
   .strict();
 export type CompletenessFlags = z.infer<typeof CompletenessFlags>;
 
+/**
+ * Boundary note: this schema checks shape, not semantic consistency. An outcome
+ * of `completed` with `truncated` or `partial` set is a valid, honest record —
+ * the flags are how incompleteness is disclosed — so consumers must read
+ * `completeness_flags` and never treat `completed` alone as proof of a complete
+ * result. String length limits and span-to-artifact binding belong to the
+ * ingesting service boundary, not this contract.
+ */
 export const DerivedInferenceRecord = z
   .object({
     inference_id: z.string().min(1),
     mission_id: MissionId,
-    execution_generation: z.number().int().nonnegative(),
+    execution_generation: Generation,
     schema_version: SchemaVersion,
     task_kind: z.enum(["classify", "extract", "summarize", "compress", "select"]),
     provider: z.string().min(1),

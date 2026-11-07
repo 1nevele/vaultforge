@@ -18,6 +18,11 @@ export const ActorRole = z.enum([
 ]);
 export type ActorRole = z.infer<typeof ActorRole>;
 
+/**
+ * A parsed RuntimeActor proves only shape. It does not authenticate the caller or
+ * establish that it holds `role`: privileged roles must be assigned host-side at
+ * an authenticated boundary, never trusted from untrusted input (S01-004).
+ */
 export const RuntimeActor = z
   .object({
     actor_id: ActorId,

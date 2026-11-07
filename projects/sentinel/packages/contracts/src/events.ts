@@ -13,9 +13,11 @@ import { z } from "zod";
 import {
   ActorId,
   EventId,
+  Generation,
   MissionId,
   OperationId,
   SchemaVersion,
+  Sequence,
   Sha256Digest,
   Timestamp,
 } from "./common.js";
@@ -58,10 +60,10 @@ export const EventEnvelope = z
   .object({
     event_id: EventId,
     mission_id: MissionId,
-    projection_sequence: z.number().int().nonnegative(),
+    projection_sequence: Sequence,
     schema_version: SchemaVersion,
     actor_id: ActorId,
-    execution_generation: z.number().int().nonnegative(),
+    execution_generation: Generation,
     operation_id: OperationId.nullable(),
     authenticated_producer: AuthenticatedProducer,
     event_type: EventType,

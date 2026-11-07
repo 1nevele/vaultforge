@@ -7,7 +7,7 @@
  * ordering or causality.
  */
 import { z } from "zod";
-import { MissionId, SchemaVersion } from "./common.js";
+import { Generation, MissionId, SchemaVersion, Sequence } from "./common.js";
 
 export const MissionStatus = z.enum([
   "pending",
@@ -21,7 +21,7 @@ export type MissionStatus = z.infer<typeof MissionStatus>;
 
 export const ProjectionCursor = z
   .object({
-    projection_sequence: z.number().int().nonnegative(),
+    projection_sequence: Sequence,
   })
   .strict();
 export type ProjectionCursor = z.infer<typeof ProjectionCursor>;
@@ -31,7 +31,7 @@ export const MissionSnapshot = z
     mission_id: MissionId,
     schema_version: SchemaVersion,
     status: MissionStatus,
-    execution_generation: z.number().int().nonnegative(),
+    execution_generation: Generation,
     cursor: ProjectionCursor,
   })
   .strict();

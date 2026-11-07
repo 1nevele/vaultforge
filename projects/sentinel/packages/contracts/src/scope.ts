@@ -34,6 +34,9 @@ export const Scope = z
   .object({
     scope_id: z.string().min(1),
     schema_version: SchemaVersion,
+    // Shape-only in S01. A target grammar (hostname/CIDR, no URLs or
+    // credentials) is deferred to a later slice and must be enforced before any
+    // dispatch path consumes `targets`.
     targets: z.array(z.string().min(1)).min(1),
     protocols: z.array(Protocol).min(1),
     effects: z.array(TestingEffect).min(1),

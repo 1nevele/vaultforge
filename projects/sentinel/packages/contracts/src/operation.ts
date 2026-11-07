@@ -9,7 +9,13 @@
  * this contract package) authorizes an operation.
  */
 import { z } from "zod";
-import { OperationId, SchemaVersion, Sha256Digest, Timestamp } from "./common.js";
+import {
+  Generation,
+  OperationId,
+  SchemaVersion,
+  Sha256Digest,
+  Timestamp,
+} from "./common.js";
 
 export const OperationRef = z
   .object({
@@ -17,7 +23,7 @@ export const OperationRef = z
     schema_version: SchemaVersion,
     command_digest: Sha256Digest,
     script_digest: Sha256Digest,
-    expected_actor_generation: z.number().int().nonnegative(),
+    expected_actor_generation: Generation,
     expires_at: Timestamp,
   })
   .strict();

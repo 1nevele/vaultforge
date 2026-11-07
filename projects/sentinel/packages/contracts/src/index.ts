@@ -6,6 +6,11 @@
  * future slices) import these to parse and reject untrusted shapes at their
  * boundaries.
  */
+/**
+ * Version of the contract schemas as a whole. It is independent of the npm
+ * package version in package.json, and it does not constrain the per-record
+ * `schema_version` fields, which each schema validates on its own.
+ */
 export const CONTRACTS_SCHEMA_VERSION = "1.0.0" as const;
 
 export * from "./common.js";

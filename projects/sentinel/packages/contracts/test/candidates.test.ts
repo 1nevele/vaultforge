@@ -30,6 +30,20 @@ describe("CandidateSet (S01-003)", () => {
   });
 });
 
+describe("CandidateSet opaque ids are unique (S01-003)", () => {
+  test("rejects a snapshot with a duplicate candidate_id", () => {
+    const r = CandidateSet.safeParse({
+      ...snapshot,
+      candidates: [
+        { candidate_id: "c-1", label: "enumerate services" },
+        { candidate_id: "c-1", label: "fetch banner" },
+      ],
+    });
+    expect(r.success).toBe(false);
+    if (!r.success) expect(r.error.issues[0]?.path).toEqual(["candidates"]);
+  });
+});
+
 describe("resolveSelection (S01-003)", () => {
   const base = { candidate_set_version: 7, execution_generation: 3 };
 

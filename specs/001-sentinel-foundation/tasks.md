@@ -83,9 +83,20 @@ command was actually run and observed (verification-before-completion).
   gate, not G0–G8.
 - [x] T019 (S01-007) Independent spec/code review via `requesting-code-review` with a
   fresh reviewer; record findings + resolutions.
-- [ ] T020 Open the S01 PR: changed paths, requirement→test map, commands + observed
+- [x] T020 Open the S01 PR: changed paths, requirement→test map, commands + observed
   RED/GREEN, skipped gates, trust assumptions, blockers. Stop; no merge, no self-close,
-  no unlock of #2–#5.
+  no unlock of #2–#5. (PR #21.)
+- [x] T021 (S01-002, S01-003, S01-005, S01-006) Address CodeRabbit review of PR #21,
+  RED first: unique `candidate_id` per `CandidateSet`; canonical `SchemaVersion` (no
+  leading zeros); shared `Generation`/`Sequence` brands on every generation/sequence
+  field (type-level test); Z-only `Timestamp` pinned by test; issue-path assertions
+  and span/lineage boundary tests for `DerivedInferenceRecord`; fixture host scan
+  over every host-bearing value in every fixture. Shape-vs-semantics boundary notes on
+  `RuntimeActor`, `Scope.targets` and `DerivedInferenceRecord`. Declined: rejecting
+  `completed` + truncated/partial records (an honest disclosure, not an
+  inconsistency), span-to-artifact binding (spans carry no artifact reference) and
+  arbitrary string length limits (no spec limit); recorded as downstream boundary
+  duties.
 
 ## Requirement → task map
 
@@ -98,3 +109,4 @@ command was actually run and observed (verification-before-completion).
 | S01-005 | T014 |
 | S01-006 | T016 |
 | S01-007 | T017–T020 |
+| Review | T021 |
