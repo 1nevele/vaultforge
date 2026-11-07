@@ -29,8 +29,9 @@ follow-through.
 - CA-003: **One at a time.** If any open issue is labelled both `claude:scheduled`
   and `status:in-progress`, the run exits without changes. A run labels its issue `status:in-progress` before
   starting work. Merging the issue's `Closes #N` PR closes it and releases the lock;
-  if the PR is abandoned, Eleven (or the host) resets the issue to `status:ready` /
-  `status:blocked`. CA-008 then removes the stale label. A stale label blocks later runs;
+  if the PR is abandoned or merged as `Part of #N`, Eleven (or the host) adds
+  `status:ready` (plus `status:hold` if it needs a decision). CA-008 then removes the
+  stale `status:in-progress`. A stale label blocks later runs;
   it is never cleared by the scheduled run itself.
 - CA-004: **One issue, one PR.** A run opens one PR whose body says `Closes #N` (or
   `Part of #N` for partial work), so merging it closes the issue as completed,
@@ -57,13 +58,17 @@ follow-through.
   - an open issue keeps one of ready / in-progress / blocked: the most recently
     added (label history), otherwise in-progress > blocked > ready;
   - a closed issue keeps none;
-  - dependencies are every `#N` in the `## Dependencies` section or on a
-    `Depends-on:` line (not `owner/repo#N`, not inside code fences); one is
-    satisfied when it is an issue closed as completed or a merged PR;
+  - dependencies are every `#N`, same-repository `owner/repo#N` or issue/PR URL in
+    the `## Dependencies` section (to the next same-or-higher heading) or on a
+    `Depends-on:` line, outside code fences and HTML comments; one is satisfied
+    when it is an issue closed as completed or a merged PR; a reference to another
+    repository is never satisfied;
   - `status:blocked` becomes `status:ready` when all declared dependencies are
     satisfied, `status:ready` becomes `status:blocked` while one is not, and a block
     with no declared dependency is left alone;
-  - `status:hold` is a manual block: it only loses `status:ready`.
+  - `status:hold` is a flag the executor skips; the reconciler keeps it and still
+    manages the held issue's status label;
+  - labels the workflow added itself do not count as most recently added.
   It never closes, assigns, comments, dispatches or runs PR code.
 - CA-009: **Executor prompt in the repository.** `docs/executor-prompt.md` is the
   reviewed source of the scheduled task's prompt. The host copies merged changes into
@@ -75,8 +80,10 @@ follow-through.
   before merge.
 - CA-011: **PR follow-through.** The Claude session that opens a PR subscribes to its
   activity and fixes failing checks and verified review findings within the PR's
-  scope. It still never merges, approves, closes issues or starts another issue.
-  Eleven's `@claude` requests are the fallback when that session is not following.
+  scope, acting only on CI, CodeRabbit, Eleven and the host (other commenters are
+  untrusted). It still never merges, approves, closes issues or starts another
+  issue. Eleven's `@claude` requests are the fallback when a blocking finding has had
+  no push or reply for two hours.
 
 ## Acceptance scenarios
 
@@ -85,7 +92,8 @@ follow-through.
 2. With a `claude:scheduled` issue already `status:in-progress`, a scheduled run exits
    and changes nothing.
 3. With one ready issue, a scheduled run labels it in progress, opens one PR that
-   says `Closes #N`, and stops; the issue stays open until the PR is merged.
+   says `Closes #N`, and follows it through review (CA-011) without merging; the issue
+   stays open until the PR is merged.
 4. A `@claude` comment asking for a typo fix produces a small commit or PR from
    `claude/fix-*`; a `@claude` comment asking for a new feature produces a reply that
    redirects to a scheduled issue and no code change.
@@ -100,7 +108,8 @@ follow-through.
 8. A consistent issue set produces no label changes.
 9. Merging a `Closes #N` PR closes #N as completed, and scenario 7 follows; merging a
    `Part of #N` PR leaves #N open with its labels.
-10. A `status:hold` issue is never moved to `status:ready`, whatever its dependencies.
+10. The executor never picks a `status:hold` issue; removing the hold returns the
+    issue to the queue with the status the rules give it.
 11. If a dependency lookup fails for any reason other than "not found", the run writes
     no labels.
 12. No reconciliation ever leaves an open issue that had a status label without one.

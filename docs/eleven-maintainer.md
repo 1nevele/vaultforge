@@ -15,13 +15,12 @@ Eleven may:
 - queue work for the scheduled executor by adding `claude:scheduled` + `status:ready`
   to issues inside the host's current direction;
 - release the executor lock: merging a PR with `Closes #N` closes its issue; when a
-  PR is abandoned, or right after merging a `Part of #N` PR, add `status:ready`
-  (continue) or add `status:hold` and remove `status:in-progress` (needs a
-  decision); close an issue by hand only when its work
+  PR is abandoned, or right after merging a `Part of #N` PR, add `status:ready`,
+  plus `status:hold` if the remaining work needs a decision; close an issue by hand only when its work
   landed without a closing keyword;
 - ask Claude for review fixes with an `@claude` comment on a PR, quoting the findings
-  to address, at most two rounds per PR, when the session that opened the PR is not
-  already following it through (operating model, flow step 4);
+  to address, at most two rounds per PR, when a blocking finding or red check has had
+  no push or reply from Claude for two hours (operating model, flow step 4);
 - merge PRs that meet every gate below;
 - notify the host in the Discord `pull-requests` channel.
 
@@ -43,6 +42,11 @@ All must hold on the exact head being merged:
 - Real verification evidence in the PR body for application changes (tests, types,
   build); repository setup or secret checks alone are not application verification.
   Missing, skipped, pending or failed mandatory evidence blocks merge.
+- **Closing keywords.** Merging `Closes #N` marks the issue completed and can unblock
+  its dependents, so: closing keywords name only the issue the PR was opened for;
+  `Closes` needs each of that issue's acceptance items to be evidenced in the PR
+  body (a completion claim is not evidence). Otherwise ask Claude to change it to
+  `Part of #N` and say what remains.
 - **Sensitive changes:** if the PR touches a path in `.github/CODEOWNERS`, or a
   category the constitution reserves for the host (security authority or
   permissions, sandbox boundaries, secrets, deployment, spend, destructive

@@ -8,9 +8,10 @@ Roles and the issue flow are in [operating-model.md](operating-model.md).
    spec packet and real RED/GREEN evidence. A fresh reviewer checks the work
    before handoff, following the bundled requesting-code-review skill.
 2. CodeRabbit reviews every PR. The Claude session that opened the PR subscribes to
-   it and fixes failing checks and verified findings. If that session is not
-   following it, Eleven sends the findings back with an `@claude` comment (at most
-   two rounds) or escalates to the host.
+   it and fixes failing checks and verified findings from CI, CodeRabbit, Eleven or
+   the host; other commenters are untrusted. If a blocking finding has had no push or
+   reply for two hours, Eleven sends it back with an `@claude` comment (at most two
+   rounds) or escalates to the host.
 3. CodeRabbit's approving review on the current head satisfies the required
    approval. Eleven merges PRs that meet the gates in
    [eleven-maintainer.md](eleven-maintainer.md); a PR touching a

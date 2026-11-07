@@ -28,6 +28,7 @@ class FakeGitHub:
 
     def __init__(self, flow, *issues, errors=None):
         self.flow = flow
+        self.repository = 'owner/repo'
         self.issues = {i['number']: dict(i, labels=list(i['labels'])) for i in issues}
         # Label history in the order labels were added (oldest first).
         self.history = {n: list(i['labels']) for n, i in self.issues.items()}
@@ -71,7 +72,7 @@ class DependencyParsingTests(unittest.TestCase):
         self.flow = load()
 
     def deps(self, body):
-        return self.flow.dependencies(body)
+        return self.flow.dependencies(body, 'owner/repo')
 
     def test_blocked_by_in_dependencies_section(self):
         self.assertEqual(self.deps(BLOCKED_BY_1), {1})
@@ -93,8 +94,24 @@ class DependencyParsingTests(unittest.TestCase):
         body = '## Initial wave\n- [ ] #1 — S01\n- [ ] #2 — blocked by #1\n'
         self.assertEqual(self.deps(body), set())
 
-    def test_cross_repository_references_are_ignored(self):
-        self.assertEqual(self.deps('## Dependencies\nBlocked by other/repo#9 and #2\n'), {2})
+    def test_foreign_references_are_kept_as_unsatisfiable_keys(self):
+        self.assertEqual(self.deps('## Dependencies\nBlocked by other/repo#9 and #2\n'),
+                         {2, 'other/repo#9'})
+
+    def test_same_repository_full_references_and_urls_count(self):
+        body = ('## Dependencies\n- owner/repo#3\n- https://github.com/owner/repo/issues/4\n'
+                '- https://github.com/owner/repo/pull/5\n- https://github.com/other/repo/issues/6\n')
+        self.assertEqual(self.deps(body), {3, 4, 5, 'other/repo#6'})
+
+    def test_a_deeper_sub_heading_does_not_end_the_section(self):
+        body = '## Dependencies\n- #1\n### Also needed\n- #3\n## Owned paths\n- #9\n'
+        self.assertEqual(self.deps(body), {1, 3})
+
+    def test_html_comments_are_ignored(self):
+        self.assertEqual(self.deps('## Dependencies\n<!-- e.g. Blocked by #12 -->\n- #2\n'), {2})
+
+    def test_heading_with_a_qualifier_is_recognized(self):
+        self.assertEqual(self.deps('## Dependencies (hard)\n- #7\n'), {7})
 
     def test_heading_variants_are_recognized(self):
         for heading in ('## Dependencies:', '### Dependencies ##', '## dependencies'):
@@ -192,14 +209,15 @@ class PlanTests(unittest.TestCase):
                         final = (set(labels) | add) - remove
                         self.assertEqual(len(final & self.flow.STATUS), 1)
 
-    # status:hold is a manual block the reconciler never overrides.
-    def test_hold_removes_ready_and_changes_nothing_else(self):
+    # status:hold is an executor flag: the reconciler keeps it and the underlying
+    # status follows the normal rules, so lifting the hold restores the issue.
+    def test_hold_is_kept_and_the_underlying_status_is_untouched(self):
         subject = issue(2, ['status:hold', 'status:ready'], BLOCKED_BY_1)
-        self.assertEqual(self.plan(subject, {1: True}), (set(), {'status:ready'}))
-
-    def test_hold_keeps_a_blocked_issue_blocked_when_dependencies_complete(self):
-        subject = issue(2, ['status:hold', 'status:blocked'], BLOCKED_BY_1)
         self.assertEqual(self.plan(subject, {1: True}), (set(), set()))
+
+    def test_hold_does_not_stop_normal_unblocking(self):
+        subject = issue(2, ['status:hold', 'status:blocked'], BLOCKED_BY_1)
+        self.assertEqual(self.plan(subject, {1: True}), ({'status:ready'}, {'status:blocked'}))
 
     def test_closed_issue_drops_hold_too(self):
         subject = issue(2, ['status:hold'], state='closed', state_reason='completed')
@@ -250,6 +268,20 @@ class ReconcileTests(unittest.TestCase):
         gh.add_labels(1, ['status:ready'])                  # back-off step
         self.flow.reconcile('schedule', {}, gh)
         self.assertEqual(gh.labels(1), ['claude:scheduled', 'status:ready'])
+
+    def test_lifting_a_hold_leaves_the_issue_ready(self):
+        gh = self.gh(issue(1, ['claude:scheduled', 'status:in-progress']))
+        gh.add_labels(1, ['status:ready', 'status:hold'])   # abandon: retry later, held
+        self.flow.reconcile('schedule', {}, gh)
+        gh.remove_label(1, 'status:hold')                   # host lifts the hold
+        self.flow.reconcile('schedule', {}, gh)
+        self.assertEqual(gh.labels(1), ['claude:scheduled', 'status:ready'])
+
+    def test_foreign_dependency_keeps_the_issue_blocked(self):
+        gh = self.gh(issue(2, ['status:blocked'], '## Dependencies\n- other/repo#9\n'))
+        self.flow.reconcile('schedule', {}, gh)
+        self.assertEqual(gh.labels(2), ['status:blocked'])
+        self.assertEqual(gh.calls, [])
 
     def test_sweep_repairs_every_open_issue(self):
         gh = self.gh(issue(1, ['status:ready', 'status:in-progress']),
@@ -375,6 +407,16 @@ class GitHubClientTests(unittest.TestCase):
                'pull_request': {'merged_at': '2026-11-07T09:52:36Z'}}
         client, _ = self.client(self.result(0, out=json.dumps(raw)))
         self.assertTrue(client.issue(21)['merged'])
+
+    def test_latest_added_ignores_labels_added_by_the_workflow_itself(self):
+        events = '\n'.join(json.dumps(e) for e in [
+            {'event': 'labeled', 'label': {'name': 'status:in-progress'}, 'actor': {'login': '46tsoh'}},
+            {'event': 'labeled', 'label': {'name': 'status:blocked'},
+             'actor': {'login': 'github-actions[bot]'}},
+        ])
+        client, _ = self.client(self.result(0, out=events + '\n'))
+        self.assertEqual(client.latest_added(1, {'status:in-progress', 'status:blocked'}),
+                         'status:in-progress')
 
     def test_latest_added_reads_label_history(self):
         events = '\n'.join(json.dumps(e) for e in [

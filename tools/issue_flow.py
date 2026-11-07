@@ -13,14 +13,17 @@ Rules (docs/operating-model.md):
     any. The most recently added of them wins (from the issue's label history);
     without history, in-progress > blocked > ready.
   * A closed issue carries no status label.
-  * Dependencies are every `#N` in the issue's `## Dependencies` section, or on a
-    `Depends-on:` line anywhere. A dependency is satisfied when it is an issue
-    closed as completed, or a merged pull request.
+  * Dependencies are every `#N`, same-repository `owner/repo#N` or issue/PR URL in
+    the issue's `## Dependencies` section (up to the next heading of the same or
+    higher level) or on a `Depends-on:` line anywhere. A dependency is satisfied
+    when it is an issue closed as completed, or a merged pull request. A reference
+    to another repository is never satisfied here, so it keeps the issue blocked.
   * `status:blocked` becomes `status:ready` once every declared dependency is
     satisfied; `status:ready` becomes `status:blocked` while one is not. A block
     with no declared dependency is left alone.
-  * `status:hold` is a manual block: the reconciler only removes `status:ready`
-    from a held issue and otherwise leaves its labels alone.
+  * `status:hold` is a flag for the executor (skip this issue). The reconciler
+    keeps it and applies the rules above to the issue's other status labels, so
+    lifting the hold restores the issue to the queue.
 """
 import json
 import os
@@ -33,45 +36,62 @@ READY, IN_PROGRESS, BLOCKED, HOLD = (
 PRECEDENCE = (IN_PROGRESS, BLOCKED, READY)
 STATUS = set(PRECEDENCE)
 ALL_STATUS = STATUS | {HOLD}
+BOT = 'github-actions[bot]'
 
 _FENCE = re.compile(r'^\s*(```|~~~).*?^\s*\1[^\n]*$', re.M | re.S)
-_HEADING = re.compile(r'^#{1,6}\s+(.*?)\s*$', re.M)
+_COMMENT = re.compile(r'<!--.*?-->', re.S)
+_HEADING = re.compile(r'^(#{1,6})\s+(.*?)\s*$', re.M)
 _DEPENDS_ON_LINE = re.compile(r'^\s*depends-on\s*:(.*)$', re.I | re.M)
-# `#N` not preceded by a word character, slash or dot (so `owner/repo#N` and
-# `x#N` are not references to this repository).
-_REF = re.compile(r'(?<![\w/.])#(\d+)\b')
+# `#N`, `owner/repo#N`, or a github.com issue/pull URL. A bare `#N` must not
+# follow a word character, slash or dot.
+_REF = re.compile(
+    r'https?://github\.com/(?P<url_repo>[\w.-]+/[\w.-]+)/(?:issues|pull)/(?P<url_n>\d+)'
+    r'|(?P<full_repo>[\w.-]+/[\w.-]+)#(?P<full_n>\d+)'
+    r'|(?<![\w/.])#(?P<n>\d+)\b')
 
 
 class NotFound(RuntimeError):
     """The referenced issue or pull request does not exist (HTTP 404/410)."""
 
 
-def _refs(text):
-    return {int(n) for n in _REF.findall(text)}
-
-
-def _is_dependencies_heading(title):
-    return title.strip('*#: \t').lower() == 'dependencies'
-
-
-def dependencies(body):
-    """Issue numbers this issue declares it depends on (over-detection is safe)."""
-    if not body:
-        return set()
-    text = _FENCE.sub('', body)
+def _refs(text, repository):
+    """Same-repository numbers as ints; other repositories as 'owner/repo#N' keys."""
     found = set()
-    for match in _DEPENDS_ON_LINE.finditer(text):
-        found |= _refs(match.group(1))
-    headings = list(_HEADING.finditer(text))
-    for index, heading in enumerate(headings):
-        if not _is_dependencies_heading(heading.group(1)):
+    for match in _REF.finditer(text):
+        if match.group('n'):
+            found.add(int(match.group('n')))
             continue
-        end = headings[index + 1].start() if index + 1 < len(headings) else len(text)
-        found |= _refs(text[heading.end():end])
+        repo = match.group('url_repo') or match.group('full_repo')
+        number = int(match.group('url_n') or match.group('full_n'))
+        found.add(number if repo.lower() == repository.lower() else f'{repo}#{number}')
     return found
 
 
-def plan(subject, completed, newest=None):
+def _is_dependencies_heading(title):
+    words = title.strip('*#: \t').lower().split()
+    return bool(words) and words[0].rstrip(':') == 'dependencies'
+
+
+def dependencies(body, repository=''):
+    """What this issue declares it depends on (over-detection is the safe side)."""
+    if not body:
+        return set()
+    text = _COMMENT.sub('', _FENCE.sub('', body))
+    found = set()
+    for match in _DEPENDS_ON_LINE.finditer(text):
+        found |= _refs(match.group(1), repository)
+    headings = list(_HEADING.finditer(text))
+    for index, heading in enumerate(headings):
+        if not _is_dependencies_heading(heading.group(2)):
+            continue
+        level = len(heading.group(1))
+        end = next((h.start() for h in headings[index + 1:] if len(h.group(1)) <= level),
+                   len(text))
+        found |= _refs(text[heading.end():end], repository)
+    return found
+
+
+def plan(subject, completed, newest=None, repository=''):
     """Return (labels to add, labels to remove) for one issue.
 
     `completed` maps dependency numbers to True when satisfied. `newest` is the
@@ -83,15 +103,13 @@ def plan(subject, completed, newest=None):
     if subject['state'] != 'open':
         return set(), labels & ALL_STATUS
     present = labels & STATUS
-    if HOLD in labels:
-        return set(), present & {READY}
     if newest in present:
         keep = newest
     else:
         keep = next((s for s in PRECEDENCE if s in present), None)
     if keep is None:
         return set(), set()
-    deps = dependencies(subject.get('body')) - {subject['number']}
+    deps = dependencies(subject.get('body'), repository) - {subject['number']}
     if deps:
         satisfied = all(completed.get(n, False) for n in deps)
         if keep == BLOCKED and satisfied:
@@ -109,7 +127,11 @@ def reconcile(event_name, event, gh):
     """Plan every affected issue from current state, then apply all writes."""
     cache = {}
 
+    repository = getattr(gh, 'repository', '')
+
     def satisfied(number):
+        if isinstance(number, str):  # another repository: never satisfied here
+            return False
         if number not in cache:
             try:
                 found = gh.issue(number)
@@ -126,8 +148,9 @@ def reconcile(event_name, event, gh):
     def plan_for(subject):
         present = set(subject['labels']) & STATUS
         newest = gh.latest_added(subject['number'], present) if len(present) > 1 else None
-        deps = dependencies(subject.get('body')) - {subject['number']}
-        return plan(subject, {n: satisfied(n) for n in deps}, newest=newest)
+        deps = dependencies(subject.get('body'), repository) - {subject['number']}
+        return plan(subject, {n: satisfied(n) for n in deps}, newest=newest,
+                    repository=repository)
 
     subjects = []
     number = (event.get('issue') or {}).get('number') if event_name == 'issues' else None
@@ -199,13 +222,18 @@ class GitHub:
         return self._shape(json.loads(self._api(f'repos/{self.repository}/issues/{number}')))
 
     def latest_added(self, number, candidates):
-        """The most recently added label among `candidates`, from issue events."""
+        """The most recently added label among `candidates`, from issue events.
+
+        Labels this workflow added itself are skipped, so a write from a stale
+        plan can never outrank a person's or the executor's later choice.
+        """
         out = self._api('--paginate', f'repos/{self.repository}/issues/{number}/events?per_page=100',
                         '--jq', '.[]')
         newest = None
         for event in self._lines(out):
             name = (event.get('label') or {}).get('name')
-            if event.get('event') == 'labeled' and name in candidates:
+            actor = (event.get('actor') or {}).get('login')
+            if event.get('event') == 'labeled' and name in candidates and actor != BOT:
                 newest = name
         return newest
 
