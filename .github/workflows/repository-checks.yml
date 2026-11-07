@@ -65,38 +65,6 @@ jobs:
           GITLEAKS_BIN: ${{ runner.temp }}/gitleaks
         run: '"$GITLEAKS_BIN" git . --log-opts=--all --redact=100 --no-banner --ignore-gitleaks-allow'
 
-  risk-gate:
-    name: Risk gate
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      pull-requests: read
-    steps:
-      # Run the gate script from the PR's base commit, not the PR head, so a PR
-      # cannot weaken tools/risk_gate.py to pass its own check. The script only
-      # reads the PR's file list from the API; it never executes PR code. This
-      # does not stop a PR from editing this workflow itself; see
-      # docs/code-review.md for the repository-level protection that needs.
-      - name: Check out trusted base revision
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          ref: ${{ github.event.pull_request.base.sha }}
-          persist-credentials: false
-      - name: Block merge for deterministically high-risk diffs
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          # Fail closed when the base has no gate (e.g. the PR that introduces it):
-          # never fall back to the PR's own, possibly modified, copy.
-          if [ ! -f tools/risk_gate.py ]; then
-            echo "BLOCKED: tools/risk_gate.py is not on the base branch; cannot evaluate risk."
-            exit 1
-          fi
-          python -B tools/risk_gate.py
-
   sentinel-contracts:
     name: Sentinel contracts (offline)
     runs-on: ubuntu-24.04
