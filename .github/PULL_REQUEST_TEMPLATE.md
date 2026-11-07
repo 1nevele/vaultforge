@@ -1,24 +1,12 @@
-## Specification
-
-- Feature spec:
-- Requirement/scenario IDs:
-- Plan/task IDs:
-- Issue: `Closes #N` if this PR completes the issue (merging closes it), or `Part of #N` if it does not
+Closes #N <!-- or: Part of #N, and what remains -->
 
 ## Changes
 
-## Actual verification
+## Tests
+<!-- Commands and actual output. Docs-only: say so. -->
 
-- RED:
-- GREEN:
-- For documentation-only changes, mark behavioral RED/GREEN as not applicable; do not invent test evidence.
-- Type/build/security checks:
-- `/code-review` before push (reviewed commit, each finding and its resolution; `/security-review` too for security-relevant changes; write "exempt" for `@claude` small-fix PRs, or "not a web session" and who reviewed instead for other PRs):
-- CodeRabbit review on the latest commit, or explicit skipped/blocked reason:
+## Review
+<!-- /code-review on <commit>: each finding and what you did. /security-review too if security-relevant. -->
 
-Review rules, including the current CodeRabbit pause, are under "Review and merge"
-in [the operating model](https://github.com/1nevele/vaultforge/blob/main/docs/operating-model.md#review-and-merge).
-
-## Limitations and security assumptions
-
-List skipped checks, missing prerequisites and any changed trust/data-flow assumptions. Do not claim containment from CI or a demo. No automatic merge.
+## Limits
+<!-- Skipped checks, blockers, assumptions. -->

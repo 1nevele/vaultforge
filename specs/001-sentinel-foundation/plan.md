@@ -111,7 +111,7 @@ pnpm --dir projects/sentinel build       # tsc emit to dist/
 pnpm --dir projects/sentinel test         # vitest run
 ```
 
-Repository-level offline checks (`docs/development-workflow.md`) remain unchanged and
+Repository-level offline checks (`tools/tests`, CI `Repository checks`) remain unchanged and
 must still pass.
 
 ## CI
