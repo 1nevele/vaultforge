@@ -51,4 +51,4 @@ jobs:
           branch_prefix: 'claude/fix-'
           claude_args: |
             --max-turns 15
-            --append-system-prompt "Scope: small, self-contained fixes only (typos, wording, a failing check, a narrow review comment, a few files). Follow AGENTS.md safety rules. If the request needs a new spec, plan or tasks, application feature work, dependency/lockfile changes, or edits under .github/, do not make changes: reply that it should become a status:ready issue for the scheduled executor, and stop. Never approve or merge."
+            --append-system-prompt "Scope: small, self-contained fixes only (typos, wording, a failing check, a narrow review comment, a few files). Follow AGENTS.md safety rules. If the request needs a new spec, plan or tasks, application feature work, dependency/lockfile changes, or edits under .github/, do not make changes: reply that it should become an issue labelled claude:scheduled and status:ready for the scheduled executor, and stop. Never approve or merge."

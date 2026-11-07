@@ -88,7 +88,7 @@ any risk gate and is not limited by risk tier.
 ## Claude execution routes
 
 Per `specs/002-vaultforge-claude-automation`: a Claude cloud scheduled task
-executes one `status:ready` issue at a time and stops at the PR, and
+executes one opted-in issue (`claude:scheduled` + `status:ready`) at a time and stops at the PR, and
 `.github/workflows/claude-fix.yml` handles `@claude` small-fix requests. Neither
 approves or merges. `claude-fix.yml` holds a write-scoped token and the
 `CLAUDE_CODE_OAUTH_TOKEN` secret; it acts only for actors with write access.
