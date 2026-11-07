@@ -50,7 +50,7 @@ follow-through.
   dependency changes and `.github/` edits by pointing to a scheduled issue
   (`claude:scheduled` + `status:ready`).
 - CA-006: **No Claude review gate in CI.** No Claude review workflow runs on PR open.
-  Automated review is CodeRabbit (`.coderabbit.yaml`, see `docs/code-review.md`);
+  Automated review is CodeRabbit (`.coderabbit.yaml`, see `docs/operating-model.md`);
   neither Claude route approves or merges. Web sessions (scheduled or ad hoc) also run the
   built-in `/code-review` in-session before pushing, plus `/security-review` when the
   change touches authority, permissions, secrets, workflows, untrusted-input parsing or

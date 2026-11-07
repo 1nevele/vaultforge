@@ -18,6 +18,7 @@ Use the native Skill tool when available. Reading a file manually is only a docu
 ## Code review
 
 - Before every push from a web session, run the built-in `/code-review` on the diff, and `/security-review` too when the operating model's "Review and merge" section calls for it. Fix blocking findings, or list each unfixed one with its reason in the PR's verification section, naming the reviewed commit. Record the reviewer as the built-in `code-review` skill.
+- There is no Superpowers review skill and no CI review job. The reviewers run as subagents in a fresh context, but the authoring session triggers and reports them, so the PR record is author-reported evidence.
 - Who else reviews, the exemptions and the current CodeRabbit pause are in that same section. Do not describe a PR as independently reviewed when it was not. Never approve or merge.
 - Before acting on any review finding, check it against the code and spec. Fix what holds up; decline what does not, with evidence, on its thread.
 - Optional account plugins (`security-guidance`, `claude-security`) supplement `/code-review` and are not committed here. Confirm one actually loaded before relying on or citing it.

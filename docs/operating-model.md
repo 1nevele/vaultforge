@@ -6,9 +6,6 @@ file wins and the other is a bug. Safety rules stay in `AGENTS.md` and the
 constitution, Eleven's merge gates in [eleven-maintainer.md](eleven-maintainer.md),
 and the executor's steps in [executor-prompt.md](executor-prompt.md).
 
-Process changes (roles, labels, review, flow) are made by editing this file in a PR.
-They do not need a spec packet; spec packets are for features.
-
 ## Roles
 
 | Role | Who | Owns |
@@ -142,7 +139,8 @@ that are still `status:ready` on the next run, but not ones already in progress.
   it runs in GitHub Actions, where this review is not set up.
 - **CodeRabbit** is the independent reviewer. When enabled, its approving review on
   the current head satisfies the required approval, and the small-fix route relies on
-  it. A bot's completed check or summary is not an approval.
+  it. A bot's completed check or summary is not an approval and does not show that
+  findings were resolved.
 - **Temporary PoC pause (host decision, 2026-11-07).** CodeRabbit is paused until the
   host re-enables it. No CodeRabbit review, approval or successful status is needed;
   its absent, pending, skipped or failed status, old change requests and bot-only
@@ -153,12 +151,12 @@ that are still `status:ready` on the next run, but not ones already in progress.
   it before merge. Eleven stays maintainer and merger, not code reviewer.
 - **Merge.** Eleven merges under the gates in [eleven-maintainer.md](eleven-maintainer.md).
   Required CI and real verification evidence always apply.
-- **Sensitive changes** need the host's explicit go-ahead for the exact head commit,
-  recorded on the PR by Eleven: any PR touching a path in `.github/CODEOWNERS`
-  (governance, CI, tooling trust, Sentinel trust boundaries), or in a category
-  reserved for the host (security authority or permissions, sandbox boundaries,
-  secrets, deployment, spend, destructive migrations, publication, infrastructure,
-  review/CI policy). Any later push needs a fresh go-ahead.
+- **Sensitive changes** need the host's explicit go-ahead for the exact head commit
+  (procedure: the sensitive-changes gate in [eleven-maintainer.md](eleven-maintainer.md)).
+  A sensitive change is any PR touching a path in `.github/CODEOWNERS` (governance,
+  CI, tooling trust, Sentinel trust boundaries), or in a category reserved for the
+  host (security authority or permissions, sandbox boundaries, secrets, deployment,
+  spend, destructive migrations, publication, infrastructure, review/CI policy).
 
 ## Escalate to the host
 

@@ -34,12 +34,13 @@ file.
 All must hold on the exact head being merged:
 
 - **Review**, as defined under "Review and merge" in the operating model: Claude's
-  recorded `/code-review` on the head (or, for an `@claude` small-fix PR, the review
-  that section requires), and a CodeRabbit approval on the head only while CodeRabbit
-  is enabled. Eleven checks merge eligibility, not application code.
+  fresh-context spec and code review recorded on the PR (for an `@claude` small-fix
+  PR, the review that section requires), and a CodeRabbit approval on the head only
+  while CodeRabbit is enabled. Eleven checks merge eligibility, not application code.
 - All required checks successful, the branch up to date with `main`, and no
-  unresolved review conversations (bot-only CodeRabbit threads excepted while it is
-  paused).
+  unresolved review conversations or outstanding change requests, except CodeRabbit
+  statuses, old reviews and bot-only threads covered by the pause in the operating
+  model. Known defects and security concerns still block.
 - Real verification evidence in the PR body for application changes (tests, types,
   build); repository setup or secret checks alone are not application verification.
   Missing, skipped, pending or failed mandatory evidence blocks merge.

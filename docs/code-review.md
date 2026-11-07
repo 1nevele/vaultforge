@@ -1,4 +1,4 @@
-# CI, branch protection and publication policy
+# CI, branch protection, licensing and publication policy
 
 Who reviews, what Claude runs before pushing, the current CodeRabbit pause and the
 merge rules are under "Review and merge" in [operating-model.md](operating-model.md);
@@ -34,7 +34,9 @@ Do not add a passing placeholder in place of a real application check.
 The intended protected-main settings are:
 
 - PR required, at least one approval from someone other than the author
-  (CodeRabbit's approving review counts when it is enabled), stale approvals dismissed, approval
+  (CodeRabbit's approving review counts when it is enabled; while it is paused,
+  nothing meets this automatically, and how a merge meets it is a host decision),
+  stale approvals dismissed, approval
   after the most recent reviewable push, and conversations resolved.
 - Required checks: `Workflow setup` and `Secret scan`; branch must be up to date.
 - Protection is not enforced for administrators (see below); disallow force
