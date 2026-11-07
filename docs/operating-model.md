@@ -87,9 +87,12 @@ It never closes, assigns, comments, dispatches Claude or runs pull-request code.
    keyword, which releases the executor lock. Issue flow then removes the closed
    issue's status labels and moves satisfied dependents to `status:ready`, and the
    next scheduled run proceeds. Eleven checks the result and notifies the host. A PR
-   that delivers only part of an issue says `Part of #N` instead; the issue stays
-   open and in progress until Eleven or the host decides what is next.
-7. **Abandon.** If a PR is abandoned, Eleven closes it and either adds
+   that delivers only part of an issue says `Part of #N` instead and leaves the issue
+   open; right after merging it, Eleven releases the lock (see step 7) by adding
+   `status:ready` if the remaining work should continue, or `status:hold` and
+   removing `status:in-progress` if it needs a decision.
+7. **Abandon or partial merge.** If a PR is abandoned, Eleven closes it; after a
+   `Part of #N` merge it keeps the issue open. In both cases it then either adds
    `status:ready` to the issue (retry; issue flow then removes `status:in-progress`)
    or adds `status:hold` and removes `status:in-progress` itself (needs a decision).
    Either releases the lock.

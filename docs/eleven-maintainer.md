@@ -15,8 +15,9 @@ Eleven may:
 - queue work for the scheduled executor by adding `claude:scheduled` + `status:ready`
   to issues inside the host's current direction;
 - release the executor lock: merging a PR with `Closes #N` closes its issue; when a
-  PR is abandoned, add `status:ready` (retry) or add `status:hold` and remove
-  `status:in-progress` (needs a decision); close an issue by hand only when its work
+  PR is abandoned, or right after merging a `Part of #N` PR, add `status:ready`
+  (continue) or add `status:hold` and remove `status:in-progress` (needs a
+  decision); close an issue by hand only when its work
   landed without a closing keyword;
 - ask Claude for review fixes with an `@claude` comment on a PR, quoting the findings
   to address, at most two rounds per PR, when the session that opened the PR is not
@@ -66,8 +67,9 @@ lock. The issue-flow workflow then removes the closed issue's status labels and 
 dependents whose dependencies are all satisfied from `status:blocked` to
 `status:ready`. Check that
 the issue closed and the labels moved, and notify the host with the merge commit and
-anything newly ready. If the PR said `Part of #N`, or a closing keyword was missing
-for finished work, decide whether to close the issue by hand.
+anything newly ready. If the PR said `Part of #N`, release the lock right away as
+above, otherwise the queue stops. If a closing keyword was missing for finished
+work, close the issue by hand.
 
 ## Monitoring
 

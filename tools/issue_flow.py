@@ -140,14 +140,21 @@ def reconcile(event_name, event, gh):
     # Plan everything first: a lookup failure aborts the run before any write.
     plans = [(s['number'], plan_for(s)) for s in subjects if _is_issue(s)]
 
-    actions = []
+    # A write failure on one issue must not stop the others; report all at the end.
+    actions, failures = [], []
     for issue_number, (add, remove) in plans:
-        if add:
-            gh.add_labels(issue_number, sorted(add))
-        for label in sorted(remove):
-            gh.remove_label(issue_number, label)
+        try:
+            if add:
+                gh.add_labels(issue_number, sorted(add))
+            for label in sorted(remove):
+                gh.remove_label(issue_number, label)
+        except RuntimeError as error:
+            failures.append(f'#{issue_number}: {error}')
+            continue
         if add or remove:
             actions.append({'issue': issue_number, 'add': sorted(add), 'remove': sorted(remove)})
+    if failures:
+        raise RuntimeError('label writes failed: ' + '; '.join(failures))
     return actions
 
 

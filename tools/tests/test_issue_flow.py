@@ -288,6 +288,21 @@ class ReconcileTests(unittest.TestCase):
             self.flow.reconcile('schedule', {}, gh)
         self.assertEqual(gh.calls, [])
 
+    def test_a_failed_write_does_not_stop_other_issues_and_is_raised(self):
+        gh = self.gh(issue(2, ['status:ready', 'status:in-progress']),
+                     issue(3, ['status:ready', 'status:in-progress']))
+
+        def remove_label(number, label):
+            gh.calls.append(('remove', number, label))
+            if number == 2:
+                raise RuntimeError('gh api failed: HTTP 403')
+            gh.issues[number]['labels'].remove(label)
+
+        gh.remove_label = remove_label
+        with self.assertRaisesRegex(RuntimeError, '#2'):
+            self.flow.reconcile('schedule', {}, gh)
+        self.assertEqual(gh.labels(3), ['status:in-progress'])
+
     def test_merged_pull_request_dependency_counts_as_completed(self):
         gh = self.gh(issue(21, [], state='closed'),
                      issue(2, ['status:blocked'], '## Dependencies\nBlocked by #21\n'))
