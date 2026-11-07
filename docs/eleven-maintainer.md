@@ -18,8 +18,9 @@ Eleven may:
   PR is abandoned, or right after merging a `Part of #N` PR: first add
   `status:hold` if the remaining work needs a decision (keep any hold already
   there), then remove `status:in-progress`, then add `status:ready`. This order
-  keeps a new executor run from claiming the issue mid-reset; close an issue by hand only when its work
-  landed without a closing keyword;
+  keeps a new executor run from claiming the issue mid-reset; close an issue by
+  hand only when its work landed on `main` without a closing keyword and its
+  acceptance is evidenced;
 - ask Claude for review fixes with an `@claude` comment on a PR, quoting the findings
   to address, at most two rounds per PR, on the first wake after a blocking finding
   or red check has gone two hours without a push or reply from Claude (operating
@@ -52,9 +53,11 @@ All must hold on the exact head being merged:
   section. That set must be either empty (a `Part of #N` PR, which closes nothing)
   or only the issue the PR was opened for. If it is not empty, each acceptance item
   of that issue must be evidenced in the PR body (a completion claim is not
-  evidence), and the PR must target `main` (GitHub ignores closing keywords on
-  other bases, which would leave the issue locked). Otherwise ask Claude to say
-  `Part of #N`, remove the extra link, and say what remains.
+  evidence). Otherwise ask Claude to say `Part of #N`, remove the extra link, and
+  say what remains.
+- **Base branch.** Every PR Eleven merges targets `main`, checked at merge time
+  (GitHub ignores closing keywords on other bases, and work merged elsewhere has not
+  landed, so neither may release the executor lock).
 - **Sensitive changes:** if the PR touches a path in `.github/CODEOWNERS`, or a
   category the constitution reserves for the host (security authority or
   permissions, sandbox boundaries, secrets, deployment, spend, destructive
@@ -81,7 +84,8 @@ dependents whose dependencies are all satisfied from `status:blocked` to
 the issue closed and the labels moved, and notify the host with the merge commit and
 anything newly ready. If the PR said `Part of #N`, release the lock right away as
 above, otherwise the queue stops. If a closing keyword was missing for finished
-work, close the issue by hand.
+work, close the issue by hand only after checking the same acceptance evidence the
+closing gate requires; otherwise treat it as a `Part of #N` merge.
 
 ## Monitoring
 
