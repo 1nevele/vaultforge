@@ -77,7 +77,8 @@ It never closes, assigns, comments, dispatches Claude or runs pull-request code.
    `status:ready` or `status:blocked`. Adding `claude:scheduled` queues it for the
    executor; do that only for work inside the host's current direction.
 3. **Claim.** The scheduled executor ([executor-prompt.md](executor-prompt.md)) runs
-   on its schedule. If no open `claude:scheduled` issue is `status:in-progress`, it
+   on its schedule and on issue events for `status:ready` + `claude:scheduled` issues.
+   Under its claim lock, if no open `claude:scheduled` issue is `status:in-progress`, it
    takes the lowest-numbered open `claude:scheduled` + `status:ready` issue whose
    declared dependencies are satisfied, labels it `status:in-progress`, implements it
    and opens one PR with `Closes #N`.
@@ -161,9 +162,11 @@ still waiting on something, then remove `status:in-progress`, then add
   would make code-owner review a real host check. These are host decisions.
 - The scheduled task's live prompt is stored in the host's claude.ai account. Keep it
   identical to [executor-prompt.md](executor-prompt.md).
-- Labels have no atomic claim. Executor runs are kept from overlapping only by the
-  task's four-hourly schedule; adding issue-event or other extra triggers needs an
-  exclusive claim step first.
+- Executor runs can overlap (the task also fires on issue events), so selection and
+  claiming run under an atomic claim lock: `executor.lock` on the `executor-lock`
+  branch (see [executor-prompt.md](executor-prompt.md)). A run that crashes while
+  holding it blocks claims for up to 30 minutes, after which the next run breaks the
+  lock. If runs keep reporting a held lock, delete that file by hand.
 - Eleven's poller has no time-based wake, so the two-hour `@claude` fallback only
   runs when some PR change wakes Eleven; a stalled PR with no activity relies on the
   host noticing.
