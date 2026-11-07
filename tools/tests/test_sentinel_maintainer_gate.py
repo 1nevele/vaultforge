@@ -1,6 +1,5 @@
-"""Synthetic unit fixtures; live GitHub acceptance is exercised separately."""
+"""Synthetic fixtures for the PR-only merge/notification gate."""
 import importlib.util
-import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -9,7 +8,6 @@ SCRIPT = Path(__file__).resolve().parents[1] / 'sentinel_maintainer_gate.py'
 
 class MaintainerGateTests(unittest.TestCase):
     def setUp(self):
-        self.assertTrue(SCRIPT.exists(), 'activity gate not implemented')
         spec = importlib.util.spec_from_file_location('maintainer_gate', SCRIPT)
         assert spec is not None and spec.loader is not None
         self.gate = importlib.util.module_from_spec(spec)
@@ -21,23 +19,27 @@ class MaintainerGateTests(unittest.TestCase):
     def poll(self, snapshot):
         return self.gate.poll(self.state, lambda: snapshot)
 
-    def test_new_issue_without_pr_wakes_once_after_ack(self):
-        snapshot = {'prs': {}, 'issues': {'7': {'updated_at': 'first', 'labels': []}}}
-        event = self.poll(snapshot)
-        self.assertTrue(event['wakeAgent'])
-        self.gate.acknowledge(self.state, event['event_id'])
+    def test_issue_activity_without_pr_never_wakes(self):
+        snapshot = {'prs': {}, 'issues': {'7': {'updated_at': 'new'}}}
+        self.assertFalse(self.poll(snapshot)['wakeAgent'])
+        snapshot['issues']['7']['updated_at'] = 'changed'
         self.assertFalse(self.poll(snapshot)['wakeAgent'])
 
-    def test_empty_queue_sleeps_on_first_tick(self):
-        self.assertFalse(self.poll({'prs': {}, 'issues': {}})['wakeAgent'])
+    def test_empty_queue_does_not_fetch_issues(self):
+        paths = []
+        def api(path, query):
+            paths.append(path)
+            return []
+        self.assertEqual(self.gate.fetch_snapshot(api), {'prs': {}})
+        self.assertEqual(paths, ['pulls?state=open&per_page=100'])
 
     def test_unacknowledged_work_is_retried(self):
-        snapshot = {'prs': {'20': {'head': 'a'}}, 'issues': {}}
+        snapshot = {'prs': {'20': {'head': 'a'}}}
         first = self.poll(snapshot)
         self.assertEqual(first, self.poll(snapshot))
 
     def test_unchanged_blocker_sleeps_but_revision_wakes(self):
-        snapshot = {'prs': {'20': {'head': 'a', 'checks': ['failed']}}, 'issues': {}}
+        snapshot = {'prs': {'20': {'head': 'a', 'checks': ['failed']}}}
         event = self.poll(snapshot)
         self.gate.acknowledge(self.state, event['event_id'])
         self.assertFalse(self.poll(snapshot)['wakeAgent'])
@@ -45,59 +47,47 @@ class MaintainerGateTests(unittest.TestCase):
         self.assertTrue(self.poll(snapshot)['wakeAgent'])
 
     def test_ci_completion_wakes_without_new_commit(self):
-        snapshot = {'prs': {'20': {'head': 'a', 'checks': ['pending']}}, 'issues': {}}
+        snapshot = {'prs': {'20': {'head': 'a', 'checks': ['pending']}}}
         event = self.poll(snapshot)
         self.gate.acknowledge(self.state, event['event_id'])
         snapshot['prs']['20']['checks'] = ['success']
         self.assertTrue(self.poll(snapshot)['wakeAgent'])
 
-    def test_issue_changes_wake_without_prs(self):
-        snapshot = {'prs': {}, 'issues': {'7': {'updated_at': 'first'}}}
+    def test_issue_only_change_ignored_with_open_pr(self):
+        snapshot = {'prs': {'20': {'head': 'a'}}, 'issues': {'7': 'before'}}
         event = self.poll(snapshot)
         self.gate.acknowledge(self.state, event['event_id'])
-        snapshot['issues']['7']['updated_at'] = 'second'
-        self.assertTrue(self.poll(snapshot)['wakeAgent'])
+        snapshot['issues']['7'] = 'after'
+        self.assertFalse(self.poll(snapshot)['wakeAgent'])
 
-    def test_ack_does_not_swallow_later_activity(self):
-        first = self.poll({'prs': {}, 'issues': {'7': {'updated_at': 'first'}}})
+    def test_ack_does_not_swallow_later_pr_activity(self):
+        first = self.poll({'prs': {'20': {'head': 'a'}}})
         self.gate.acknowledge(self.state, first['event_id'])
-        self.assertTrue(self.poll({'prs': {}, 'issues': {'7': {'updated_at': 'later'}}})['wakeAgent'])
+        self.assertTrue(self.poll({'prs': {'20': {'head': 'b'}}})['wakeAgent'])
 
     def test_stale_ack_is_rejected(self):
-        first = self.poll({'prs': {'20': {'head': 'a'}}, 'issues': {}})
-        self.poll({'prs': {'20': {'head': 'b'}}, 'issues': {}})
+        first = self.poll({'prs': {'20': {'head': 'a'}}})
+        self.poll({'prs': {'20': {'head': 'b'}}})
         with self.assertRaises(ValueError):
             self.gate.acknowledge(self.state, first['event_id'])
 
     def test_fetch_failure_sleeps_without_consuming_pending(self):
-        self.poll({'prs': {'20': {'head': 'a'}}, 'issues': {}})
+        self.poll({'prs': {'20': {'head': 'a'}}})
         previous = self.state.read_text()
         def fail():
             raise RuntimeError('synthetic failure')
         self.assertFalse(self.gate.poll(self.state, fail)['wakeAgent'])
         self.assertEqual(previous, self.state.read_text())
 
-    def test_closed_last_pr_triggers_one_reconciliation(self):
-        event = self.poll({'prs': {'20': {'head': 'a'}}, 'issues': {}})
+    def test_closed_last_pr_triggers_one_notification_reconciliation(self):
+        event = self.poll({'prs': {'20': {'head': 'a'}}})
         self.gate.acknowledge(self.state, event['event_id'])
-        closed = self.poll({'prs': {}, 'issues': {}})
+        closed = self.poll({'prs': {}})
         self.assertTrue(closed['wakeAgent'])
         self.gate.acknowledge(self.state, closed['event_id'])
-        self.assertFalse(self.poll({'prs': {}, 'issues': {}})['wakeAgent'])
+        self.assertFalse(self.poll({'prs': {}})['wakeAgent'])
 
-    def test_fetch_only_sentinel_nontracking_issues(self):
-        rows = [
-            {'number': 1, 'labels': ['project:sentinel'], 'updated_at': 'a'},
-            {'number': 6, 'labels': ['project:sentinel', 'type:tracking'], 'updated_at': 'b'},
-            {'number': 99, 'labels': ['other'], 'updated_at': 'c'},
-        ]
-        def api(path, query):
-            return rows if path.startswith('issues?') else []
-        snapshot = self.gate.fetch_snapshot(api)
-        self.assertEqual(set(snapshot['issues']), {'1'})
-        self.assertFalse(snapshot['prs'])
-
-    def test_snapshot_includes_review_checks_and_comments_not_own_feedback(self):
+    def test_snapshot_has_review_checks_and_pr_comments_not_own_feedback(self):
         def api(path, query):
             if path.startswith('pulls?'):
                 return [{'number': 20, 'head': 'abc', 'base': 'def', 'draft': False}]

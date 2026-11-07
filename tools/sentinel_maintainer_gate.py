@@ -1,4 +1,4 @@
-"""Activity-gated Sentinel maintenance. No network data is operational authority.
+"""PR-only merge/notification gate. No network data is operational authority.
 
 The scheduler evaluates the JSON wakeAgent field before creating an AI session.
 A run acknowledges only its exact pending snapshot, so failures are retryable and
@@ -15,7 +15,7 @@ import tempfile
 import subprocess
 
 REPOSITORY = '1nevele/vaultforge'
-EMPTY = {'prs': {}, 'issues': {}}
+EMPTY = {'prs': {}}
 
 
 def api_records(path, query):
@@ -33,14 +33,7 @@ def ordered(records):
 def fetch_snapshot(api=api_records):
     pulls = api('pulls?state=open&per_page=100',
                 '.[] | {number,head:.head.sha,base:.base.sha,draft}')
-    issues = api('issues?state=open&per_page=100',
-                 '.[] | select(.pull_request == null) | {number,updated_at,labels:[.labels[].name]}')
-    snapshot = {'prs': {}, 'issues': {}}
-    for issue in issues:
-        labels = sorted(issue['labels'])
-        if 'project:sentinel' in labels and 'type:tracking' not in labels:
-            snapshot['issues'][str(issue['number'])] = {
-                'updated_at': issue['updated_at'], 'labels': labels}
+    snapshot = {'prs': {}}
     for pull in pulls:
         number, sha = pull['number'], pull['head']
         review = api(f'pulls/{number}/reviews?per_page=100',
@@ -90,17 +83,18 @@ def write_state(path, state):
 
 def poll(path, fetch):
     try:
-        snapshot = fetch()
+        # Explicitly discard legacy issue fingerprints: issue changes cannot
+        # wake the narrowed merge/notification role, including during migration.
+        snapshot = {'prs': fetch()['prs']}
         with state_lock(path):
             state = read_state(path)
-            if snapshot == state.get('acked', EMPTY):
+            if snapshot == {'prs': state.get('acked', EMPTY).get('prs', {})}:
                 return {'wakeAgent': False, 'status': 'unchanged'}
             event_id = hashlib.sha256(canonical(snapshot).encode()).hexdigest()
             state['pending'] = {'event_id': event_id, 'snapshot': snapshot}
             write_state(path, state)
             return {'wakeAgent': True, 'event_id': event_id,
-                    'open_pr_count': len(snapshot['prs']),
-                    'sentinel_issue_count': len(snapshot['issues'])}
+                    'open_pr_count': len(snapshot['prs'])}
     except Exception as exc:
         return {'wakeAgent': False, 'status': 'lookup_or_state_failed',
                 'error_type': type(exc).__name__}
