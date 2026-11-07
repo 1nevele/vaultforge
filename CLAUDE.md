@@ -2,7 +2,12 @@
 
 Read `AGENTS.md`, `.specify/memory/constitution.md`, `docs/claude-web-handoff.md`, the assigned issue and its canonical spec/plan/tasks. Read the project rules before project changes.
 
-Claude Code **on the web** implements application code. Eleven prepares specifications, issues and review. Work only the first ready issue, open a PR with real evidence, and stop: no automatic merge or blocked-work continuation.
+Claude Code **on the web** implements application code; it is the executor for the operator and Eleven (their Hermes agent), who prepare specifications, issues and review. There are two execution routes (`specs/002-vaultforge-claude-automation`):
+
+- **Scheduled issue execution:** a Claude cloud scheduled task starts a fresh web session that takes the lowest-numbered open `status:ready` issue, labels it `status:in-progress`, opens a PR with real evidence, and stops. If any issue is already `status:in-progress`, it does nothing.
+- **Small fixes:** `@claude` comments run `.github/workflows/claude-fix.yml` for small, self-contained fixes only.
+
+No automatic merge, approval, issue closing or blocked-work continuation.
 
 Sentinel lives under `projects/sentinel/`. Historical project-owned paths are relative to that directory; shared workflow/spec files stay at the root. Keep one canonical `specs/<NNN>-<project>-<feature>/` packet, not a second Superpowers planning tree.
 

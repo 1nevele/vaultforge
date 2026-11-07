@@ -60,3 +60,20 @@ Core skills are `/speckit-specify`, `/speckit-clarify`, `/speckit-plan`, `/speck
 Apple Silicon/macOS is an unverified deployment-platform requirement, distinct from the cloud execution host. No original preview or machine-readable backlog was provided. RAPTOR is first for feasibility evaluation, not a selected runtime or proven superior tool. Jev remains the bounded selector; CDMs remain untrusted derived evidence.
 
 A dispatched task requires a real Claude web session handle and repository/assignment readback. GitHub issues, labels, skill files and setup checks alone are only **handoff readiness**.
+
+## Scheduled execution (specs/002)
+
+A Claude cloud scheduled task named **Vaultforge ready-issue executor** starts a fresh
+web session every four hours. It lives in the operator's claude.ai account (scheduled
+tasks), not in this repository; pause or edit it there. Each run:
+
+1. Exits without changes if any open issue is labelled `status:in-progress`, or if no
+   open issue is labelled `status:ready` without `status:blocked`.
+2. Otherwise takes the lowest-numbered such issue, labels it `status:in-progress`, and
+   follows the assignment above for that issue (smoke check, spec/plan/tasks, TDD,
+   independent review).
+3. Opens one PR that references (does not close) the issue, and stops.
+
+To queue work, label an issue `status:ready`. After accepting, merging or abandoning
+the PR, remove `status:in-progress` (and close the issue if done) so the next run can
+proceed. `@claude` comments are for small fixes only (`.github/workflows/claude-fix.yml`).
