@@ -22,13 +22,15 @@ change is given to Eleven in conversation and recorded by Eleven on the PR.
 
 ## Issues
 
-Issues are the backlog. An issue gives the scope, acceptance criteria, a
-`## Dependencies` section listing the issues or PRs it needs first, and, for a
-feature, a link to (or the request to create) its `specs/<NNN>-<project>-<feature>/`
-packet. Start an issue only when its dependencies are closed as completed or merged.
+Issues are the backlog. An issue gives the scope, owned paths, acceptance criteria,
+stop conditions, a `## Dependencies` section listing the issues or PRs it needs
+first, and, for a feature, a link to (or the request to create) its
+`specs/<NNN>-<project>-<feature>/` packet. Start an issue only when its dependencies
+are closed as completed or merged.
 
 Labels such as `project:<name>`, `type:tracking` and `status:*` are information for
-people; nothing in the repository reads or changes them. `claude:scheduled` and
+people; nothing in the repository reads or changes them. Status labels left from the
+scheduled executor stay as they were; edit them by hand if they help. `claude:scheduled` and
 `claude-implement` are retired and start nothing.
 
 ## Flow of one issue
@@ -37,7 +39,9 @@ people; nothing in the repository reads or changes them. `claude:scheduled` and
 2. **Start.** The host starts a Claude Code on the web session for it with the prompt
    in [claude-web-handoff.md](claude-web-handoff.md). Eleven may do the same if the
    host gives it a way to start sessions; otherwise it tells the host which issue is
-   next. One session per issue at a time.
+   next. One session per issue at a time: the session's first act is a comment on
+   the issue saying it has started, so check for one (and for an open PR) before
+   starting another.
 3. **Implement.** The session implements the issue and opens one PR against `main`
    that says `Closes #N`, or `Part of #N` if it delivers only part (and says what
    remains).
@@ -92,7 +96,8 @@ can be reopened if the work turns out incomplete.
   concerns still need resolving, as do other reviewers' blocking reviews and threads.
   While paused, a PR has no independent review and must not be described as having
   one, and an `@claude` small-fix PR needs a fresh-context `/code-review` recorded on
-  it before merge. Eleven stays maintainer and merger, not code reviewer.
+  it before merge, run by the session that owns the PR it fixes or by a session the
+  host starts for it. Eleven stays maintainer and merger, not code reviewer.
 - **Merge.** Eleven merges under the gates in [eleven-maintainer.md](eleven-maintainer.md).
   Required CI and real verification evidence always apply.
 - **Sensitive changes** need the host's explicit go-ahead for the exact head commit
@@ -130,6 +135,8 @@ whoever started the session sees the report.
 - Eleven's poller has no time-based wake, so the two-hour `@claude` fallback only
   runs when some PR change wakes Eleven; a stalled PR with no activity relies on the
   host noticing.
+- Issue comments do not wake Eleven's poller, so a blocker reported on an issue
+  before any PR exists reaches only whoever started the session.
 - The repository is public, so anyone can open issues. Nothing acts on an issue by
   itself; outsiders' issues need triage before anyone starts a session on one.
 - The disabled scheduled task "Vaultforge ready-issue executor" is still stored in the

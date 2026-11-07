@@ -35,7 +35,8 @@ The intended protected-main settings are:
 
 - PR required, at least one approval from someone other than the author
   (CodeRabbit's approving review counts when it is enabled; while it is paused,
-  nothing meets this automatically, and how a merge meets it is a host decision),
+  Eleven's approving review, which its mandate allows only once every merge gate
+  holds, meets it),
   stale approvals dismissed, approval
   after the most recent reviewable push, and conversations resolved.
 - Required checks: `Workflow setup` and `Secret scan`; branch must be up to date.

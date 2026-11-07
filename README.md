@@ -7,7 +7,7 @@ Bundled upstream assets retain their [own licenses](tools/README.md).
 
 ## Development ownership
 
-**The host gives direction, Eleven (the host's Hermes agent) maintains and merges, and Claude Code on the web implements.** Anyone may open issues; review and the rest are in the operating model. The host (or Eleven) starts each Claude session; nothing in this repository starts one.
+**The host gives direction, Eleven (the host's Hermes agent) maintains and merges, and Claude Code on the web implements.** Anyone may open issues; review and the rest are in the operating model. The host (or Eleven) starts each Claude Code on the web session; nothing in this repository starts one (the `@claude` workflow runs small fixes in GitHub Actions).
 
 - [Operating model: roles, labels and issue flow](docs/operating-model.md).
 - [Claude entry point](CLAUDE.md) and [monorepo rules](AGENTS.md).

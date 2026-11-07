@@ -4,7 +4,7 @@
 # Claude's PRs (authored as 46tsoh) that is Eleven. Requiring code-owner review would
 # not add a host gate while Claude and the host share an account.
 
-# Governance, review and executor policy
+# Governance and review policy
 /AGENTS.md                         @1nevele @46tsoh
 /CLAUDE.md                         @1nevele @46tsoh
 /docs/operating-model.md           @1nevele @46tsoh
