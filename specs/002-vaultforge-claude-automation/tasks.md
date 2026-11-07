@@ -10,4 +10,6 @@
 - [x] T008 One operating model (`docs/operating-model.md`), Eleven maintainer mandate, `.github/CODEOWNERS`; align root docs and remove risk-gate references (CA-010)
 - [ ] T009 Host: copy `docs/executor-prompt.md` into the scheduled task after merge; decide on a non-admin identity for Eleven, `enforce_admins` and required code-owner review
 - [x] T011 Executor PRs use `Closes #N` (or `Part of #N`) so merging closes the issue (CA-004, scenario 9)
-- [ ] T010 Live acceptance of scenarios 6–9 on real PR merges and issue events, with run links
+- [x] T012 Address independent review of 3567db9: state-based reconciliation (label history, plan-then-write, one concurrency group, abort on lookup failure), final-set planning (no empty status), every `#N` in Dependencies counts, merged-PR dependencies, `status:hold`, executor back-off and dependency check, CODEOWNERS and escalation wording (CA-008, scenarios 10–12)
+- [x] T013 PR follow-through: Claude subscribes to the PRs it opens (CA-011)
+- [ ] T010 Live acceptance of scenarios 6–12 on real PR merges and issue events, with run links

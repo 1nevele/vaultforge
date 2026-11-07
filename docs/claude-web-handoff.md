@@ -2,7 +2,7 @@
 
 ## Repository and assignment
 
-- Private repository: https://github.com/1nevele/vaultforge
+- Repository (public): https://github.com/1nevele/vaultforge
 - Sentinel tracker: https://github.com/1nevele/vaultforge/issues/6
 - Roles, labels and the issue flow: [operating-model.md](operating-model.md).
 
@@ -44,8 +44,9 @@ backend installs or host changes.
 
 Open one PR with "Closes #<N>" (or "Part of #<N>" if it delivers only part of the
 issue), actual test/build/typecheck results, independent
-spec/code review, skipped checks and unresolved blockers. Stop. Do not merge,
-close the issue yourself, unblock dependents, or continue across the backlog.
+spec/code review, skipped checks and unresolved blockers. Subscribe to the PR's
+activity and fix failing checks and verified review findings within scope. Do not
+merge, close the issue yourself, unblock dependents, or continue across the backlog.
 ```
 
 ## Spec Kit feature context

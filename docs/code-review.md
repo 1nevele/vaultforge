@@ -7,9 +7,10 @@ Roles and the issue flow are in [operating-model.md](operating-model.md).
 1. Claude Code on the web implements the assigned, ready issue using the canonical
    spec packet and real RED/GREEN evidence. A fresh reviewer checks the work
    before handoff, following the bundled requesting-code-review skill.
-2. CodeRabbit reviews every PR. When it requests changes or a check fails, Eleven
-   sends the findings back to Claude with an `@claude` comment (at most two rounds)
-   or escalates to the host.
+2. CodeRabbit reviews every PR. The Claude session that opened the PR subscribes to
+   it and fixes failing checks and verified findings. If that session is not
+   following it, Eleven sends the findings back with an `@claude` comment (at most
+   two rounds) or escalates to the host.
 3. CodeRabbit's approving review on the current head satisfies the required
    approval. Eleven merges PRs that meet the gates in
    [eleven-maintainer.md](eleven-maintainer.md); a PR touching a
@@ -68,12 +69,15 @@ review as a separate bot identity once its automated pass finds no blocking
 issues. That approval is sufficient under repository policy: a PR CodeRabbit
 approves, with required checks passing, may be merged without a human approval.
 Verify on the first such PR that GitHub counts the bot's review toward the
-required-approval rule; if it does not, a human approval is still needed.
+required-approval rule; if it does not, an approval from Eleven (after the gates in
+its mandate) or the host is needed.
 
-Sensitive paths are listed in `.github/CODEOWNERS`, which requests a review from
-Eleven and the host and is the list Eleven's merge gate uses to require the host's
-go-ahead. "Require review from Code Owners" is not enabled, so GitHub itself does not
-enforce it. (The earlier `Risk gate` job was removed on 2026-11-07 at the owner's
+Sensitive paths are listed in `.github/CODEOWNERS`, the list Eleven's merge gate uses
+to require the host's go-ahead. GitHub requests a review from the code owner who did
+not author the PR; for Claude's PRs (authored as the host's account) that is Eleven.
+"Require review from Code Owners" is not enabled, and enabling it would not add a host
+gate while Claude and the host share an account (see the operating model's known
+gaps). (The earlier `Risk gate` job was removed on 2026-11-07 at the owner's
 request.)
 
 `main`'s `enforce_admins` was disabled on 2026-11-07 at the owner's explicit

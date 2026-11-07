@@ -25,33 +25,41 @@ change is given to Eleven in conversation and recorded by Eleven on the PR.
 | Label | Meaning |
 | --- | --- |
 | `status:ready` | Specified and unblocked; may be picked up. |
-| `status:in-progress` | Claimed. On a `claude:scheduled` issue this is the executor lock. |
-| `status:blocked` | Waiting on declared dependencies or on a manual block. |
+| `status:in-progress` | Claimed. On an open `claude:scheduled` issue this is the executor lock. |
+| `status:blocked` | Waiting on declared dependencies. Managed by issue flow when the issue declares any. |
+| `status:hold` | Manual block (a decision, an outside wait). Issue flow never lifts it. |
 | `claude:scheduled` | Opt-in for the scheduled executor. Issues without it are never picked up. |
 | `project:<name>`, `type:tracking` | Classification only. |
 
-An issue carries at most one `status:*` label; a closed issue carries none.
-`claude-implement` is retired and starts nothing.
+An open issue carries at most one of ready / in-progress / blocked; a closed issue
+carries no `status:*` label. To hold an issue by hand, add `status:hold`; to lift
+the hold, remove it. `claude-implement` is retired and starts nothing.
 
 ### Dependencies
 
-Declare dependencies in the issue body, either as `Blocked by #N` / `Depends on #N`
-lines under a `## Dependencies` heading, or as a `Depends-on: #N, #M` line anywhere.
-References elsewhere in the body (for example a tracker checklist) are not
-dependencies. A dependency is satisfied only when that issue is closed as
-**completed**; closing it as not planned leaves dependents blocked for a decision.
+Declare dependencies in a `## Dependencies` section of the issue body (for example
+`- Blocked by #1 (S01), #3 (S03)`) or on a `Depends-on: #N, #M` line anywhere. Every
+`#N` in that section or on that line counts; references elsewhere in the body (for
+example a tracker checklist) do not, and neither do `owner/repo#N` or references
+inside code fences. A dependency is satisfied when it is an issue closed as
+**completed** or a merged pull request; an issue closed as not planned leaves its
+dependents blocked for a decision.
 
 ### Automated label upkeep
 
 `.github/workflows/issue-flow.yml` (`tools/issue_flow.py`) runs on issue events, daily
-and on demand. It changes `status:*` labels only:
+and on demand, one run at a time. Each run reads current labels, label history and
+dependency states, plans every open issue (plus a just-closed one), and only then
+writes; if any lookup fails, it writes nothing. It changes `status:*` labels only:
 
-- a newly added status label replaces the other status labels; otherwise
+- when an open issue has more than one of ready / in-progress / blocked, the most
+  recently added one stays (from the issue's label history); without history,
   in-progress beats blocked beats ready;
-- closing an issue removes its status labels, which releases the executor lock;
-- a `status:blocked` issue whose declared dependencies are all completed becomes
-  `status:ready`; a block with no declared dependency is manual and left alone;
-- a `status:ready` issue with an open dependency becomes `status:blocked`.
+- a closed issue loses its status labels (cleanup; closing is what releases the lock);
+- a `status:blocked` issue whose declared dependencies are all satisfied becomes
+  `status:ready`; a `status:ready` issue with an unsatisfied one becomes
+  `status:blocked`; a block with no declared dependency is left alone;
+- a `status:hold` issue only loses `status:ready`; nothing else changes on it.
 
 It never closes, assigns, comments, dispatches Claude or runs pull-request code.
 
@@ -64,26 +72,31 @@ It never closes, assigns, comments, dispatches Claude or runs pull-request code.
    `status:ready` or `status:blocked`. Adding `claude:scheduled` queues it for the
    executor; do that only for work inside the host's current direction.
 3. **Claim.** The scheduled executor ([executor-prompt.md](executor-prompt.md)) runs
-   on its schedule. If no `claude:scheduled` issue is `status:in-progress`, it takes
-   the lowest-numbered open `claude:scheduled` + `status:ready` issue, labels it
-   `status:in-progress`, implements it, opens one PR with `Closes #N`, and stops.
-4. **Review.** CI and CodeRabbit run. If CodeRabbit requests changes or a check fails,
-   Eleven asks Claude for a fix with an `@claude` comment on the PR quoting the
-   findings to address (at most two rounds per PR), or escalates.
+   on its schedule. If no open `claude:scheduled` issue is `status:in-progress`, it
+   takes the lowest-numbered open `claude:scheduled` + `status:ready` issue whose
+   declared dependencies are satisfied, labels it `status:in-progress`, implements it
+   and opens one PR with `Closes #N`.
+4. **Review.** The Claude session that opened the PR subscribes to its activity and
+   follows it through: it fixes failing checks and verified CodeRabbit findings on the
+   PR branch, answers findings it declines on their threads, and escalates anything
+   outside the issue's scope. If that session stops responding, Eleven sends the
+   findings with an `@claude` comment (at most two rounds per PR) or escalates.
 5. **Merge.** When the PR meets the merge gates in
    [eleven-maintainer.md](eleven-maintainer.md), Eleven squash-merges the exact head.
-6. **Close.** Merging the PR closes the issue as completed through GitHub's
-   `Closes #N` keyword, with no extra step. Issue flow then clears the lock and
-   unblocks dependents, and the next scheduled run proceeds. Eleven checks the result
-   and notifies the host. A PR that delivers only part of an issue says
-   `Part of #N` instead, and the issue stays open.
-7. **Abandon.** If a PR is abandoned, Eleven closes it and sets the issue back to
-   `status:ready` (retry) or `status:blocked` (needs a decision); either releases the
-   lock.
+6. **Close.** Merging closes the issue as completed through GitHub's `Closes #N`
+   keyword, which releases the executor lock. Issue flow then removes the closed
+   issue's status labels and moves satisfied dependents to `status:ready`, and the
+   next scheduled run proceeds. Eleven checks the result and notifies the host. A PR
+   that delivers only part of an issue says `Part of #N` instead; the issue stays
+   open and in progress until Eleven or the host decides what is next.
+7. **Abandon.** If a PR is abandoned, Eleven closes it and either adds
+   `status:ready` to the issue (retry; issue flow then removes `status:in-progress`)
+   or adds `status:hold` and removes `status:in-progress` itself (needs a decision).
+   Either releases the lock.
 
 Only one `claude:scheduled` issue is in progress at a time, from claim until close or
-reset. Claude stops at its PR; it never merges, approves, closes issues, unblocks
-dependents or starts a second issue.
+reset. Claude never merges, approves, closes issues, unblocks dependents or starts a
+second issue.
 
 ### Closing keywords
 
@@ -93,8 +106,8 @@ dependents or starts a second issue.
 | `Part of #N` | Nothing; #N stays open and keeps its status. |
 
 GitHub only honours `Closes` when the PR merges into `main`. An issue closed this way
-can be reopened if the work turns out incomplete; reopening does not re-block
-dependents that already moved to `status:ready`.
+can be reopened if the work turns out incomplete; reopening re-blocks dependents
+that are still `status:ready` on the next run, but not ones already in progress.
 
 ## Escalate to the host
 
@@ -104,21 +117,31 @@ Eleven notifies the host and waits for direction when:
   trust boundaries), or any category the constitution reserves for the host
   (security authority, sandbox boundaries, secrets, deployment, spend, destructive
   migrations, publication, infrastructure, review/CI policy);
-- two `@claude` fix rounds have not cleared the blocking findings, or Claude and
-  CodeRabbit disagree on a finding;
+- review findings are still blocking after the PR's own session and two `@claude`
+  rounds, or Claude and CodeRabbit disagree on a finding;
 - a merge conflict or failing check is beyond a small fix;
-- Claude reports a blocker on an issue (missing access, failed skill discovery,
-  ambiguous spec);
 - a dependency was closed as not planned, or the next work is outside current
   direction.
+
+When the scheduled executor hits a blocker before opening a PR (missing access,
+failed skill discovery, an ambiguous spec), it comments on the issue and leaves
+`status:in-progress` set, which stops the queue. Eleven's poller only watches PRs, so
+this reaches the host through the scheduled task's run notification, not through
+Eleven. The host resolves it and adds `status:ready`, or adds `status:hold` and
+removes `status:in-progress`.
 
 ## Known gaps
 
 - Eleven's GitHub account owns the repository and main's `enforce_admins` is off, so
-  repository settings do not enforce Eleven's limits; they rest on its mandate. A
-  separate non-admin identity for Eleven and re-enabled admin enforcement would close
-  this. Changing either is a host decision.
-- `.github/CODEOWNERS` names the sensitive paths and requests reviews. "Require review
-  from Code Owners" is not turned on; that setting is a host decision.
+  repository settings do not enforce Eleven's limits; they rest on its mandate.
+- Claude acts through the host's account, so GitHub cannot tell host and Claude
+  apart. `.github/CODEOWNERS` therefore only lists sensitive paths and requests a
+  review from the code owner who did not author the PR (for Claude's PRs, Eleven).
+  Turning on "Require review from Code Owners" would not add a host gate, because
+  Eleven is a code owner. Only a separate GitHub identity for Claude or for Eleven
+  would make code-owner review a real host check. These are host decisions.
 - The scheduled task's live prompt is stored in the host's claude.ai account. Keep it
   identical to [executor-prompt.md](executor-prompt.md).
+- The repository is public, so anyone can open issues. Issue flow is capped at one
+  running plus one pending run and writes only labels, but new issues from outsiders
+  still need triage before anyone adds `claude:scheduled`.

@@ -12,7 +12,8 @@ them. There are exactly two execution routes and no automated Claude code-review
 gate. Roles and the issue flow are summarized in `docs/operating-model.md`.
 
 Amended 2026-11-07: CA-003 lock release, CA-004 `Closes #N` on executor PRs, CA-008
-issue flow, CA-009 executor prompt in the repository, CA-010 roles.
+issue flow, CA-009 executor prompt in the repository, CA-010 roles, CA-011 PR
+follow-through.
 
 ## Requirements
 
@@ -31,10 +32,11 @@ issue flow, CA-009 executor prompt in the repository, CA-010 roles.
   if the PR is abandoned, Eleven (or the host) resets the issue to `status:ready` /
   `status:blocked`. CA-008 then removes the stale label. A stale label blocks later runs;
   it is never cleared by the scheduled run itself.
-- CA-004: **Stop at the PR.** A run opens one PR whose body says `Closes #N` (or
+- CA-004: **One issue, one PR.** A run opens one PR whose body says `Closes #N` (or
   `Part of #N` for partial work), so merging it closes the issue as completed,
-  with real evidence per the PR template, then stops. No merge, approval, issue
-  closing, unblocking of dependent issues or continuation to the next issue.
+  with real evidence per the PR template, then follows that PR through review
+  (CA-011). No merge, approval, issue closing, unblocking of dependent issues or
+  continuation to the next issue.
 - CA-005: **Small fixes.** `.github/workflows/claude-fix.yml` runs
   `claude-code-action` only for `@claude` mentions in issue comments, PR review
   comments and PR reviews, from actors with write access. It is limited to small
@@ -48,21 +50,33 @@ issue flow, CA-009 executor prompt in the repository, CA-010 roles.
   work. Existing safety rules in `AGENTS.md` and the constitution still apply to both
   routes.
 - CA-008: **Issue flow.** `.github/workflows/issue-flow.yml` runs
-  `tools/issue_flow.py` on issue events, daily and on demand, with an issues-scoped
-  token. It edits `status:*` labels only: at most one status label per open issue (a
-  newly added one wins, otherwise in-progress > blocked > ready); none on a closed
-  issue; `status:blocked` becomes `status:ready` when every dependency declared in
-  the issue body (`## Dependencies` → `Blocked by #N` / `Depends on #N`, or a
-  `Depends-on: #N` line) is closed as completed; `status:ready` with an open declared
-  dependency becomes `status:blocked`; a block with no declared dependency is left
-  alone. It never closes, assigns, comments, dispatches or runs PR code.
+  `tools/issue_flow.py` on issue events, daily and on demand, one run at a time, with
+  an issues-scoped token. Each run reads current labels, label history and dependency
+  states, plans every open issue (and a just-closed one), and writes only if every
+  lookup succeeded. It edits `status:*` labels only:
+  - an open issue keeps one of ready / in-progress / blocked: the most recently
+    added (label history), otherwise in-progress > blocked > ready;
+  - a closed issue keeps none;
+  - dependencies are every `#N` in the `## Dependencies` section or on a
+    `Depends-on:` line (not `owner/repo#N`, not inside code fences); one is
+    satisfied when it is an issue closed as completed or a merged PR;
+  - `status:blocked` becomes `status:ready` when all declared dependencies are
+    satisfied, `status:ready` becomes `status:blocked` while one is not, and a block
+    with no declared dependency is left alone;
+  - `status:hold` is a manual block: it only loses `status:ready`.
+  It never closes, assigns, comments, dispatches or runs PR code.
 - CA-009: **Executor prompt in the repository.** `docs/executor-prompt.md` is the
   reviewed source of the scheduled task's prompt. The host copies merged changes into
   the scheduled task; merging does not update the live task.
 - CA-010: **Roles.** The host directs; Eleven maintains (triage, labels,
   dependencies, queuing, `@claude` review-fix requests, lock release) and merges under
   `docs/eleven-maintainer.md`; anyone may open issues. Sensitive paths are listed in
-  `.github/CODEOWNERS` and need the host's explicit go-ahead before merge.
+  `.github/CODEOWNERS` and need the host's explicit go-ahead for the PR's head commit
+  before merge.
+- CA-011: **PR follow-through.** The Claude session that opens a PR subscribes to its
+  activity and fixes failing checks and verified review findings within the PR's
+  scope. It still never merges, approves, closes issues or starts another issue.
+  Eleven's `@claude` requests are the fallback when that session is not following.
 
 ## Acceptance scenarios
 
@@ -77,8 +91,8 @@ issue flow, CA-009 executor prompt in the repository, CA-010 roles.
    redirects to a scheduled issue and no code change.
 5. Labelling an issue `claude-implement` starts no workflow.
 6. Adding `status:in-progress` to a `status:ready` issue leaves only
-   `status:in-progress`; adding `status:ready` to an in-progress issue releases the
-   lock.
+   `status:in-progress`; later adding `status:ready` to it releases the lock, judged
+   by label history rather than by which event triggered the run.
 7. Closing an issue as completed removes its status labels, and each open
    `status:blocked` issue whose declared dependencies are now all completed becomes
    `status:ready`; one with any open dependency, or closed as not planned, stays
@@ -86,11 +100,15 @@ issue flow, CA-009 executor prompt in the repository, CA-010 roles.
 8. A consistent issue set produces no label changes.
 9. Merging a `Closes #N` PR closes #N as completed, and scenario 7 follows; merging a
    `Part of #N` PR leaves #N open with its labels.
+10. A `status:hold` issue is never moved to `status:ready`, whatever its dependencies.
+11. If a dependency lookup fails for any reason other than "not found", the run writes
+    no labels.
+12. No reconciliation ever leaves an open issue that had a status label without one.
 
 ## Verification
 
 Scenarios 1–5 require live runs and are not established by this change. Scenarios
-6–8 are covered offline by `tools/tests/test_issue_flow.py`; their live behaviour, and
+6–8 and 10–12 are covered offline by `tools/tests/test_issue_flow.py`; their live behaviour, and
 scenario 9 (GitHub's closing keyword), are established by the first real PR merge and
 issue events after merge. Record the
 scheduled task's session handle and the PR/issue readback for the first real run.

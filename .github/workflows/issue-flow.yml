@@ -19,9 +19,11 @@ permissions:
   issues: write
 
 concurrency:
-  # Serialize per issue; sweeps share one group. Every run also sweeps all open
-  # issues, so a superseded pending run loses nothing durable.
-  group: issue-flow-${{ github.event.issue.number || 'sweep' }}
+  # One run at a time for the whole repository; a newer pending run replaces an
+  # older one. Each run reads current labels, label history and dependency
+  # states and sweeps every open issue, so a replaced run loses nothing, and
+  # outside event spam is capped at one running plus one pending run.
+  group: issue-flow
   cancel-in-progress: false
 
 jobs:

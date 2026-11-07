@@ -15,10 +15,12 @@ Eleven may:
 - queue work for the scheduled executor by adding `claude:scheduled` + `status:ready`
   to issues inside the host's current direction;
 - release the executor lock: merging a PR with `Closes #N` closes its issue; when a
-  PR is abandoned, reset the issue to `status:ready` / `status:blocked`; close an
-  issue by hand only when its work landed without a closing keyword;
+  PR is abandoned, add `status:ready` (retry) or add `status:hold` and remove
+  `status:in-progress` (needs a decision); close an issue by hand only when its work
+  landed without a closing keyword;
 - ask Claude for review fixes with an `@claude` comment on a PR, quoting the findings
-  to address, at most two rounds per PR;
+  to address, at most two rounds per PR, when the session that opened the PR is not
+  already following it through (operating model, flow step 4);
 - merge PRs that meet every gate below;
 - notify the host in the Discord `pull-requests` channel.
 
@@ -44,8 +46,10 @@ All must hold on the exact head being merged:
   category the constitution reserves for the host (security authority or
   permissions, sandbox boundaries, secrets, deployment, spend, destructive
   migrations, publication, infrastructure, review/CI policy), Eleven merges only
-  after the host's explicit go-ahead in conversation, and records that go-ahead in a
-  PR comment before merging. CodeRabbit approval cannot waive this.
+  after the host's explicit go-ahead in conversation for that PR's current head
+  commit, and records the go-ahead with that commit SHA in a PR comment before
+  merging. Any later push to the PR needs a fresh go-ahead. CodeRabbit approval
+  cannot waive this.
 
 Merge mechanics: re-read head, base, reviews and checks immediately before an
 exact-head squash merge. Never admin-bypass, force-push, dismiss reviews, weaken
@@ -57,9 +61,10 @@ execution permission.
 
 ## After a merge
 
-A `Closes #N` PR closes its issue as completed on merge. The issue-flow workflow then
-clears its status labels (releasing the executor lock) and moves dependents whose
-dependencies are all completed from `status:blocked` to `status:ready`. Check that
+A `Closes #N` PR closes its issue as completed on merge, which releases the executor
+lock. The issue-flow workflow then removes the closed issue's status labels and moves
+dependents whose dependencies are all satisfied from `status:blocked` to
+`status:ready`. Check that
 the issue closed and the labels moved, and notify the host with the merge commit and
 anything newly ready. If the PR said `Part of #N`, or a closing keyword was missing
 for finished work, decide whether to close the issue by hand.
@@ -78,7 +83,8 @@ never execute a PR checkout automatically.
 
 Issue-only changes do not wake the poller. Mechanical label upkeep is handled by the
 issue-flow workflow; triage of new issues happens on Eleven's next pass or when the
-host asks.
+host asks. An executor blocker reported on an issue before any PR exists does not
+reach Eleven; it reaches the host through the scheduled task's run notification.
 
 ## Verification
 
