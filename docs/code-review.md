@@ -47,16 +47,24 @@ The intended protected-main settings are:
 
 ## Automated-review status
 
-CodeRabbit was retired at the owner's request on 2026-11-06. Its GitHub App was
-uninstalled and its repository configuration removed. Earlier review comments,
-checks and dated setup evidence are historical, not an active review dependency.
+CodeRabbit is active on this repository, scoped only to `1nevele/vaultforge`
+(the private archive repo is explicitly excluded from its installation). It
+was briefly retired on 2026-11-06 at the owner's request, then reinstated on
+2026-11-07 alongside the new Claude Max review/implementation workflows below.
+`.coderabbit.yaml` in the repository root carries the active configuration:
+auto-review enabled, auto-approval disabled, author self-approval disabled,
+finishing-touches (docstrings/tests/autofix/etc.) disabled.
 
-No replacement automated reviewer or zero-human-review merge gate is configured
-by this change. Those require a separately verified integration and policy update.
-Existing CI and protected-main approval requirements remain unchanged.
+Claude Max-backed review verification (`tools/claude_review.py`, triggered
+manually via the `Repository checks` workflow's `review_pr` input) and the
+`claude-implement.yml` issue-implementation workflow are separate, additional
+automation layered on top of CodeRabbit, not a replacement for it. Neither
+CodeRabbit nor the Claude review step currently has approval or merge
+authority; a human must still approve per the main-branch policy below.
 
 This document specifies policy, not proof of activation. Verify the live branch
-protection API and actual Actions results before claiming each component is active.
+protection API, the GitHub App's actual installation scope, and real Actions
+results before claiming each component is active.
 
 ## Licensing
 
