@@ -9,7 +9,8 @@
 Work reaches Claude as one issue at a time, either through the scheduled executor
 ([executor-prompt.md](executor-prompt.md)) or an ad-hoc session the host starts. Issue
 dependencies are declared in each issue's `## Dependencies` section; do not start an
-issue whose dependencies are not closed as completed. A user/session needs push access
+issue whose dependencies are not satisfied as defined under "Dependencies" in the
+operating model (an issue closed as completed, or a merged PR). A user/session needs push access
 to the repository; do not guess an account or invite collaborators
 automatically.
 

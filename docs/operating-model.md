@@ -161,6 +161,9 @@ still waiting on something, then remove `status:in-progress`, then add
   would make code-owner review a real host check. These are host decisions.
 - The scheduled task's live prompt is stored in the host's claude.ai account. Keep it
   identical to [executor-prompt.md](executor-prompt.md).
+- Labels have no atomic claim. Executor runs are kept from overlapping only by the
+  task's four-hourly schedule; adding issue-event or other extra triggers needs an
+  exclusive claim step first.
 - Eleven's poller has no time-based wake, so the two-hour `@claude` fallback only
   runs when some PR change wakes Eleven; a stalled PR with no activity relies on the
   host noticing.

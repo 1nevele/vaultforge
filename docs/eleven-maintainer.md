@@ -45,13 +45,15 @@ All must hold on the exact head being merged:
 - Real verification evidence in the PR body for application changes (tests, types,
   build); repository setup or secret checks alone are not application verification.
   Missing, skipped, pending or failed mandatory evidence blocks merge.
-- **Closing keywords.** Merging `Closes #N` marks the issue completed and can unblock
-  its dependents, so: a `Closes` PR must target `main` (GitHub ignores closing
-  keywords on other bases, which would leave the issue locked); closing keywords
-  name only the issue the PR was opened for;
-  `Closes` needs each of that issue's acceptance items to be evidenced in the PR
-  body (a completion claim is not evidence). Otherwise ask Claude to change it to
-  `Part of #N` and say what remains.
+- **Issues the merge will close.** Merging marks every issue GitHub links for closing
+  as completed, which can unblock dependents. Check them all: issues named with any
+  closing keyword (`close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`,
+  `resolves`, `resolved`, in any case) and issues linked in the PR's Development
+  section. That set must be exactly the issue the PR was opened for; each of its
+  acceptance items must be evidenced in the PR body (a completion claim is not
+  evidence); and a closing PR must target `main` (GitHub ignores closing keywords
+  on other bases, which would leave the issue locked). Otherwise ask Claude to say
+  `Part of #N`, remove the extra link, and say what remains.
 - **Sensitive changes:** if the PR touches a path in `.github/CODEOWNERS`, or a
   category the constitution reserves for the host (security authority or
   permissions, sandbox boundaries, secrets, deployment, spend, destructive
