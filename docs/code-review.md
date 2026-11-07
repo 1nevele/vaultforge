@@ -1,5 +1,18 @@
 # Pull-request review
 
+## Temporary PoC pause — host decision, 2026-11-07
+
+CodeRabbit automatic reviews and its mandatory merge approval are disabled until
+the host asks to re-enable them. No CodeRabbit review or successful status is needed.
+Its absent/pending/skipped/failed status, old change requests and bot-only unresolved
+threads do not by themselves block a merge. Known defects and security concerns
+still require resolution, as do other reviewers' blocking reviews and threads.
+Claude's fresh-context spec/code review, real verification evidence, required CI,
+up-to-date `main` base and head-specific host approval for sensitive changes remain.
+Eleven remains maintainer/merger, not code reviewer. This temporary policy overrides
+the normal CodeRabbit responsibilities and intended approval settings below.
+See [eleven-maintainer.md](eleven-maintainer.md) for the authoritative merge gates.
+
 ## Responsibilities
 
 Roles and the issue flow are in [operating-model.md](operating-model.md).
@@ -58,12 +71,12 @@ The intended protected-main settings are:
 
 ## Automated-review status
 
-CodeRabbit is active on this repository, scoped only to `1nevele/vaultforge`
+CodeRabbit remains installed but is paused on this repository, scoped only to `1nevele/vaultforge`
 (the private archive repo is explicitly excluded from its installation). It
 was briefly retired on 2026-11-06 at the owner's request, then reinstated on
 2026-11-07; it is separate from the Claude execution routes below.
 `.coderabbit.yaml` in the repository root carries the active configuration:
-auto-review enabled, author self-approval disabled, finishing-touches
+auto-review and incremental review disabled, author self-approval disabled, finishing-touches
 (docstrings/tests/autofix/etc.) disabled.
 
 CodeRabbit's `auto_approvals` is enabled: it submits its own approving GitHub

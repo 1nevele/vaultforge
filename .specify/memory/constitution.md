@@ -1,6 +1,14 @@
 # Vaultforge constitution
 
-Version 0.3.0 · Updated 2026-11-07 · Scope: every project.
+Version 0.3.1 · Updated 2026-11-07 · Scope: every project.
+
+**Temporary PoC amendment (host decision, 2026-11-07):** CodeRabbit is paused and
+its approval is not required to merge. Its status and bot-only review artifacts do
+not independently block merges; known defects/security concerns remain actionable.
+The precise exception is in `docs/eleven-maintainer.md`. Fresh-context spec/code
+review, real verification, required CI and head-specific host approval for sensitive
+changes remain required. This overrides CodeRabbit role/approval requirements in
+this constitution and other repository documents until the host re-enables it.
 
 1. **Specs govern code.** One root `specs/<NNN>-<project>-<feature>/` packet per feature: requirements, acceptance, plan, tasks. Update material changes before code; never invent human sign-off.
 2. **Clear roles.** The host gives direction and decides sensitive changes. Eleven maintains the repository and merges. Claude Code on the web implements application code. CodeRabbit reviews. Anyone may open issues. See `docs/operating-model.md`. Local tool activation or a GitHub issue is not cloud dispatch.

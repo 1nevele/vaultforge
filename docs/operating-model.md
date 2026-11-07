@@ -12,7 +12,7 @@ constitution.
 | **Host** | The operator (GitHub `46tsoh`) | Direction and priorities; approval of sensitive changes; exceptions and escalations. |
 | **Eleven** | The operator's Hermes agent (GitHub `1nevele`) | Maintainer and merger: issue triage and labels, dependency and lock upkeep, queuing work for Claude, driving review feedback back to Claude, merging eligible PRs, closing finished issues, notifying the host. Mandate details: [eleven-maintainer.md](eleven-maintainer.md). |
 | **Claude** | Claude Code on the web (scheduled task and ad-hoc sessions); `claude-fix.yml` for `@claude` | Executor: implements one issue per PR with real evidence, and applies small fixes on request. Never approves or merges. |
-| **CodeRabbit** | `coderabbitai[bot]` | Automated PR review; its approving review on the current head is the routine approval. |
+| **CodeRabbit** | `coderabbitai[bot]` | Paused during the PoC by host decision on 2026-11-07; no review, approval or successful status required. Re-enable only on host direction. |
 | **CI** | `Repository checks` | Required checks (`Workflow setup`, `Secret scan`, plus project jobs such as `Sentinel contracts (offline)`). |
 
 The host, Eleven and Claude may all open issues. Claude's GitHub actions run through
@@ -21,6 +21,16 @@ from `46tsoh` therefore cannot prove a host decision. Host approval of a sensiti
 change is given to Eleven in conversation and recorded by Eleven on the PR.
 
 ## Labels
+
+### Temporary PoC review policy
+
+CodeRabbit is paused, including its mandatory merge approval. The exact exception
+for its statuses, old reviews and threads is in [eleven-maintainer.md](eleven-maintainer.md).
+CodeRabbit references below describe the normal route when enabled, not a
+requirement to invoke it during this pause. Existing findings remain evidence to
+assess, not instructions to ignore defects. Claude's fresh-context spec/code review,
+required CI, application verification and head-specific host approval for sensitive
+changes remain mandatory. No replacement Eleven code-review role is introduced.
 
 | Label | Meaning |
 | --- | --- |
