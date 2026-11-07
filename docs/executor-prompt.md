@@ -47,7 +47,7 @@ Release the claim lock now (the `status:in-progress` label is the lock from here
 5. Execute it: read CLAUDE.md, AGENTS.md, .specify/memory/constitution.md, docs/operating-model.md, docs/development-workflow.md, docs/claude-web-handoff.md, and the issue body with its linked spec packet. Follow the repository rules exactly, including:
    - the skill smoke check in docs/claude-web-skill-smoke.md before application work;
    - Spec Kit for the spec, plan and tasks;
-   - real test-first RED/GREEN evidence;
+   - real RED/GREEN evidence, test-first for behavioral logic, invariants and adversarial cases (CLAUDE.md, "Native development skills");
    - the built-in /code-review on the diff before every push (plus /security-review for security-relevant changes), with the reviewed commit and each finding's resolution recorded in the PR (CLAUDE.md, "Code review");
    - all safety limits (no secrets, provider calls, live targets or infrastructure changes).
    Work on the branch this session designates; if none is designated, use claude/issue-<N>-<short-slug>.

@@ -11,7 +11,7 @@ Read `.specify/memory/constitution.md`, `docs/development-workflow.md`, the assi
 - Requirements/acceptance scenarios → reviewed spec → plan → tasks → RED/GREEN implementation (test-first for behavioral logic, invariants and adversarial cases) → in-session `/code-review` before push → CodeRabbit PR review → verified PR.
 - Keep one canonical root feature packet with project name in the directory; no competing Superpowers plan tree.
 - Verify repository-provided skill discovery in the actual Claude web session. Hermes plugin activation is not web activation. Missing optional plugin support does not remove spec/TDD/review requirements.
-- Maximum Lead plus three active agents; exclusive paths. Only the Claude lead edits shared manifests/lockfiles/contracts.
+- Maximum Lead plus three active agents that edit files (read-only reviewer subagents do not count); exclusive paths. Only the Claude lead edits shared manifests/lockfiles/contracts.
 - Start dependent issues only after accepted prerequisites. Claude follows its assigned PR through CI and review; no Claude merge or whole-backlog continuation. Eleven merges under `docs/eleven-maintainer.md`; sensitive changes (`.github/CODEOWNERS` paths and the constitution's reserved categories) still require the host's explicit go-ahead.
 
 ## Safety and truthfulness
