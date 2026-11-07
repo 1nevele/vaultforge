@@ -51,9 +51,18 @@ CodeRabbit was retired at the owner's request on 2026-11-06. Its GitHub App was
 uninstalled and its repository configuration removed. Earlier review comments,
 checks and dated setup evidence are historical, not an active review dependency.
 
-No replacement automated reviewer or zero-human-review merge gate is configured
-by this change. Those require a separately verified integration and policy update.
-Existing CI and protected-main approval requirements remain unchanged.
+No automated reviewer or zero-human-review merge gate is configured. The Claude
+review-gate draft (PR #9) was dropped; a future reviewer such as CodeRabbit
+requires a separately verified integration and policy update. Existing CI and
+protected-main approval requirements remain unchanged.
+
+## Claude execution routes
+
+Per `specs/002-vaultforge-claude-automation`: a Claude cloud scheduled task
+executes one `status:ready` issue at a time and stops at the PR, and
+`.github/workflows/claude-fix.yml` handles `@claude` small-fix requests. Neither
+approves or merges. `claude-fix.yml` holds a write-scoped token and the
+`CLAUDE_CODE_OAUTH_TOKEN` secret; it acts only for actors with write access.
 
 This document specifies policy, not proof of activation. Verify the live branch
 protection API and actual Actions results before claiming each component is active.

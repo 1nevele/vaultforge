@@ -1,0 +1,54 @@
+name: Claude small fix
+
+# Lets a maintainer (or the operator's Hermes agent) ask Claude for a SMALL fix by
+# mentioning @claude in an issue or PR comment, or in a PR review. Issue
+# implementation is NOT done here: ready issues are executed by the scheduled
+# Claude Code on the web task (specs/002-vaultforge-claude-automation).
+#
+# The action only acts for actors with repository write access (its default
+# check). It never approves or merges; the result still goes through the
+# Repository checks workflow and protected-main approval.
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+
+concurrency:
+  # One fix run per issue/PR at a time; queue, don't cancel, later requests.
+  group: claude-fix-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  fix:
+    name: Claude small fix
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: read
+      # Needed for the action's GitHub App token exchange.
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 1
+      - name: Run Claude Code for a small fix
+        uses: anthropics/claude-code-action@115e0b2c49222c831de6748ccdf365bb8d3ea9a3
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          trigger_phrase: '@claude'
+          branch_prefix: 'claude/fix-'
+          claude_args: |
+            --max-turns 15
+            --append-system-prompt "Scope: small, self-contained fixes only (typos, wording, a failing check, a narrow review comment, a few files). Follow AGENTS.md safety rules. If the request needs a new spec, plan or tasks, application feature work, dependency/lockfile changes, or edits under .github/, do not make changes: reply that it should become a status:ready issue for the scheduled executor, and stop. Never approve or merge."
