@@ -93,7 +93,13 @@ class WorkflowSetupTests(unittest.TestCase):
             self.assertEqual(hashlib.sha256(safe_file(ROOT, relative).read_bytes()).hexdigest(), digest)
 
     def test_no_automatic_plugins_or_bootstrap_installers(self):
-        self.assertFalse((ROOT / ".claude/settings.json").exists())
+        settings = ROOT / ".claude/settings.json"
+        if settings.exists():
+            # Only model/effort/subagent-limit configuration; no plugins, hooks,
+            # permission rules or other automatic behavior.
+            data = json.loads(settings.read_text())
+            self.assertLessEqual(set(data), {"$schema", "model", "effortLevel", "env"})
+            self.assertLessEqual(set(data.get("env", {})), {"CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS"})
         self.assertFalse((ROOT / ".claude/hooks").exists())
         self.assertFalse((ROOT / ".claude/scripts").exists())
         self.assertFalse((ROOT / ".claude-plugin").exists())

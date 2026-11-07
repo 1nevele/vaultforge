@@ -11,6 +11,10 @@ No automatic merge, approval, issue closing or blocked-work continuation.
 
 Sentinel lives under `projects/sentinel/`. Historical project-owned paths are relative to that directory; shared workflow/spec files stay at the root. Keep one canonical `specs/<NNN>-<project>-<feature>/` packet, not a second Superpowers planning tree.
 
+## Lead and subagents
+
+The lead session runs Opus at high effort (`.claude/settings.json`) and delegates bounded work to project subagents in `.claude/agents/`: `scout` (read-only research, Haiku), `implementer` (one tasks.md item, test-first, assigned paths only, Haiku), `verifier` (runs checks, read-only, Haiku) and `reviewer` (independent review, Sonnet). At most three subagents run at once, matching AGENTS.md. Give each a narrow brief; do not pass a `model` override when delegating; keep shared manifests, lockfiles, contracts, specs and integration with the lead.
+
 ## Native development skills
 
 This repository carries five pinned Superpowers skills, not the full plugin:
