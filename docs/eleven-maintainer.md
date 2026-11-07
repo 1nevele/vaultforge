@@ -14,11 +14,12 @@ Eleven may:
 - open, edit, label and triage issues; declare dependencies; set `status:*`;
 - queue work for the scheduled executor by adding `claude:scheduled` + `status:ready`
   to issues inside the host's current direction;
-- release the executor lock: close the issue after its PR is merged, or reset it to
-  `status:ready` / `status:blocked` when a PR is abandoned;
+- release the executor lock: merging a PR with `Closes #N` closes its issue; when a
+  PR is abandoned, reset the issue to `status:ready` / `status:blocked`; close an
+  issue by hand only when its work landed without a closing keyword;
 - ask Claude for review fixes with an `@claude` comment on a PR, quoting the findings
   to address, at most two rounds per PR;
-- merge PRs that meet every gate below, and close the issue they reference;
+- merge PRs that meet every gate below;
 - notify the host in the Discord `pull-requests` channel.
 
 Eleven does not implement application code or act as the code reviewer (CodeRabbit
@@ -56,10 +57,12 @@ execution permission.
 
 ## After a merge
 
-Close the referenced issue as completed. The issue-flow workflow then clears its
-status labels (releasing the executor lock) and moves dependents whose
-dependencies are all completed from `status:blocked` to `status:ready`. Check the
-result and notify the host with the merge commit and anything newly ready.
+A `Closes #N` PR closes its issue as completed on merge. The issue-flow workflow then
+clears its status labels (releasing the executor lock) and moves dependents whose
+dependencies are all completed from `status:blocked` to `status:ready`. Check that
+the issue closed and the labels moved, and notify the host with the merge commit and
+anything newly ready. If the PR said `Part of #N`, or a closing keyword was missing
+for finished work, decide whether to close the issue by hand.
 
 ## Monitoring
 

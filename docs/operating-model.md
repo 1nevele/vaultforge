@@ -66,15 +66,17 @@ It never closes, assigns, comments, dispatches Claude or runs pull-request code.
 3. **Claim.** The scheduled executor ([executor-prompt.md](executor-prompt.md)) runs
    on its schedule. If no `claude:scheduled` issue is `status:in-progress`, it takes
    the lowest-numbered open `claude:scheduled` + `status:ready` issue, labels it
-   `status:in-progress`, implements it, opens one PR with `Refs #N`, and stops.
+   `status:in-progress`, implements it, opens one PR with `Closes #N`, and stops.
 4. **Review.** CI and CodeRabbit run. If CodeRabbit requests changes or a check fails,
    Eleven asks Claude for a fix with an `@claude` comment on the PR quoting the
    findings to address (at most two rounds per PR), or escalates.
 5. **Merge.** When the PR meets the merge gates in
    [eleven-maintainer.md](eleven-maintainer.md), Eleven squash-merges the exact head.
-6. **Close.** Eleven closes the referenced issue as completed and notifies the host.
-   Issue flow then clears the lock and unblocks dependents, and the next scheduled run
-   proceeds.
+6. **Close.** Merging the PR closes the issue as completed through GitHub's
+   `Closes #N` keyword, with no extra step. Issue flow then clears the lock and
+   unblocks dependents, and the next scheduled run proceeds. Eleven checks the result
+   and notifies the host. A PR that delivers only part of an issue says
+   `Part of #N` instead, and the issue stays open.
 7. **Abandon.** If a PR is abandoned, Eleven closes it and sets the issue back to
    `status:ready` (retry) or `status:blocked` (needs a decision); either releases the
    lock.
@@ -82,6 +84,17 @@ It never closes, assigns, comments, dispatches Claude or runs pull-request code.
 Only one `claude:scheduled` issue is in progress at a time, from claim until close or
 reset. Claude stops at its PR; it never merges, approves, closes issues, unblocks
 dependents or starts a second issue.
+
+### Closing keywords
+
+| PR body | On merge |
+| --- | --- |
+| `Closes #N` | Issue #N is closed as completed; dependents may unblock. |
+| `Part of #N` | Nothing; #N stays open and keeps its status. |
+
+GitHub only honours `Closes` when the PR merges into `main`. An issue closed this way
+can be reopened if the work turns out incomplete; reopening does not re-block
+dependents that already moved to `status:ready`.
 
 ## Escalate to the host
 

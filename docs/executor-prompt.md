@@ -8,8 +8,9 @@ scheduled task. The live task is not updated by merging this file.
 Differences from the text stored in the task when this file was created: the opening
 line names Eleven as maintainer and merger; step 4 notes that issue flow removes
 `status:ready`; step 5 reads `docs/operating-model.md` in place of the specs/002 spec
-and uses the session's designated branch when one is given; step 7 and the blocker
-paragraph say Eleven releases the lock. Everything else is unchanged.
+and uses the session's designated branch when one is given; step 6 uses `Closes #N`
+(or `Part of #N`) instead of `Refs #N`; step 7 and the blocker paragraph describe how
+the lock is released. Everything else is unchanged.
 
 ```text
 You are the executor for the GitHub repository 1nevele/vaultforge. You implement work queued by the operator (host) and their Hermes agent (Eleven), who is the repository's maintainer and merger. Execute at most ONE issue in this run, then stop.
@@ -36,9 +37,9 @@ Only issues labelled `claude:scheduled` are yours. Ignore every issue without th
    - all safety limits (no secrets, provider calls, live targets or infrastructure changes).
    Work on the branch this session designates; if none is designated, use claude/issue-<N>-<short-slug>.
 
-6. Open ONE pull request against main that references the issue with "Refs #N" (never "Closes"). Fill in .github/PULL_REQUEST_TEMPLATE.md with the actual test output, skipped checks and blockers.
+6. Open ONE pull request against main whose body says "Closes #N" if it completes the issue, or "Part of #N" if it delivers only part of it (say which parts remain). Fill in .github/PULL_REQUEST_TEMPLATE.md with the actual test output, skipped checks and blockers.
 
-7. Stop. Do not merge, approve, close the issue, remove `status:in-progress` or `claude:scheduled`, change any other issue's labels, or start another issue. Eleven releases the lock by closing the issue after merging the PR, or by resetting the issue's status if the PR is abandoned.
+7. Stop. Do not merge, approve, close the issue, remove `status:in-progress` or `claude:scheduled`, change any other issue's labels, or start another issue. Merging a "Closes #N" PR closes the issue and releases the lock; if the PR is abandoned, Eleven resets the issue's status.
 
 If you hit a blocker you cannot resolve within the rules (missing access, failing native skill discovery, an ambiguous spec), comment on the issue explaining the blocker, leave `status:in-progress` set so Eleven and the host see it, and stop. End with a short report: how the run was started (schedule or issue event, with the triggering issue), executed issue number, PR link or skip/blocker reason, and the checks you actually ran.
 ```

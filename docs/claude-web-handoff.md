@@ -42,9 +42,10 @@ projects/<name>/. Use synthetic, non-executing fixtures and real RED/GREEN tests
 mapped to requirement/scenario IDs. No provider keys/calls, live targets,
 backend installs or host changes.
 
-Open one PR with "Refs #<N>", actual test/build/typecheck results, independent
+Open one PR with "Closes #<N>" (or "Part of #<N>" if it delivers only part of the
+issue), actual test/build/typecheck results, independent
 spec/code review, skipped checks and unresolved blockers. Stop. Do not merge,
-close the issue, unblock dependents, or continue across the backlog.
+close the issue yourself, unblock dependents, or continue across the backlog.
 ```
 
 ## Spec Kit feature context

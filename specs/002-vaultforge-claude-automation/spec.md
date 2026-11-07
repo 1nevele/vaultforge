@@ -11,8 +11,8 @@ is the repository's maintainer and merger. Anyone may open issues; Claude implem
 them. There are exactly two execution routes and no automated Claude code-review
 gate. Roles and the issue flow are summarized in `docs/operating-model.md`.
 
-Amended 2026-11-07: CA-003 lock release, CA-008 issue flow, CA-009 executor prompt in
-the repository, CA-010 roles.
+Amended 2026-11-07: CA-003 lock release, CA-004 `Closes #N` on executor PRs, CA-008
+issue flow, CA-009 executor prompt in the repository, CA-010 roles.
 
 ## Requirements
 
@@ -27,11 +27,12 @@ the repository, CA-010 roles.
   `status:ready` issue without `claude:scheduled` is never picked up.
 - CA-003: **One at a time.** If any open issue is labelled both `claude:scheduled`
   and `status:in-progress`, the run exits without changes. A run labels its issue `status:in-progress` before
-  starting work. Eleven (or the host) releases the lock by closing the issue after
-  merging its PR, or by resetting it to `status:ready` / `status:blocked` when the PR
-  is abandoned; CA-008 then removes the stale label. A stale label blocks later runs;
+  starting work. Merging the issue's `Closes #N` PR closes it and releases the lock;
+  if the PR is abandoned, Eleven (or the host) resets the issue to `status:ready` /
+  `status:blocked`. CA-008 then removes the stale label. A stale label blocks later runs;
   it is never cleared by the scheduled run itself.
-- CA-004: **Stop at the PR.** A run opens one PR referencing (not closing) the issue,
+- CA-004: **Stop at the PR.** A run opens one PR whose body says `Closes #N` (or
+  `Part of #N` for partial work), so merging it closes the issue as completed,
   with real evidence per the PR template, then stops. No merge, approval, issue
   closing, unblocking of dependent issues or continuation to the next issue.
 - CA-005: **Small fixes.** `.github/workflows/claude-fix.yml` runs
@@ -70,7 +71,7 @@ the repository, CA-010 roles.
 2. With a `claude:scheduled` issue already `status:in-progress`, a scheduled run exits
    and changes nothing.
 3. With one ready issue, a scheduled run labels it in progress, opens one PR that
-   references it, and stops; the issue stays open.
+   says `Closes #N`, and stops; the issue stays open until the PR is merged.
 4. A `@claude` comment asking for a typo fix produces a small commit or PR from
    `claude/fix-*`; a `@claude` comment asking for a new feature produces a reply that
    redirects to a scheduled issue and no code change.
@@ -83,10 +84,13 @@ the repository, CA-010 roles.
    `status:ready`; one with any open dependency, or closed as not planned, stays
    blocked.
 8. A consistent issue set produces no label changes.
+9. Merging a `Closes #N` PR closes #N as completed, and scenario 7 follows; merging a
+   `Part of #N` PR leaves #N open with its labels.
 
 ## Verification
 
 Scenarios 1–5 require live runs and are not established by this change. Scenarios
-6–8 are covered offline by `tools/tests/test_issue_flow.py`; their live behaviour is
-established by the first real issue events after merge. Record the
+6–8 are covered offline by `tools/tests/test_issue_flow.py`; their live behaviour, and
+scenario 9 (GitHub's closing keyword), are established by the first real PR merge and
+issue events after merge. Record the
 scheduled task's session handle and the PR/issue readback for the first real run.
