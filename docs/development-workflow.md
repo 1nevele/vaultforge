@@ -1,12 +1,12 @@
 # Vaultforge development workflow
 
-Updated 2026-11-06. Scope: repository preparation and Claude Code **on the web**, not Sentinel execution.
+Updated 2026-11-07. Scope: repository preparation and Claude Code **on the web**, not Sentinel execution.
 
 ## One workflow
 
 Spec Kit owns one canonical root `specs/<NNN>-<project>-<feature>/{spec,plan,tasks}.md` packet. Existing product plans and research are inputs, not a reason to restart discovery. Superpowers supplies bounded TDD/debugging/verification guidance; it does not create another plan hierarchy. Code review uses the built-in `/code-review` in-session before push (`CLAUDE.md`). Root instructions and project safety rules take precedence over examples in upstream skills.
 
-Eleven prepares specifications, issues and review. Claude Code on the web implements application code. Start S01 (#1), produce a PR with independent review and real tests, then stop. S02–S05 remain blocked on accepted/integrated S01.
+Host gives direction; Claude Code on the web implements application code, manages issues within that direction and reviews its own diffs in-session before pushing; Eleven only checks merge eligibility (`docs/eleven-maintainer.md`). S01 (#1) is merged. S02–S05 remain blocked on accepted/integrated S01.
 
 ## Adopted repository assets
 

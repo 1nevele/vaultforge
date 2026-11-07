@@ -26,7 +26,7 @@ Review runs inside the Claude session; there is no CI review job, CodeRabbit or 
 
 - **Before every push:** run the built-in `/code-review` on the diff, and `/security-review` as well when the change touches authority, permissions, secrets, workflows, untrusted-input parsing or an execution surface. Fix blocking findings, or list each unfixed one with its reason in the PR's verification section, naming the reviewed commit.
 - These reviewers run as subagents in a fresh context, but the authoring session triggers and reports them: the PR record is author-reported evidence, not an independent approval. Approval is the host's (`docs/eleven-maintainer.md`). Never approve or merge.
-- The operator may enable Anthropic plugins on their account (`security-guidance` for automatic diff/commit review, `claude-security` for deep scans, `code-review`). They are optional and not committed to this repository. Confirm one actually loaded in the session before relying on or citing it.
+- The required reviewer is the built-in `code-review` skill; record that name in the PR. The operator may enable Anthropic plugins on their account (`security-guidance` for automatic diff/commit review, `claude-security` for deep scans). They are optional, supplement rather than replace `/code-review`, and are not committed to this repository. Confirm one actually loaded in the session before relying on or citing it.
 
 **Before application work:** follow `docs/claude-web-skill-smoke.md`. Report actual discovered names and exercise a benign skill. If discovery is unavailable, stop with that blocker; do not silently install a plugin or substitute an unlabeled manual read.
 

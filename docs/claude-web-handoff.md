@@ -72,7 +72,7 @@ tasks), not in this repository; pause or edit it there. Each run:
    `status:ready` without `status:blocked`.
 2. Otherwise takes the lowest-numbered such issue, labels it `status:in-progress`, and
    follows the assignment above for that issue (smoke check, spec/plan/tasks, TDD,
-   independent review).
+   and `/code-review` in-session before push, recorded in the PR).
 3. Opens one PR that references (does not close) the issue, and stops.
 
 To queue work, label an issue both `claude:scheduled` and `status:ready`; issues without

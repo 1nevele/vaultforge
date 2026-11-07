@@ -49,7 +49,10 @@ Reports go to the existing Discord `pull-requests` channel, without new threads.
 - Require the PR's verification section to record the in-session `/code-review`
   (and `/security-review` where relevant) for the current head commit, with no
   unresolved blocking finding. This is author-reported evidence: it informs the
-  host's approval and never substitutes for it.
+  host's approval and never substitutes for it. If the head moved past the
+  recorded commit (for example an `@claude` fix commit), or the PR came from the
+  `@claude` small-fix route with no record, it is not eligible for routine merge:
+  report it to host.
 - Require appropriate real application tests/lint/types/build evidence; repository
   setup/secret checks alone are not application verification. Missing, skipped,
   pending or failed mandatory evidence blocks merge.

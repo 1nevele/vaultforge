@@ -60,8 +60,10 @@ The intended protected-main settings are:
 There is no automated PR reviewer. CodeRabbit was retired on 2026-11-07 at the
 owner's request and `.coderabbit.yaml` was removed; uninstalling the CodeRabbit
 GitHub App is an owner action outside this repository. Until it is uninstalled
-it may still post reviews: treat them as informational, and its approval does
-not satisfy the merge gate. Code review is done in the Claude session before
+it may still post reviews, and GitHub may still count its approval toward the
+required-approval rule mechanically. Treat its reviews as informational; do not
+merge on its approval. Uninstall the app promptly so the protection setting
+reflects this policy. Code review is done in the Claude session before
 push (see Responsibilities and `CLAUDE.md`).
 
 There is no deterministic diff-risk gate. A `Risk gate` job (`tools/risk_gate.py`)

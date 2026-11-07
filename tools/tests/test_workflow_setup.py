@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SUPERPOWERS = {
     "test-driven-development", "systematic-debugging", "verification-before-completion",
 }
-# Code review moved to the built-in /code-review and the Claude PR review workflow.
+# Code review moved to the built-in /code-review, run in-session before push.
 RETIRED_SUPERPOWERS = {"requesting-code-review", "receiving-code-review"}
 SPECKIT = {
     "speckit-analyze", "speckit-checklist", "speckit-clarify", "speckit-constitution",
