@@ -150,6 +150,8 @@ def reconcile(event_name, event, gh):
 
     def plan_for(subject):
         """Plan one issue from its labels, label history and dependencies."""
+        if subject['state'] != 'open':
+            return plan(subject, {})  # closed: only cleanup, no lookups needed
         present = set(subject['labels']) & STATUS
         newest = gh.latest_added(subject['number'], present) if len(present) > 1 else None
         deps = dependencies(subject.get('body'), repository) - {subject['number']}
@@ -169,7 +171,7 @@ def reconcile(event_name, event, gh):
     subjects.extend(s for s in gh.closed_with_status() if s['number'] not in seen)
 
     # Plan everything first: a lookup failure aborts the run before any write.
-    plans = [(s['number'], set(s['labels']) & ALL_STATUS, plan_for(s))
+    plans = [(s['number'], (s['state'], set(s['labels']) & ALL_STATUS), plan_for(s))
              for s in subjects if _is_issue(s)]
 
     # A write failure on one issue must not stop the others; report all at the end.
@@ -178,14 +180,14 @@ def reconcile(event_name, event, gh):
         if not add and not remove:
             continue
         try:
-            # Re-read just before writing: if someone changed this issue's status
-            # labels since it was planned, the plan is stale and the change will
-            # trigger its own run, so leave the issue alone.
+            # Re-read just before writing: if someone changed this issue's state or
+            # status labels since it was planned, the plan is stale and the change
+            # will trigger its own run, so leave the issue alone.
             try:
                 current = gh.issue(issue_number)
             except NotFound:
                 continue
-            if set(current['labels']) & ALL_STATUS != planned_from:
+            if (current['state'], set(current['labels']) & ALL_STATUS) != planned_from:
                 continue
             if add:
                 gh.add_labels(issue_number, sorted(add))

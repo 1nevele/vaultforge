@@ -311,6 +311,29 @@ class ReconcileTests(unittest.TestCase):
         self.assertEqual(gh.labels(1), ['claude:scheduled', 'status:ready'])
         self.assertEqual(gh.calls, [])
 
+    def test_write_is_skipped_when_the_issue_closed_after_planning(self):
+        gh = self.gh(issue(1, [], state='closed', state_reason='completed'),
+                     issue(2, ['status:blocked'], BLOCKED_BY_1))
+        original = gh.issue
+
+        def issue_then_close(number):
+            if number == 2:
+                gh.issues[2]['state'] = 'closed'      # closed between planning and writing
+            return original(number)
+
+        gh.issue = issue_then_close
+        self.flow.reconcile('schedule', {}, gh)
+        self.assertEqual(gh.labels(2), ['status:blocked'])
+        self.assertEqual(gh.calls, [])
+
+    def test_closed_issues_need_no_dependency_or_history_lookups(self):
+        gh = self.gh(issue(9, ['status:ready', 'status:blocked'], '## Dependencies\n- #77\n',
+                           state='closed', state_reason='completed'),
+                     errors={77: RuntimeError('gh api failed: HTTP 502')})
+        gh.latest_added = lambda *_: self.fail('history looked up for a closed issue')
+        self.flow.reconcile('schedule', {}, gh)
+        self.assertEqual(gh.labels(9), [])
+
     def test_sweep_repairs_every_open_issue(self):
         gh = self.gh(issue(1, ['status:ready', 'status:in-progress']),
                      issue(2, ['status:ready'], BLOCKED_BY_1))
