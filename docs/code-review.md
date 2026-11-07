@@ -76,8 +76,7 @@ Eleven's merge limits rest on its mandate rather than on repository settings.
 
 Neither route approves or merges ([operating-model.md](operating-model.md)).
 `claude-fix.yml` holds a write-scoped token and the `CLAUDE_CODE_OAUTH_TOKEN`
-secret; it acts only for actors with write access. `issue-flow.yml` edits
-`status:*` labels only, with an issues-scoped `GITHUB_TOKEN`.
+secret; it acts only for actors with write access.
 
 This document specifies policy, not proof of activation. Verify the live branch
 protection API, the GitHub App's actual installation scope, and real Actions

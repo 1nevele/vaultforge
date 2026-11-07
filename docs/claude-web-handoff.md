@@ -6,11 +6,10 @@
 - Sentinel tracker: https://github.com/1nevele/vaultforge/issues/6
 - Roles, labels and the issue flow: [operating-model.md](operating-model.md).
 
-Work reaches Claude as one issue at a time, either through the scheduled executor
-([executor-prompt.md](executor-prompt.md)) or an ad-hoc session the host starts. Issue
-dependencies are declared in each issue's `## Dependencies` section; do not start an
-issue whose dependencies are not satisfied as defined under "Dependencies" in the
-operating model (an issue closed as completed, or a merged PR). A user/session needs push access
+Work reaches Claude as one issue per session, started by the host (or by Eleven, if
+it has a way to). Issue dependencies are declared in each issue's `## Dependencies`
+section; do not start an issue whose dependencies are not yet closed as completed or
+merged. A user/session needs push access
 to the repository; do not guess an account or invite collaborators
 automatically.
 
@@ -70,10 +69,4 @@ Apple Silicon/macOS is an unverified deployment-platform requirement, distinct f
 
 A dispatched task requires a real Claude web session handle and repository/assignment readback. GitHub issues, labels, skill files and setup checks alone are only **handoff readiness**.
 
-## Scheduled execution
-
-The scheduled task **Vaultforge ready-issue executor** lives in the host's claude.ai
-account (pause or edit it there) and runs [executor-prompt.md](executor-prompt.md).
-How issues are queued, claimed, released and unblocked is in
-[operating-model.md](operating-model.md). `@claude` comments are for small fixes only
-(`.github/workflows/claude-fix.yml`).
+`@claude` comments are for small fixes only (`.github/workflows/claude-fix.yml`).

@@ -18,3 +18,8 @@
 6. (Amendment) Commit the executor prompt, consolidate roles into
    `docs/operating-model.md`, rewrite `docs/eleven-maintainer.md` as the maintainer
    and merger mandate, add `.github/CODEOWNERS`, and point the other docs at them.
+7. (Amendment, lean setup) Disable the scheduled task in the host's account (kept,
+   not deleted). Remove the executor prompt, the issue-flow workflow, its reconciler
+   and tests. Rewrite `docs/operating-model.md` around sessions the host or Eleven
+   starts, with issues as a plain backlog, and point the small-fix route's decline
+   message at an issue for a web session.

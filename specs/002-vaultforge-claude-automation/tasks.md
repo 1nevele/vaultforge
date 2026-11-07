@@ -21,5 +21,6 @@
 - [x] T019 Address CodeRabbit review of 0e86410: merge gate allows an empty closing set for `Part of #N` PRs; post-claim re-check also covers `claude:scheduled`, `status:blocked` and a vanished claim; repository-agnostic reference wording (CA-003)
 - [x] T020 Address CodeRabbit review of 2914a90: every merged PR must target `main`; closing an issue by hand needs the same acceptance evidence (CA-010)
 - [x] T021 Keep the issue-event trigger: serialize selection and claiming with an atomic claim lock (`executor.lock` on `executor-lock`, contents-API create without sha, delete by sha, 30-minute stale break) (CA-003)
-- [ ] T022 Host: paste the updated `docs/executor-prompt.md` into the scheduled task after merge
+- [x] T022 (obsolete: the scheduled task was disabled on 2026-11-07, see T024) Host: paste the updated `docs/executor-prompt.md` into the scheduled task after merge
 - [x] T023 Web sessions (scheduled or ad hoc) run built-in `/code-review` before push, replacing the retired Superpowers review skills; CodeRabbit remains the PR reviewer (2026-11-07, owner request; from PR #24)
+- [x] T024 Lean setup (host decision, 2026-11-07): disable the scheduled task; remove `docs/executor-prompt.md`, the issue-flow workflow and reconciler and their tests; issues become a plain backlog; sessions are started by the host or Eleven; retire CA-002, CA-003, CA-008 and CA-009 (CA-001, CA-005, CA-010)

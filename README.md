@@ -7,7 +7,7 @@ Bundled upstream assets retain their [own licenses](tools/README.md).
 
 ## Development ownership
 
-**The host gives direction, Eleven (the host's Hermes agent) maintains and merges, and Claude Code on the web implements.** Anyone may open issues; review and the rest are in the operating model. The scheduled executor lives in the host's claude.ai account; nothing in this repository starts a cloud session.
+**The host gives direction, Eleven (the host's Hermes agent) maintains and merges, and Claude Code on the web implements.** Anyone may open issues; review and the rest are in the operating model. The host (or Eleven) starts each Claude session; nothing in this repository starts one.
 
 - [Operating model: roles, labels and issue flow](docs/operating-model.md).
 - [Claude entry point](CLAUDE.md) and [monorepo rules](AGENTS.md).
