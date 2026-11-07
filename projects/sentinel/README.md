@@ -12,7 +12,7 @@ A local-first cyber command center for authorized security lab work, inside Vaul
 - [Architecture/CDM review](docs/research/2026-11-05-architecture-review.md).
 - [RAPTOR-first evaluation](docs/decisions/0002-raptor-first-evaluation.md).
 - [First feature spec](../../specs/001-sentinel-foundation/spec.md).
-- [Claude-web handoff](../../docs/claude-web-handoff.md).
+- [How work moves (operating model)](../../docs/operating-model.md).
 
 Original plans are historical inputs; current monorepo rules supersede old paths and developer-executor assumptions. Future code lives here (apps/, packages/, infra/, tests/ when needed). Canonical feature specs remain at the root.
 

@@ -2,8 +2,8 @@ name: Claude small fix
 
 # Lets a maintainer (or the operator's Hermes agent) ask Claude for a SMALL fix by
 # mentioning @claude in an issue or PR comment, or in a PR review. Issue
-# implementation is NOT done here: ready issues are executed by the scheduled
-# Claude Code on the web task (specs/002-vaultforge-claude-automation).
+# implementation is NOT done here: issues are implemented in Claude Code on the web
+# sessions the host or Eleven starts (docs/operating-model.md).
 #
 # The action only acts for actors with repository write access (its default
 # check). It never approves or merges; the result still goes through the
@@ -51,4 +51,4 @@ jobs:
           branch_prefix: 'claude/fix-'
           claude_args: |
             --max-turns 15
-            --append-system-prompt "Scope: small, self-contained fixes only (typos, wording, a failing check, a narrow review comment, a few files). Follow AGENTS.md safety rules. If the request needs a new spec, plan or tasks, application feature work, dependency/lockfile changes, or edits under .github/, do not make changes: reply that it should become an issue labelled claude:scheduled and status:ready for the scheduled executor, and stop. Never approve or merge."
+            --append-system-prompt "Scope: small, self-contained fixes only (typos, wording, a failing check, a narrow review comment, a few files). Follow AGENTS.md safety rules. If the request needs a new spec, plan or tasks, application feature work, dependency/lockfile changes, or edits under .github/, do not make changes: reply that it should become an issue for a Claude Code on the web session, and stop. Never approve or merge."

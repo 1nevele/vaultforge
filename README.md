@@ -1,35 +1,28 @@
 # Vaultforge
 
-A monorepo for projects, shared agent workflows and specifications.
+A monorepo for projects, their specifications and the agent workflow that builds them.
 
-Original Vaultforge material is licensed under Apache-2.0; see [LICENSE](LICENSE).
-Bundled upstream assets retain their [own licenses](tools/README.md).
+The host gives direction, Eleven (the host's Hermes agent) maintains and merges, and
+Claude Code on the web implements one issue per session and PR. How that works:
+[docs/operating-model.md](docs/operating-model.md). Claude's instructions are in
+[CLAUDE.md](CLAUDE.md); safety rules for every agent in [AGENTS.md](AGENTS.md).
 
-## Development ownership
-
-**The host gives direction, Eleven (the host's Hermes agent) maintains and merges, Claude Code on the web implements, and CodeRabbit reviews.** Anyone may open issues. The scheduled executor lives in the host's claude.ai account; nothing in this repository starts a cloud session.
-
-- [Operating model: roles, labels and issue flow](docs/operating-model.md).
-- [Claude entry point](CLAUDE.md) and [monorepo rules](AGENTS.md).
-- [Development workflow](docs/development-workflow.md).
-- [PR review, CI and licensing policy](docs/code-review.md).
-- [Monorepo setup specification](specs/000-vaultforge-workflow/spec.md).
-- [Claude-web handoff](docs/claude-web-handoff.md).
-- [Required real-session skill smoke check](docs/claude-web-skill-smoke.md).
-- [Sentinel project](projects/sentinel/README.md).
+- [Sentinel](projects/sentinel/README.md), the first project.
 
 ## Layout
 
 ```text
-.claude/                   repository-local Claude skills/configuration
-.specify/                  shared specification toolkit and constitution
-specs/                     feature packets: <NNN>-<project>-<feature>
-projects/
-  sentinel/                Sentinel's plans, research, project rules and future code
-docs/                      shared workflow, handoff and setup evidence
-tools/                     pinned development assets, provenance and offline checks
+.claude/skills/   Claude skills: three Superpowers skills and nine Spec Kit skills
+.specify/         Spec Kit scripts, templates and the constitution
+specs/            feature packets: <NNN>-<project>-<feature>
+projects/         product code and docs, one directory per project
+docs/             the operating model
+tools/            Eleven's PR poller, its tests and third-party licenses
 ```
 
-Keep one canonical spec/plan/task set per feature. Shared tooling is not a production runtime dependency. Repository-private is not secret-safe: do not commit credentials, runtime databases or private infrastructure configuration.
+Do not commit credentials, runtime databases or private infrastructure configuration.
 
-**Status:** monorepo/tooling setup only; no Sentinel application logic, worker deployment, assessment or product security gate is implemented or passed. Activation in another harness is not proof of Claude-web activation.
+**Status:** no Sentinel application logic, deployment or security gate is implemented yet.
+
+Original Vaultforge material is licensed under Apache-2.0 ([LICENSE](LICENSE)); bundled
+upstream assets keep their own licenses ([tools/README.md](tools/README.md)).
