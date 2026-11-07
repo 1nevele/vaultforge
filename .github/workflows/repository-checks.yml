@@ -109,7 +109,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt_file: ${{ runner.temp }}/claude-review-input/prompt.txt
           claude_args: ${{ steps.prepare.outputs.claude_args }}
-          show_full_output: 'false'
+          show_full_output: 'true'
       - name: Independently validate result and recheck current PR identity
         env:
           GH_TOKEN: ${{ github.token }}
