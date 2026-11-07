@@ -68,6 +68,7 @@ def _refs(text, repository):
 
 
 def _is_dependencies_heading(title):
+    """True for a heading titled `Dependencies` (any case, trailing marks ignored)."""
     words = title.strip('*#: \t').lower().split()
     return bool(words) and words[0].rstrip(':') == 'dependencies'
 
@@ -120,6 +121,7 @@ def plan(subject, completed, newest=None, repository=''):
 
 
 def _is_issue(item):
+    """Issues, not pull requests, are reconciled."""
     return not item.get('pull_request')
 
 
@@ -130,6 +132,7 @@ def reconcile(event_name, event, gh):
     repository = getattr(gh, 'repository', '')
 
     def satisfied(number):
+        """Whether one dependency is met; other repositories never are."""
         if isinstance(number, str):  # another repository: never satisfied here
             return False
         if number not in cache:
@@ -146,6 +149,7 @@ def reconcile(event_name, event, gh):
         return cache[number]
 
     def plan_for(subject):
+        """Plan one issue from its labels, label history and dependencies."""
         present = set(subject['labels']) & STATUS
         newest = gh.latest_added(subject['number'], present) if len(present) > 1 else None
         deps = dependencies(subject.get('body'), repository) - {subject['number']}
@@ -159,14 +163,30 @@ def reconcile(event_name, event, gh):
         if triggering['state'] != 'open':
             subjects.append(triggering)
     subjects.extend(gh.open_issues())
+    # Closed issues that still carry status labels (for example after a superseded
+    # run for their close event) are cleaned by every sweep.
+    seen = {s['number'] for s in subjects}
+    subjects.extend(s for s in gh.closed_with_status() if s['number'] not in seen)
 
     # Plan everything first: a lookup failure aborts the run before any write.
-    plans = [(s['number'], plan_for(s)) for s in subjects if _is_issue(s)]
+    plans = [(s['number'], set(s['labels']) & ALL_STATUS, plan_for(s))
+             for s in subjects if _is_issue(s)]
 
     # A write failure on one issue must not stop the others; report all at the end.
     actions, failures = [], []
-    for issue_number, (add, remove) in plans:
+    for issue_number, planned_from, (add, remove) in plans:
+        if not add and not remove:
+            continue
         try:
+            # Re-read just before writing: if someone changed this issue's status
+            # labels since it was planned, the plan is stale and the change will
+            # trigger its own run, so leave the issue alone.
+            try:
+                current = gh.issue(issue_number)
+            except NotFound:
+                continue
+            if set(current['labels']) & ALL_STATUS != planned_from:
+                continue
             if add:
                 gh.add_labels(issue_number, sorted(add))
             for label in sorted(remove):
@@ -174,8 +194,7 @@ def reconcile(event_name, event, gh):
         except RuntimeError as error:
             failures.append(f'#{issue_number}: {error}')
             continue
-        if add or remove:
-            actions.append({'issue': issue_number, 'add': sorted(add), 'remove': sorted(remove)})
+        actions.append({'issue': issue_number, 'add': sorted(add), 'remove': sorted(remove)})
     if failures:
         raise RuntimeError('label writes failed: ' + '; '.join(failures))
     return actions
@@ -189,6 +208,7 @@ class GitHub:
         self.run = run
 
     def _api(self, *args, allow_missing=False):
+        """Run `gh api`; raise NotFound on 404/410 and RuntimeError on other errors."""
         result = self.run(['gh', 'api', *args], capture_output=True, text=True, timeout=60)
         if result.returncode != 0:
             missing = 'HTTP 404' in result.stderr or 'HTTP 410' in result.stderr
@@ -201,6 +221,7 @@ class GitHub:
 
     @staticmethod
     def _shape(raw):
+        """Reduce an issue or pull request payload to the fields the rules use."""
         shaped = {'number': raw['number'], 'state': raw['state'],
                   'state_reason': raw.get('state_reason'), 'body': raw.get('body') or '',
                   'labels': [label['name'] for label in raw.get('labels', [])]}
@@ -211,14 +232,29 @@ class GitHub:
 
     @staticmethod
     def _lines(out):
+        """Parse `--jq '.[]'` output: one JSON object per line."""
         return [json.loads(line) for line in out.splitlines() if line.strip()]
 
     def open_issues(self):
+        """All open issues and pull requests, paginated."""
         out = self._api('--paginate', f'repos/{self.repository}/issues?state=open&per_page=100',
                         '--jq', '.[]')
         return [self._shape(raw) for raw in self._lines(out)]
 
+    def closed_with_status(self):
+        """Closed issues that still carry any status label, without duplicates."""
+        found = {}
+        for label in sorted(ALL_STATUS):
+            out = self._api('--paginate',
+                            f'repos/{self.repository}/issues?state=closed'
+                            f'&labels={quote(label, safe="")}&per_page=100',
+                            '--jq', '.[]')
+            for raw in self._lines(out):
+                found.setdefault(raw['number'], self._shape(raw))
+        return list(found.values())
+
     def issue(self, number):
+        """One issue or pull request by number."""
         return self._shape(json.loads(self._api(f'repos/{self.repository}/issues/{number}')))
 
     def latest_added(self, number, candidates):
@@ -238,16 +274,19 @@ class GitHub:
         return newest
 
     def add_labels(self, number, labels):
+        """Add labels to an issue (creating any label that does not exist yet)."""
         fields = [arg for label in labels for arg in ('-f', f'labels[]={label}')]
         self._api('-X', 'POST', f'repos/{self.repository}/issues/{number}/labels', *fields)
 
     def remove_label(self, number, label):
+        """Remove one label; an already-absent label is not an error."""
         self._api('-X', 'DELETE',
                   f'repos/{self.repository}/issues/{number}/labels/{quote(label, safe="")}',
                   allow_missing=True)
 
 
 def main():
+    """Entry point for the issue-flow workflow."""
     event_name = os.environ['GITHUB_EVENT_NAME']
     with open(os.environ['GITHUB_EVENT_PATH']) as handle:
         event = json.load(handle)

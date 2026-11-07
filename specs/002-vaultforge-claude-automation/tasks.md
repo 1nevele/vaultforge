@@ -9,8 +9,9 @@
 - [x] T007 Commit the executor prompt as `docs/executor-prompt.md` (CA-009)
 - [x] T008 One operating model (`docs/operating-model.md`), Eleven maintainer mandate, `.github/CODEOWNERS`; align root docs and remove risk-gate references (CA-010)
 - [ ] T009 Host: copy `docs/executor-prompt.md` into the scheduled task at merge time (until then the live prompt writes `Refs #N`, does not skip `status:hold` or unsatisfied dependencies, backs off without re-adding ready and does not follow PRs); decide on a non-admin identity for Eleven, `enforce_admins` and required code-owner review
-- [ ] T010 Live acceptance of scenarios 6–12 on real PR merges and issue events, with run links
+- [ ] T010 Live acceptance of scenarios 6–13 on real PR merges and issue events, with run links
 - [x] T011 Executor PRs use `Closes #N` (or `Part of #N`) so merging closes the issue (CA-004, scenario 9)
 - [x] T012 Address independent review of 3567db9: state-based reconciliation (label history, plan-then-write, one concurrency group, abort on lookup failure), final-set planning (no empty status), every `#N` in Dependencies counts, merged-PR dependencies, `status:hold`, executor back-off and dependency check, CODEOWNERS and escalation wording (CA-008, scenarios 10–12)
 - [x] T013 PR follow-through: Claude subscribes to the PRs it opens (CA-011)
 - [x] T014 Address independent re-review of b4ffee3: hold as an executor flag, same-repo full refs/URLs and foreign refs, section ends at same-or-higher heading, HTML comments ignored, workflow-added labels excluded from history, feedback trust boundary, closing-keyword merge gate, `@claude` fallback trigger (CA-003, CA-008, CA-011, scenarios 3 and 10)
+- [x] T015 Address CodeRabbit review of dcc533b and the independent re-review of f76c2af: explicit `status:in-progress` removal on every reset, executor claim-comment tie-break, selection uses the operating-model dependency definition, closed-issue sweep, re-read before writing, docstrings, two-hour fallback wording and host-direction channel (CA-003, CA-008, CA-011, scenario 13)

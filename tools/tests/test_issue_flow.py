@@ -39,6 +39,10 @@ class FakeGitHub:
         return [dict(i, labels=list(i['labels']))
                 for i in self.issues.values() if i['state'] == 'open']
 
+    def closed_with_status(self):
+        return [dict(i, labels=list(i['labels'])) for i in self.issues.values()
+                if i['state'] != 'open' and set(i['labels']) & self.flow.ALL_STATUS]
+
     def issue(self, number):
         if number in self.errors:
             raise self.errors[number]
@@ -283,6 +287,30 @@ class ReconcileTests(unittest.TestCase):
         self.assertEqual(gh.labels(2), ['status:blocked'])
         self.assertEqual(gh.calls, [])
 
+    def test_sweep_cleans_closed_issues_that_still_carry_status_labels(self):
+        gh = self.gh(issue(4, ['claude:scheduled', 'status:in-progress'],
+                           state='closed', state_reason='completed'),
+                     issue(5, ['type:tracking'], state='closed', state_reason='completed'))
+        self.flow.reconcile('schedule', {}, gh)
+        self.assertEqual(gh.labels(4), ['claude:scheduled'])
+        self.assertEqual(gh.labels(5), ['type:tracking'])
+
+    def test_write_is_skipped_when_labels_changed_after_planning(self):
+        gh = self.gh(issue(1, ['claude:scheduled', 'status:ready']))
+        gh.add_labels(1, ['status:in-progress'])          # claim; plan will drop ready
+        gh.calls.clear()
+        original = gh.issue
+
+        def issue_then_back_off(number):
+            if number == 1 and 'status:in-progress' in gh.issues[1]['labels']:
+                gh.issues[1]['labels'].remove('status:in-progress')   # executor backs off
+            return original(number)
+
+        gh.issue = issue_then_back_off
+        self.flow.reconcile('schedule', {}, gh)
+        self.assertEqual(gh.labels(1), ['claude:scheduled', 'status:ready'])
+        self.assertEqual(gh.calls, [])
+
     def test_sweep_repairs_every_open_issue(self):
         gh = self.gh(issue(1, ['status:ready', 'status:in-progress']),
                      issue(2, ['status:ready'], BLOCKED_BY_1))
@@ -387,6 +415,17 @@ class GitHubClientTests(unittest.TestCase):
         client, seen = self.client()
         client.add_labels(4, ['status:ready', 'status:blocked'])
         self.assertEqual(seen[0][-4:], ['-f', 'labels[]=status:ready', '-f', 'labels[]=status:blocked'])
+
+    def test_closed_with_status_queries_each_status_label_once_per_issue(self):
+        raw = json.dumps({'number': 4, 'state': 'closed', 'state_reason': 'completed',
+                          'body': '', 'labels': [{'name': 'status:ready'}, {'name': 'status:hold'}]})
+        results = [self.result(0, out=raw + '\n') if i in (0, 3) else self.result()
+                   for i in range(4)]
+        client, seen = self.client(*results)
+        found = client.closed_with_status()
+        self.assertEqual([i['number'] for i in found], [4])
+        self.assertEqual(len(seen), 4)
+        self.assertTrue(all('state=closed' in ' '.join(args) for args in seen))
 
     def test_open_issues_parses_paginated_lines_and_marks_pull_requests(self):
         lines = '\n'.join([

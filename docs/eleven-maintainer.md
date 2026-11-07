@@ -15,12 +15,14 @@ Eleven may:
 - queue work for the scheduled executor by adding `claude:scheduled` + `status:ready`
   to issues inside the host's current direction;
 - release the executor lock: merging a PR with `Closes #N` closes its issue; when a
-  PR is abandoned, or right after merging a `Part of #N` PR, add `status:ready`,
-  plus `status:hold` if the remaining work needs a decision; close an issue by hand only when its work
+  PR is abandoned, or right after merging a `Part of #N` PR, add `status:ready`
+  (plus `status:hold` if the remaining work needs a decision) and then remove
+  `status:in-progress`; close an issue by hand only when its work
   landed without a closing keyword;
 - ask Claude for review fixes with an `@claude` comment on a PR, quoting the findings
-  to address, at most two rounds per PR, when a blocking finding or red check has had
-  no push or reply from Claude for two hours (operating model, flow step 4);
+  to address, at most two rounds per PR, on the first wake after a blocking finding
+  or red check has gone two hours without a push or reply from Claude (operating
+  model, flow step 4);
 - merge PRs that meet every gate below;
 - notify the host in the Discord `pull-requests` channel.
 
@@ -90,7 +92,9 @@ never execute a PR checkout automatically.
 Issue-only changes do not wake the poller. Mechanical label upkeep is handled by the
 issue-flow workflow; triage of new issues happens on Eleven's next pass or when the
 host asks. An executor blocker reported on an issue before any PR exists does not
-reach Eleven; it reaches the host through the scheduled task's run notification.
+reach Eleven; it reaches the host through the scheduled task's push notification.
+Nor does a PR whose session has gone quiet: with no PR change there is no wake, so
+the two-hour `@claude` fallback waits for the next one and the host is the backstop.
 
 ## Verification
 

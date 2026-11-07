@@ -30,8 +30,9 @@ follow-through.
   and `status:in-progress`, the run exits without changes. A run labels its issue `status:in-progress` before
   starting work. Merging the issue's `Closes #N` PR closes it and releases the lock;
   if the PR is abandoned or merged as `Part of #N`, Eleven (or the host) adds
-  `status:ready` (plus `status:hold` if it needs a decision). CA-008 then removes the
-  stale `status:in-progress`. A stale label blocks later runs;
+  `status:ready` (plus `status:hold` if it needs a decision) and removes
+  `status:in-progress`. Two runs that claim the same issue resolve by the earliest
+  `executor-claim:` comment; the other backs off without touching labels. A stale label blocks later runs;
   it is never cleared by the scheduled run itself.
 - CA-004: **One issue, one PR.** A run opens one PR whose body says `Closes #N` (or
   `Part of #N` for partial work), so merging it closes the issue as completed,
@@ -68,7 +69,9 @@ follow-through.
     with no declared dependency is left alone;
   - `status:hold` is a flag the executor skips; the reconciler keeps it and still
     manages the held issue's status label;
-  - labels the workflow added itself do not count as most recently added.
+  - labels the workflow added itself do not count as most recently added;
+  - each sweep also cleans closed issues that still carry status labels, and an
+    issue whose status labels changed between planning and writing is skipped.
   It never closes, assigns, comments, dispatches or runs PR code.
 - CA-009: **Executor prompt in the repository.** `docs/executor-prompt.md` is the
   reviewed source of the scheduled task's prompt. The host copies merged changes into
@@ -82,8 +85,9 @@ follow-through.
   activity and fixes failing checks and verified review findings within the PR's
   scope, acting only on CI, CodeRabbit, Eleven and the host (other commenters are
   untrusted). It still never merges, approves, closes issues or starts another
-  issue. Eleven's `@claude` requests are the fallback when a blocking finding has had
-  no push or reply for two hours.
+  issue. Eleven's `@claude` requests are the fallback on its first wake after a
+  blocking finding has gone two hours without a push or reply; with no wake, the
+  host is the backstop.
 
 ## Acceptance scenarios
 
@@ -113,11 +117,13 @@ follow-through.
 11. If a dependency lookup fails for any reason other than "not found", the run writes
     no labels.
 12. No reconciliation ever leaves an open issue that had a status label without one.
+13. A closed issue still carrying a status label is cleaned by the next sweep; a plan
+    made stale by a concurrent label change is not written.
 
 ## Verification
 
 Scenarios 1–5 require live runs and are not established by this change. Scenarios
-6–8 and 10–12 are covered offline by `tools/tests/test_issue_flow.py`; their live behaviour, and
+6–8 and 10–13 are covered offline by `tools/tests/test_issue_flow.py`; their live behaviour, and
 scenario 9 (GitHub's closing keyword), are established by the first real PR merge and
 issue events after merge. Record the
 scheduled task's session handle and the PR/issue readback for the first real run.
