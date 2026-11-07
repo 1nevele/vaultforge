@@ -3,6 +3,7 @@
 - Feature spec:
 - Requirement/scenario IDs:
 - Plan/task IDs:
+- Issue: `Closes #N` if this PR completes the issue (merging closes it), or `Part of #N` if it does not
 
 ## Changes
 

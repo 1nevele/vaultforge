@@ -4,6 +4,8 @@ These are repository preparation assets, not Sentinel application code.
 
 - `provenance.json`: pinned upstream identities, complete adopted/generated asset hashes, exact Superpowers text adaptations and license hashes.
 - `licenses/`: unmodified upstream MIT licenses.
+- `issue_flow.py`: the issue-flow label reconciler run by `.github/workflows/issue-flow.yml` (specs/002 CA-008, `docs/operating-model.md`); tested offline by `tests/test_issue_flow.py`.
+- `sentinel_maintainer_gate.py`: Eleven's PR-only wake gate (`docs/eleven-maintainer.md`); tested by `tests/test_sentinel_maintainer_gate.py`.
 - `tests/test_workflow_setup.py`: offline inventory, integrity, safe-path, namespace/resource and current-configuration acceptance checks. They do not test Claude's skill loader or prove the model follows a skill.
 
 Run from the repository root:

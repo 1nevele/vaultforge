@@ -11,3 +11,10 @@
    its internal identifiers.
 4. Repository cleanup: close superseded PRs #9, #10, #11, #15 and delete their
    branches. PR #9's review tooling stays recoverable from the closed PR.
+5. (Amendment) Add the issue-flow reconciler as a pure, unit-tested Python module with
+   a thin `gh api` client, run by a workflow with `issues: write` and no PR-code
+   execution; every run also sweeps all open issues so a superseded pending run
+   loses nothing durable.
+6. (Amendment) Commit the executor prompt, consolidate roles into
+   `docs/operating-model.md`, rewrite `docs/eleven-maintainer.md` as the maintainer
+   and merger mandate, add `.github/CODEOWNERS`, and point the other docs at them.

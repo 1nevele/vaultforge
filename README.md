@@ -7,8 +7,9 @@ Bundled upstream assets retain their [own licenses](tools/README.md).
 
 ## Development ownership
 
-**Claude Code on the web implements application code. Eleven prepares specifications, GitHub issues and review.** Nothing in this repository starts a cloud session automatically.
+**The host gives direction, Eleven (the host's Hermes agent) maintains and merges, Claude Code on the web implements, and CodeRabbit reviews.** Anyone may open issues. The scheduled executor lives in the host's claude.ai account; nothing in this repository starts a cloud session.
 
+- [Operating model: roles, labels and issue flow](docs/operating-model.md).
 - [Claude entry point](CLAUDE.md) and [monorepo rules](AGENTS.md).
 - [Development workflow](docs/development-workflow.md).
 - [PR review, CI and licensing policy](docs/code-review.md).
