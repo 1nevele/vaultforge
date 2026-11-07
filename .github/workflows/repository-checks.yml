@@ -98,7 +98,16 @@ jobs:
           import json, os, pathlib, shlex
           d = pathlib.Path(os.environ['CLAUDE_WORKING_DIR'])
           schema = json.loads((d / 'schema.json').read_text())
-          args = shlex.join(['--model', 'claude-sonnet-4-6', '--max-turns', '4', '--disallowedTools', '*', '--setting-sources', 'user', '--strict-mcp-config', '--mcp-config', str(d / 'mcp.json'), '--json-schema', json.dumps(schema)])
+          # Deny every real built-in tool by exact name; StructuredOutput is the
+          # SDK's internal result-delivery tool and must stay available, so we
+          # cannot use a '*' deny glob (it removes that tool's definition too).
+          denied_tools = ['Bash', 'BashOutput', 'KillShell', 'Read', 'Edit', 'Write',
+              'NotebookEdit', 'Glob', 'Grep', 'WebFetch', 'WebSearch', 'Task',
+              'TodoWrite', 'SlashCommand', 'AskUserQuestion', 'ExitPlanMode', 'mcp__*']
+          args = shlex.join(['--model', 'claude-sonnet-4-6', '--max-turns', '4',
+              '--disallowedTools', *denied_tools, '--setting-sources', 'user',
+              '--strict-mcp-config', '--mcp-config', str(d / 'mcp.json'),
+              '--json-schema', json.dumps(schema)])
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
               f.write('claude_args=' + args + '\n')
           PY
