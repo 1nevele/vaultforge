@@ -73,3 +73,5 @@ A clean scan is bounded evidence, not proof that no secret exists. Rotate any
 credential that was exposed; deleting a current file does not remove its history.
 Do not publish unresolved sensitive material. License selection and visibility
 change require the operator's authorization.
+
+_Last verified: 2026-11-07._
