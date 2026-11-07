@@ -14,7 +14,7 @@ Read `.specify/memory/constitution.md`, `docs/development-workflow.md`, the assi
 - Keep one canonical root feature packet with project name in the directory; no competing Superpowers plan tree.
 - Verify repository-provided skill discovery in the actual Claude web session. Hermes plugin activation is not web activation. Missing optional plugin support does not remove spec/TDD/review requirements.
 - Maximum Lead plus three active agents; exclusive paths. Only the Claude lead edits shared manifests/lockfiles/contracts.
-- Start dependent issues only after accepted prerequisites. Stop at the assigned PR; no automatic merge or whole-backlog continuation.
+- Start dependent issues only after accepted prerequisites. Claude stops at the assigned PR; no Claude automatic merge or whole-backlog continuation. Eleven's bounded Sentinel maintainer authority is defined in `docs/eleven-maintainer.md`; sensitive changes still require host approval.
 
 ## Safety and truthfulness
 

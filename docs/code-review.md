@@ -10,7 +10,9 @@
 3. CodeRabbit's automatic approval satisfies the required approval: a PR it
    approves, with required checks passing, is eligible to merge without a human
    approval. A maintainer other than the PR author may also approve. The
-   operator decides whether to merge; no automatic merge. A bot's completed
+   operator delegates routine Sentinel merges to Eleven under
+   `docs/eleven-maintainer.md`; other merges and sensitive changes remain with
+   the operator. Claude never merges. A bot's completed
    check or summary, as opposed to its approving review, does not establish
    that findings are resolved.
 
