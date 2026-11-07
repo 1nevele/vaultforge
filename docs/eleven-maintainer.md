@@ -3,7 +3,8 @@
 ## Ownership and supersession
 
 Host gives direction. Claude Code on the web owns Sentinel development work and
-issue management within host's instructions. CodeRabbit reviews PRs. Eleven's
+issue management within host's instructions, and reviews its diffs in-session
+before pushing; host approves PRs. Eleven's
 automated role is limited to checking merge eligibility, merging eligible PRs,
 and notifying host. This supersedes the earlier proposals in this PR that gave
 Eleven backlog/specification ownership, independent review, or issue triage.
@@ -41,17 +42,20 @@ Reports go to the existing Discord `pull-requests` channel, without new threads.
 
 - Inspect live rules, scope, changed paths and verification evidence as needed to
   determine eligibility; this is not a new independent code-review assignment.
-- Require CodeRabbit's actual approving review on the current head, GitHub's
-  accepted independent approval, no outstanding blocking findings or unresolved
-  conversations, and all live required CI checks successful with an up-to-date
-  mergeable base. A summary or completed bot check is not an approving review.
+- Require the host's (or another non-author maintainer's) approving review on
+  the current head that GitHub accepts, no unresolved conversations, and all
+  live required CI checks successful with an up-to-date mergeable base. A bot
+  review, summary or completed check is not an approving review.
+- Require the PR's verification section to record the in-session `/code-review`
+  (and `/security-review` where relevant) for the current head commit, with no
+  unresolved blocking finding. This is author-reported evidence: it informs the
+  host's approval and never substitutes for it.
 - Require appropriate real application tests/lint/types/build evidence; repository
   setup/secret checks alone are not application verification. Missing, skipped,
-  pending or failed mandatory evidence blocks merge. Require a successful Risk
-  gate even while GitHub does not require it.
+  pending or failed mandatory evidence blocks merge.
 - Security authority/permissions, sandbox boundaries, secrets, deployment, spend,
   destructive migrations, publication, infrastructure and review/CI policy changes
-  remain explicit host decisions. CodeRabbit approval cannot waive them.
+  remain explicit host decisions. No review verdict can waive them.
 - Re-read the head/base/review/check state immediately before an exact-head guarded
   squash merge. Never admin-bypass, force-push, dismiss reviews, weaken protections,
   enable blind auto-merge, or delete branches as a side effect. Verify merged
@@ -67,7 +71,7 @@ Reports go to the existing Discord `pull-requests` channel, without new threads.
 Until this policy is accepted on main, the job may check and notify but cannot
 merge. This policy PR changes merge authority and is not itself eligible for the
 job's routine automatic merge. No repository permissions or branch protections
-are changed by setup. CodeRabbit re-review and host policy acceptance remain due.
+are changed by setup. Host policy acceptance remains due.
 
 Regression tests cover ignored issue changes, an empty PR queue, PR/CI changes,
 unchanged blockers, retries, stale acknowledgements and final close notification.

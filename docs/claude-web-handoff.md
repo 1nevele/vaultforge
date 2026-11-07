@@ -21,7 +21,7 @@ Read the preserved Sentinel plans and architecture/CDM review referenced there.
 
 First run the bounded discovery/load check in docs/claude-web-skill-smoke.md.
 Use an ordinary repository cloud session, not a project cloud thread. Expect
-five native Superpowers skills and nine official speckit-* skills, not a full
+three native Superpowers skills and nine official speckit-* skills, not a full
 plugin. Report actual Skill-tool discovery/invocation, repository and revision.
 Do not infer availability from Hermes, filenames or a capability banner. If
 native loading is unavailable, stop with the blocker; no global/plugin install,

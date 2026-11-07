@@ -16,7 +16,7 @@ Read CLAUDE.md and docs/development-workflow.md.
 Report the repository, checkout revision and actual skill discovery source.
 
 1. Enumerate the native skills actually exposed to your Skill tool. Expect
-   five unnamespaced Superpowers skills and nine speckit-* skills. Distinguish
+   three unnamespaced Superpowers skills and nine speckit-* skills. Distinguish
    actual tool discovery from a filesystem listing or startup capability claim.
 2. Invoke verification-before-completion using the native Skill tool. Cite its
    resolved name/source and summarize its evidence-before-claims rule. Do not
